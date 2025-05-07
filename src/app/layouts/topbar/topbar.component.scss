@@ -1,0 +1,65 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+  height: 60px;
+  background-color: var(--surface-card);
+  border-bottom: 1px solid var(--surface-border);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    width: 60px;
+    
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 0;
+    }
+  }
+  
+  .topbar-spacer {
+    width: var(--leftbar-width, 240px);
+    margin-left: -60px;
+  }
+  
+  .topbar-title-container {
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    
+    h1 {
+      margin: 0;
+      color: var(--primary-color);
+    }
+  }
+  
+  .topbar-menu {
+    flex: 1;
+    margin: 0 1rem;
+    
+    ::ng-deep .p-menubar {
+      background: transparent;
+      border: none;
+      padding: 0;
+    }
+  }
+  
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .topbar {
+    .topbar-spacer {
+      width: 0;
+      margin-left: 0;
+    }
+  }
+} 

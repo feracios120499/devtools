@@ -1,0 +1,77 @@
+// Используем классы Tailwind и PrimeNG вместо кастомных стилей
+// Минимальные стили для компонентов, которым требуется высота
+
+.min-h-96 {
+  min-height: 24rem; // 384px для Monaco Editor
+}
+
+// Добавляем медиа-запрос для адаптивности на мобильных устройствах
+@media (max-width: 768px) {
+  .min-h-96 {
+    min-height: 16rem; // уменьшаем высоту на мобильных
+  }
+}
+
+// Use host element to fill the available space in the parent layout
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  padding: 1rem;
+  background-color: var(--surface-ground);
+}
+
+// Стили для dropdown, чтобы панель имела такую же ширину как и сам dropdown
+:host ::ng-deep {
+  .custom-dropdown {
+    .p-dropdown-panel {
+      min-width: 120px !important;
+      width: 100% !important;
+    }
+    
+    .p-dropdown-items {
+      width: 100% !important;
+    }
+    
+    .p-dropdown-item {
+      width: 100% !important;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+  
+  // Исправление для панели, которая открывается как appendTo="body"
+  .same-width-panel {
+    min-width: 120px !important;
+    
+    .p-dropdown-items {
+      width: 100% !important;
+    }
+    
+    .p-dropdown-item {
+      width: 100% !important;
+      padding-left: 0.75rem;
+      padding-right: 0.75rem;
+    }
+  }
+
+  .monaco-editor {
+    min-height: 350px; // Increase minimum height
+  }
+  
+  // Ensure monaco editor container takes full height of its parent
+  .monaco-editor-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Responsive height adjustments for small screens
+  @media (max-width: 768px) {
+    .monaco-editor {
+      min-height: 250px;
+    }
+  }
+} 

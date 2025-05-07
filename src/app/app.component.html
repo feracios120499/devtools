@@ -1,0 +1,14 @@
+<app-loading-screen></app-loading-screen>
+
+<!-- Удалили класс client-only-hidden, чтобы избежать мерцания -->
+<div class="app-content">
+  <div class="layout-wrapper">
+    <app-topbar></app-topbar>
+    <div class="layout-content-wrapper">
+      <app-leftbar></app-leftbar>
+      <div class="layout-content">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  </div>
+</div>

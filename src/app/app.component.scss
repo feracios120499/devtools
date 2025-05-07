@@ -1,0 +1,57 @@
+// Добавляем стили для основной структуры приложения
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+}
+
+// Стили для скрытия контента во время загрузки, не мешающие SEO
+.app-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+// Используем класс client-only-hidden, который применяется только на клиенте
+// Не используем visibility: hidden, чтобы не мешать SEO и SSR
+.app-content.client-only-hidden {
+  opacity: 0;
+  pointer-events: none;
+  position: relative;
+  z-index: -1; // Помещаем контент под загрузочный экран
+}
+
+.layout-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  
+  // Define leftbar width as a CSS variable to use in other components
+  --leftbar-width: 15rem; // 240px
+}
+
+.layout-content-wrapper {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.layout-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0; // Padding регулируется внутри компонентов страниц
+  background-color: var(--surface-ground);
+  position: relative;
+}
+
+// Анимация появления контента
+.layout-content {
+  opacity: 1;
+  transition: opacity 0.3s ease-in;
+}
