@@ -42,21 +42,40 @@ const angularApp = new AngularNodeAppEngine();
 
 // Добавляем базовую диагностику запросов
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] Request received: ${req.method} ${req.url}`);
+  console.log(`[${new Date().toISOString()}] Request received: ${req.method} ${req.url} from ${req.ip}`);
   next();
 });
 
-/**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
- */
+// ВАЖНО: Эндпоинты для проверки здоровья должны быть определены раньше других маршрутов
+// Главный маршрут проверки здоровья для Render - должен отвечать с кодом 200
+app.get('/', (req, res, next) => {
+  // Проверяем, является ли это запросом от Render для проверки здоровья
+  const isHealthCheck = req.headers['user-agent']?.includes('Render') || 
+                        req.headers['x-forwarded-for'] === '::1' ||
+                        req.ip === '::1' ||
+                        req.ip === '::ffff:127.0.0.1';
+
+  if (isHealthCheck) {
+    console.log(`[${new Date().toISOString()}] Health check detected on / - responding with 200 OK`);
+    return res.status(200).send('OK - Health Check Passed');
+  }
+  
+  // Если это не проверка здоровья, передаем управление следующему обработчику
+  next();
+});
+
+// Отдельный эндпоинт здоровья для диагностики
+app.get('/health', (req, res) => {
+  console.log(`[${new Date().toISOString()}] Health check on /health`);
+  res.status(200).send({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    env: process.env['NODE_ENV'] || 'development',
+    port: process.env['PORT'] || '4000',
+    serverPath: serverDistFolder,
+    browserPath: finalBrowserDistFolder
+  });
+});
 
 /**
  * Serve static files from /browser
@@ -69,18 +88,6 @@ app.use(
   }),
 );
 
-// Добавляем эндпоинт для проверки здоровья сервера
-app.get('/health', (req, res) => {
-  res.status(200).send({
-    status: 'OK',
-    timestamp: new Date().toISOString(),
-    env: process.env['NODE_ENV'] || 'development',
-    port: process.env['PORT'] || '4000',
-    serverPath: serverDistFolder,
-    browserPath: finalBrowserDistFolder
-  });
-});
-
 // Serve robots.txt and sitemap.xml at the root level
 app.get('/robots.txt', (req, res) => {
   res.sendFile(resolve(finalBrowserDistFolder, 'assets/robots.txt'));
@@ -90,10 +97,16 @@ app.get('/sitemap.xml', (req, res) => {
   res.sendFile(resolve(finalBrowserDistFolder, 'assets/sitemap.xml'));
 });
 
-/**
- * Handle all other requests by rendering the Angular application.
- */
-app.get('*', (req, res, next) => {
+// Обработчик для Angular SSR
+// Используем /** вместо * для более точного соответствия маршрутов
+app.use('/**', (req, res, next) => {
+  // Пропускаем запросы к статическим ресурсам
+  if (req.url.match(/\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/)) {
+    return next();
+  }
+
+  console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.url}`);
+  
   angularApp
     .handle(req)
     .then((response) => {
@@ -101,11 +114,10 @@ app.get('*', (req, res, next) => {
         console.log(`[${new Date().toISOString()}] Rendering SSR response for ${req.url}`);
         return writeResponseToNodeResponse(response, res);
       } else {
-        console.log(`[${new Date().toISOString()}] No SSR response for ${req.url}, falling back`);
+        console.log(`[${new Date().toISOString()}] No SSR response for ${req.url}, falling back to index.html`);
         
         // Если SSR не отработал, возвращаем index.html
         if (fs.existsSync(join(finalBrowserDistFolder, 'index.html'))) {
-          console.log(`[${new Date().toISOString()}] Sending index.html as fallback`);
           return res.sendFile(join(finalBrowserDistFolder, 'index.html'));
         }
         
@@ -117,7 +129,6 @@ app.get('*', (req, res, next) => {
       
       // В случае ошибки, возвращаем index.html как fallback
       if (fs.existsSync(join(finalBrowserDistFolder, 'index.html'))) {
-        console.log(`[${new Date().toISOString()}] Sending index.html as error fallback`);
         return res.sendFile(join(finalBrowserDistFolder, 'index.html'));
       }
       
@@ -127,19 +138,23 @@ app.get('*', (req, res, next) => {
 
 /**
  * Start the server if this module is the main entry point.
- * The server listens on the port defined by the `PORT` environment variable, or defaults to 4000.
+ * Важно прослушивать порт из переменной окружения PORT для Render.
  */
 if (isMainModule(import.meta.url)) {
+  // Получаем порт из переменной окружения или используем 4000 как запасной вариант
   const port = process.env['PORT'] || 4000;
+  
   app.listen(port, () => {
-    console.log(`Node Express server listening on http://localhost:${port}`);
-    console.log('Application environment:', process.env['NODE_ENV'] || 'development');
-    console.log('Current working directory:', process.cwd());
-    console.log('Process arguments:', process.argv);
+    console.log(`=============================================`);
+    console.log(`🚀 Node Express server listening on port ${port}`);
+    console.log(`🔍 Environment: ${process.env['NODE_ENV'] || 'development'}`);
+    console.log(`📁 Current working directory: ${process.cwd()}`);
+    console.log(`📂 Browser files serving from: ${finalBrowserDistFolder}`);
+    console.log(`=============================================`);
   });
 }
 
 /**
- * Request handler used by the Angular CLI (for dev-server and during build) or Firebase Cloud Functions.
+ * Request handler used by the Angular CLI or serverless functions.
  */
 export const reqHandler = createNodeRequestHandler(app);
