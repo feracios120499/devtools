@@ -5,7 +5,7 @@ services:
     buildCommand: |
       npm install -g @angular/cli@19.2.11
       npm install --legacy-peer-deps
-      ng build --configuration production --builder=@angular-devkit/build-angular:browser
+      ng build --configuration production --builder=@angular-devkit/build-angular:application
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
