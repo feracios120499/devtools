@@ -2,7 +2,7 @@ services:
   - type: web
     name: devtools
     env: node
-    buildCommand: npm install -g @angular/cli^19.2.11 && npm install @angular-devkit/build-angular^19.2.9 && npm install && ng build --configuration production
+    buildCommand: npm install -g @angular/cli@19.2.11 && npm install @angular-devkit/build-angular@19.2.9 && npm install && ng build --configuration production
     startCommand: npm run start
     envVars:
       - key: NODE_ENV
