@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:devtools": "node dist/devtools/server/server.mjs",
-    "build:ssr": "npx ng build && npx ng run devtools:server"
+    "build:ssr": "./node_modules/.bin/ng build && ./node_modules/.bin/ng run devtools:server"
   },
   "private": true,
   "dependencies": {
