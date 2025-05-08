@@ -10,7 +10,7 @@ import {
   withNoHttpTransferCache
 } from '@angular/platform-browser';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-
+import { MonacoLoaderService } from './services/monaco-loader.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -29,6 +29,7 @@ export const appConfig: ApplicationConfig = {
           darkModeSelector: '.my-app-dark',
         },
       },
-    })
+    }),
+    { provide: MonacoLoaderService, useClass: MonacoLoaderService }
   ],
 };

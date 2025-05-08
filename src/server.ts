@@ -78,6 +78,101 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Специальные роуты для статических ресурсов, которые должны быть обработаны ДО express.static
+// Это нужно для решения проблем с Monaco Editor
+
+// Обработчик для всех статических ресурсов
+app.get([
+  // Все расширения файлов
+  '/**/*.js', '/**/*.css', '/**/*.map', '/**/*.ico', 
+  '/**/*.png', '/**/*.jpg', '/**/*.jpeg', '/**/*.gif', 
+  '/**/*.svg', '/**/*.woff', '/**/*.woff2', '/**/*.ttf', '/**/*.eot',
+  // Специфичные пути для Monaco
+  '/assets/monaco/**', '/assets/min-maps/**', '/vs/**', '/language/**'
+], (req, res, next) => {
+  console.log(`[${new Date().toISOString()}] Static resource requested: ${req.url}`);
+  
+  // Формируем абсолютный путь к файлу
+  const filePath = join(finalBrowserDistFolder, req.url);
+  
+  // Проверяем существование файла
+  if (fs.existsSync(filePath)) {
+    console.log(`[${new Date().toISOString()}] Serving static file: ${filePath}`);
+    return res.sendFile(filePath);
+  }
+  
+  // Специальная обработка для Monaco ресурсов
+  if (req.url.includes('/monaco/') || req.url.includes('/language/') || req.url.startsWith('/vs/')) {
+    // Создаем массив возможных путей для проверки
+    const pathsToCheck: string[] = [];
+    
+    // 1. Проверяем точный путь
+    pathsToCheck.push(join(finalBrowserDistFolder, req.url));
+    
+    // 2. Если запрос к assets/monaco, проверяем также прямой путь без "assets/monaco"
+    if (req.url.startsWith('/assets/monaco/')) {
+      const relativePath = req.url.replace('/assets/monaco/', '');
+      pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco/vs', relativePath));
+      pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco', relativePath));
+    }
+    
+    // 3. Если запрос к /vs, проверяем путь в assets/monaco
+    if (req.url.startsWith('/vs/')) {
+      pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco', req.url));
+    }
+    
+    // 4. Если запрос содержит /language/, проверяем в assets/monaco/vs/language
+    if (req.url.includes('/language/')) {
+      const parts = req.url.split('/language/');
+      if (parts.length > 1) {
+        pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco/vs/language', parts[1]));
+      }
+    }
+    
+    // 5. Если запрос к jsonMode.js - специальный путь
+    if (req.url.includes('jsonMode.js')) {
+      pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco/vs/language/json/jsonMode.js'));
+    }
+    
+    // 6. Проверяем editor.main.css в разных местах
+    if (req.url.includes('editor.main.css')) {
+      pathsToCheck.push(join(finalBrowserDistFolder, 'assets/monaco/vs/editor/editor.main.css'));
+    }
+    
+    // Логируем все пути, которые будем проверять
+    console.log(`[${new Date().toISOString()}] Paths to check for ${req.url}:`, pathsToCheck);
+    
+    // Проверяем все пути
+    for (const pathToCheck of pathsToCheck) {
+      if (fs.existsSync(pathToCheck)) {
+        console.log(`[${new Date().toISOString()}] Serving file from path: ${pathToCheck}`);
+        return res.sendFile(pathToCheck);
+      }
+    }
+    
+    // Если ничего не нашли, логируем все содержимое папки assets/monaco
+    console.log(`[${new Date().toISOString()}] Failed to find any matching file for ${req.url}`);
+    try {
+      const assetsMonacoVsPath = join(finalBrowserDistFolder, 'assets/monaco/vs');
+      if (fs.existsSync(assetsMonacoVsPath)) {
+        console.log(`[${new Date().toISOString()}] Contents of assets/monaco/vs:`, 
+          fs.readdirSync(assetsMonacoVsPath));
+        
+        const editorPath = join(assetsMonacoVsPath, 'editor');
+        if (fs.existsSync(editorPath)) {
+          console.log(`[${new Date().toISOString()}] Contents of assets/monaco/vs/editor:`, 
+            fs.readdirSync(editorPath));
+        }
+      }
+    } catch (e) {
+      console.error(`[${new Date().toISOString()}] Error reading directory:`, e);
+    }
+  }
+  
+  console.log(`[${new Date().toISOString()}] Static file not found: ${filePath}`);
+  next();
+});
+
 /**
  * Serve static files from /browser
  */
@@ -99,13 +194,8 @@ app.get('/sitemap.xml', (req, res) => {
 });
 
 // Обработчик для Angular SSR
-// Используем /** вместо * для более точного соответствия маршрутов
 app.use('/**', (req, res, next) => {
-  // Пропускаем запросы к статическим ресурсам
-  if (req.url.match(/\.(js|css|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$/)) {
-    return next();
-  }
-
+  // Статические ресурсы должны быть уже обработаны предыдущими маршрутами
   console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.url}`);
   
   angularApp

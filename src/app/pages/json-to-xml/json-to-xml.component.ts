@@ -18,9 +18,14 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { AppMonacoEditorModule } from '../../monaco-editor.module';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { MonacoLoaderService } from '../../services/monaco-loader.service';
 
-// Type for Monaco editor
-declare const monaco: any;
+// Only declare Monaco type for type checking, don't use directly
+// It will be accessed dynamically only in browser context
+interface Monaco {
+  editor: any;
+  languages: any;
+}
 
 @Component({
   selector: 'app-json-to-xml',
@@ -106,7 +111,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private monacoLoaderService: MonacoLoaderService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
@@ -131,7 +137,24 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Nothing to do here, ViewChild references will be available
+    // Initialize Monaco in browser context
+    if (this.isBrowser) {
+      console.log('JSON to XML: Initializing Monaco editor');
+      
+      // Use our service for safe Monaco initialization
+      this.monacoLoaderService.whenReady(monaco => {
+        console.log('JSON to XML: Monaco editor initialized successfully');
+        
+        // Можно выполнить дополнительную настройку Monaco здесь
+        if (this.inputMonacoEditor && this.inputMonacoEditor._editor) {
+          console.log('JSON to XML: Input editor instance available');
+        }
+        
+        if (this.outputMonacoEditor && this.outputMonacoEditor._editor) {
+          console.log('JSON to XML: Output editor instance available');
+        }
+      });
+    }
   }
 
   ngOnDestroy() {
