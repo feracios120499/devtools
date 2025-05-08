@@ -1,0 +1,45 @@
+<div class="dashboard-container p-4">
+  <div class="text-center mb-5">
+    <h1 class="text-3xl font-bold mb-2">DevTools - Web Developer Utilities</h1>
+    <p class="text-xl text-700">
+      Collection of free online tools to help you in web development tasks
+    </p>
+  </div>
+  
+  <div class="mb-4">
+    <h2 class="text-2xl font-semibold">Available Tools</h2>
+  </div>
+  
+  <!-- Tool Cards Grid -->
+  <div class="grid-container">
+    <div *ngFor="let card of featureCards" class="tool-card" (click)="navigateToFeature(card.route)">
+      <div class="card-content">
+        <div class="icon-container">
+          <i [class]="card.icon"></i>
+        </div>
+        <div class="tool-title">{{card.title}}</div>
+        <div class="tool-description">{{card.description}}</div>
+      </div>
+      <div class="hover-overlay">
+        <span class="open-text">Open</span>
+        <i class="pi pi-arrow-right open-icon"></i>
+      </div>
+    </div>
+  </div>
+  
+  <!-- About section -->
+  <div class="mt-5 p-4 border-round-lg surface-card shadow-1 border-1 surface-border">
+    <div class="grid">
+      <div class="col-12 md:col-8">
+        <h3 class="text-xl font-semibold mb-3">About DevTools</h3>
+        <p class="line-height-3 mb-3 text-sm">
+          DevTools is a collection of free online utilities designed for web developers and programmers.
+          All tools are client-side only - your data never leaves your browser.
+        </p>
+        <p class="line-height-3 text-sm">
+          Tools are optimized for performance and designed to be simple to use with a clean, intuitive interface.
+        </p>
+      </div>
+    </div>
+  </div>
+</div> 

@@ -5,11 +5,11 @@ import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 import { AvatarModule } from 'primeng/avatar';
 import { CommonModule } from '@angular/common';
-
+import { RouterModule } from '@angular/router';
 @Component({
   selector: 'app-leftbar',
   standalone: true,
-  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule],
+  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule, RouterModule],
   templateUrl: './leftbar.component.html',
   styleUrls: ['./leftbar.component.scss'],
 })
@@ -19,6 +19,15 @@ export class LeftbarComponent implements OnInit {
   ngOnInit() {
     this.items = [
       {
+        items: [
+          {
+            label: 'Home',
+            icon: 'pi pi-home',
+            routerLink: '/',
+          },
+        ],
+      },
+      {
         label: 'JSON TOOLS',
       },
       {
@@ -27,39 +36,16 @@ export class LeftbarComponent implements OnInit {
       {
         items: [
           {
-            label: 'New',
-            icon: 'pi pi-plus',
-            shortcut: '⌘+N',
+            label: 'JSON Formatter',
+            icon: 'pi pi-code',
+            routerLink: '/json-formatter',
           },
           {
-            label: 'Search',
-            icon: 'pi pi-search',
-            shortcut: '⌘+S',
-          },
+            label: 'JSON to XML',
+            icon: 'pi pi-sync',
+            routerLink: '/json-to-xml',
+          }
         ],
-      },
-      {
-        label: 'Profile',
-        items: [
-          {
-            label: 'Settings',
-            icon: 'pi pi-cog',
-            shortcut: '⌘+O',
-          },
-          {
-            label: 'Messages',
-            icon: 'pi pi-inbox',
-            badge: '2',
-          },
-          {
-            label: 'Logout',
-            icon: 'pi pi-sign-out',
-            shortcut: '⌘+Q',
-          },
-        ],
-      },
-      {
-        separator: true,
       },
     ];
   }
