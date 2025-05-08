@@ -13,11 +13,8 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 
-// Import the AppMonacoEditorModule we created
-import { AppMonacoEditorModule } from '../../monaco-editor.module';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { MonacoLoaderService } from '../../services/monaco-loader.service';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -37,8 +34,7 @@ interface SpacingOption {
   imports: [
     CommonModule, 
     FormsModule, 
-    MonacoEditorModule, 
-    AppMonacoEditorModule,
+    MonacoEditorModule,
     InputTextModule,
     ButtonModule,
     DropdownModule,
@@ -125,8 +121,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
-    private messageService: MessageService,
-    private monacoLoaderService: MonacoLoaderService
+    private messageService: MessageService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -154,24 +149,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   }
   
   ngAfterViewInit() {
-    // Initialize Monaco in browser context
-    if (this.isBrowser) {
-      console.log('JSON Formatter: Initializing Monaco editor');
-      
-      // Use our service for safe Monaco initialization
-      this.monacoLoaderService.whenReady(monaco => {
-        console.log('JSON Formatter: Monaco editor initialized successfully');
-        
-        // Можно выполнить дополнительную настройку Monaco здесь
-        if (this.inputMonacoEditor && this.inputMonacoEditor._editor) {
-          console.log('JSON Formatter: Input editor instance available');
-        }
-        
-        if (this.outputMonacoEditor && this.outputMonacoEditor._editor) {
-          console.log('JSON Formatter: Output editor instance available');
-        }
-      });
-    }
+    // No initialization needed
   }
   
   ngOnDestroy() {
@@ -326,6 +304,15 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     this.outputCode = '';
   }
   
+  /**
+   * Перезагружает страницу
+   */
+  reloadPage() {
+    if (this.isBrowser) {
+      window.location.reload();
+    }
+  }
+  
   // Setup metadata for SEO
   private setupSeo() {
     // We don't need to set the title here anymore as it's handled by PageTitleService
@@ -403,33 +390,40 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
   
+  /**
+   * Format the JSON input
+   */
   formatJson() {
+    if (!this.inputCode.trim()) {
+      this.outputCode = '';
+      return;
+    }
+    
     try {
-      // Check if input is empty
-      if (!this.inputCode.trim()) {
-        this.outputCode = '';
-        return;
-      }
-      
-      // First parse the JSON to validate it
+      // First parse to validate JSON
       const parsedJson = JSON.parse(this.inputCode);
       
-      // Format the JSON directly using our helper
-      this.outputCode = this.prettyPrintJson(JSON.stringify(parsedJson));
+      // Then format with selected spacing
+      this.outputCode = this.prettyPrintJson(this.inputCode);
       
-      // Update the editor model if available
-      if (this.outputMonacoEditor && this.outputMonacoEditor._editor) {
-        const model = this.outputMonacoEditor._editor.getModel();
-        if (model) {
-          // Set the pre-formatted value to ensure it displays correctly
-          model.setValue(this.outputCode);
-        }
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.outputCode = `Error: ${error.message}`;
-      } else {
-        this.outputCode = 'An unknown error occurred while parsing JSON';
+      // Clear any previous error messages
+      this.messageService.clear();
+    } catch (e) {
+      console.error('JSON parsing error:', e);
+      
+      // Show error in the UI
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid JSON',
+        detail: e instanceof Error ? e.message : 'The input is not valid JSON',
+        life: 5000
+      });
+      
+      // Still attempt to format what we can for partial errors
+      try {
+        this.outputCode = this.inputCode;
+      } catch (formatError) {
+        this.outputCode = 'Error formatting JSON: ' + (formatError instanceof Error ? formatError.message : 'Unknown error');
       }
     }
   }

@@ -14,11 +14,8 @@ import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 import { FloatLabelModule } from 'primeng/floatlabel';
 
-// Import the AppMonacoEditorModule we created
-import { AppMonacoEditorModule } from '../../monaco-editor.module';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { MonacoLoaderService } from '../../services/monaco-loader.service';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -34,7 +31,6 @@ interface Monaco {
     CommonModule,
     FormsModule,
     MonacoEditorModule,
-    AppMonacoEditorModule,
     InputTextModule,
     ButtonModule,
     DropdownModule,
@@ -111,8 +107,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
-    private messageService: MessageService,
-    private monacoLoaderService: MonacoLoaderService
+    private messageService: MessageService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
@@ -137,24 +132,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    // Initialize Monaco in browser context
-    if (this.isBrowser) {
-      console.log('JSON to XML: Initializing Monaco editor');
-      
-      // Use our service for safe Monaco initialization
-      this.monacoLoaderService.whenReady(monaco => {
-        console.log('JSON to XML: Monaco editor initialized successfully');
-        
-        // Можно выполнить дополнительную настройку Monaco здесь
-        if (this.inputMonacoEditor && this.inputMonacoEditor._editor) {
-          console.log('JSON to XML: Input editor instance available');
-        }
-        
-        if (this.outputMonacoEditor && this.outputMonacoEditor._editor) {
-          console.log('JSON to XML: Output editor instance available');
-        }
-      });
-    }
+    // No initialization needed
   }
 
   ngOnDestroy() {
@@ -250,22 +228,16 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   loadSampleJson() {
     this.inputCode = `{
   "person": {
-    "name": "John Doe",
+    "name": "John",
     "age": 30,
     "address": {
       "street": "123 Main St",
-      "city": "New York",
+      "city": "Anytown",
       "country": "USA"
     },
-    "contacts": [
-      {
-        "type": "email",
-        "value": "john@example.com"
-      },
-      {
-        "type": "phone",
-        "value": "+1234567890"
-      }
+    "phones": [
+      "555-1234",
+      "555-5678"
     ]
   }
 }`;
@@ -273,28 +245,27 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Clear all JSON input
+   * Clear all input
    */
   clearJson() {
     this.inputCode = '';
     this.outputCode = '';
   }
 
-  // Setup metadata for SEO
   private setupSeo() {
-    this.metaService.updateTag({
-      name: 'description',
-      content: 'Free online JSON to XML converter tool. Convert complex JSON data to XML format with proper structure and hierarchical formatting. Easily transform JSON data for compatibility with XML-based systems and applications.'
+    this.metaService.updateTag({ 
+      name: 'description', 
+      content: 'Free JSON to XML converter tool. Convert JSON data to XML format with customizable root element name. Easy to use with copy, paste, and download features.' 
     });
-
-    this.metaService.updateTag({
-      name: 'keywords',
-      content: 'JSON to XML, JSON converter, XML converter, JSON to XML online, data format conversion'
+    
+    this.metaService.updateTag({ 
+      name: 'keywords', 
+      content: 'JSON to XML converter, XML converter, JSON converter, XML transformation, data conversion' 
     });
-
-    // Open Graph meta tags for better social sharing
+    
+    // Open Graph meta tags
     this.metaService.updateTag({ property: 'og:title', content: 'JSON to XML Converter | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online tool to convert JSON data to XML format. Transform your JSON structure into valid XML markup with proper nesting and hierarchy.' });
+    this.metaService.updateTag({ property: 'og:description', content: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
   }
 
@@ -304,7 +275,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       ...this.inputEditorOptions,
       theme: this.editorTheme
     };
-
+    
     this.outputEditorOptions = {
       ...this.outputEditorOptions,
       theme: this.editorTheme
@@ -312,92 +283,98 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   convertJsonToXml() {
+    if (!this.inputCode.trim()) {
+      this.outputCode = '';
+      return;
+    }
+
     try {
-      // Check if input is empty
-      if (!this.inputCode.trim()) {
-        this.outputCode = '';
-        return;
-      }
-
-      // Parse the JSON to validate it
-      const parsedJson = JSON.parse(this.inputCode);
-
-      // Convert JSON to XML с использованием rootName из свойства
-      const xmlString = this.jsonToXml(parsedJson, this.rootName);
-
-      // Format the XML with proper indentation
-      this.outputCode = this.formatXml(xmlString);
-
-      // Update the editor model if available
-      if (this.outputMonacoEditor && this.outputMonacoEditor._editor) {
-        const model = this.outputMonacoEditor._editor.getModel();
-        if (model) {
-          model.setValue(this.outputCode);
-        }
-      }
-    } catch (error: unknown) {
-      if (error instanceof Error) {
-        this.outputCode = `Error: ${error.message}`;
-      } else {
-        this.outputCode = 'An unknown error occurred while parsing JSON';
-      }
+      // Parse the JSON
+      const jsonData = JSON.parse(this.inputCode);
+      
+      // Convert to XML
+      const xml = this.jsonToXml(jsonData, this.rootName);
+      
+      // Format XML for readability
+      this.outputCode = this.formatXml(xml);
+      
+      // Clear any previous error messages
+      this.messageService.clear();
+    } catch (e) {
+      console.error('JSON parsing error:', e);
+      
+      // Show error in the UI
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Invalid JSON',
+        detail: e instanceof Error ? e.message : 'The input is not valid JSON',
+        life: 5000
+      });
+      
+      this.outputCode = 'Error converting JSON to XML. Please check your JSON syntax.';
     }
   }
 
-  /**
-   * Convert JSON object to XML string
-   */
   private jsonToXml(json: any, rootName: string = 'root'): string {
     const convertElement = (element: any, name: string): string => {
+      // Handle null or undefined
       if (element === null || element === undefined) {
-        return `<${name}></${name}>`;
+        return `<${name} xsi:nil="true"/>`;
       }
-
-      if (typeof element === 'object') {
-        // Array
-        if (Array.isArray(element)) {
-          return element.map(item => convertElement(item, name)).join('');
-        }
-
-        // Object
-        let xml = `<${name}>`;
-        for (const key in element) {
-          if (Object.prototype.hasOwnProperty.call(element, key)) {
-            xml += convertElement(element[key], key);
-          }
-        }
-        xml += `</${name}>`;
-        return xml;
+      
+      // Handle primitive types (string, number, boolean)
+      if (typeof element !== 'object') {
+        return `<${name}>${this.escapeXml(element.toString())}</${name}>`;
       }
-
-      // Simple value (string, number, boolean)
-      return `<${name}>${String(element)}</${name}>`;
+      
+      // Handle arrays
+      if (Array.isArray(element)) {
+        return element.map(item => convertElement(item, name)).join('\n');
+      }
+      
+      // Handle objects
+      let result = `<${name}>`;
+      for (const key in element) {
+        if (Object.prototype.hasOwnProperty.call(element, key)) {
+          result += '\n' + convertElement(element[key], key);
+        }
+      }
+      result += `\n</${name}>`;
+      return result;
     };
-
-    return convertElement(json, rootName);
+    
+    // Escape XML special characters
+    return `<?xml version="1.0" encoding="UTF-8"?>\n${convertElement(json, rootName)}`;
+  }
+  
+  private escapeXml(unsafe: string): string {
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&apos;');
   }
 
-  /**
-   * Format XML with proper indentation
-   */
   private formatXml(xml: string): string {
     let formatted = '';
     let indent = '';
-
+    const tab = '  '; // 2 spaces for indentation
+    
     xml.split(/>\s*</).forEach(node => {
       if (node.match(/^\/\w/)) {
         // Closing tag
-        indent = indent.substring(2);
+        indent = indent.substring(tab.length);
       }
-
+      
       formatted += indent + '<' + node + '>\n';
-
-      if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?')) {
+      
+      if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?xml')) {
         // Opening tag
-        indent += '  ';
+        indent += tab;
       }
     });
-
+    
     return formatted.substring(1, formatted.length - 2);
   }
 }

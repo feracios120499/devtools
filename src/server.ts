@@ -88,7 +88,7 @@ app.get([
   '/**/*.png', '/**/*.jpg', '/**/*.jpeg', '/**/*.gif', 
   '/**/*.svg', '/**/*.woff', '/**/*.woff2', '/**/*.ttf', '/**/*.eot',
   // Специфичные пути для Monaco
-  '/assets/monaco/**', '/assets/min-maps/**', '/vs/**', '/language/**'
+  '/assets/monaco/**', '/assets/min-maps/**', '/vs/**', '/language/**', 'assets/**'
 ], (req, res, next) => {
   console.log(`[${new Date().toISOString()}] Static resource requested: ${req.url}`);
   
