@@ -193,6 +193,10 @@ app.get('/sitemap.xml', (req, res) => {
   res.sendFile(resolve(finalBrowserDistFolder, 'assets/sitemap.xml'));
 });
 
+app.get('/Ads.txt', (req, res) => {
+  res.sendFile(resolve(finalBrowserDistFolder, 'assets/Ads.txt'));
+});
+
 // Обработчик для Angular SSR
 app.use('/**', (req, res, next) => {
   // Статические ресурсы должны быть уже обработаны предыдущими маршрутами
