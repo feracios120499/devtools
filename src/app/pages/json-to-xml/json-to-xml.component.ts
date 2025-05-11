@@ -267,6 +267,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.metaService.updateTag({ property: 'og:title', content: 'JSON to XML Converter | DevTools' });
     this.metaService.updateTag({ property: 'og:description', content: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
   }
 
   // Update editor settings when theme changes

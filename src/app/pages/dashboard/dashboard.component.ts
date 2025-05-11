@@ -137,5 +137,6 @@ export class DashboardComponent implements OnInit {
     this.metaService.updateTag({ property: 'og:title', content: 'Web Developer Tools | DevTools' });
     this.metaService.updateTag({ property: 'og:description', content: 'Collection of free online tools for web developers. Format JSON, convert data formats, and more.' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
   }
 } 

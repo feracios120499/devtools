@@ -14,54 +14,6 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./topbar.component.scss']
 })
 export class TopbarComponent {
-  items: MenuItem[] = [
-    {
-      label: 'File2',
-      icon: 'pi pi-fw pi-file',
-      items: [
-        {
-          label: 'New',
-          icon: 'pi pi-fw pi-plus',
-        },
-        {
-          label: 'Open',
-          icon: 'pi pi-fw pi-folder-open'
-        },
-        {
-          separator: true
-        },
-        {
-          label: 'Exit',
-          icon: 'pi pi-fw pi-power-off'
-        }
-      ]
-    },
-    {
-      label: 'Edit',
-      icon: 'pi pi-fw pi-pencil',
-      items: [
-        {
-          label: 'Undo',
-          icon: 'pi pi-fw pi-undo'
-        },
-        {
-          label: 'Redo',
-          icon: 'pi pi-fw pi-replay'
-        }
-      ]
-    },
-    {
-      label: 'Help',
-      icon: 'pi pi-fw pi-question-circle',
-      items: [
-        {
-          label: 'About',
-          icon: 'pi pi-fw pi-info-circle'
-        }
-      ]
-    }
-  ];
-
   // Get page title from service
   pageTitle;
 

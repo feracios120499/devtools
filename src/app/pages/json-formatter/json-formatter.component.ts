@@ -331,6 +331,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     this.metaService.updateTag({ property: 'og:title', content: 'JSON Formatter and Validator | DevTools' });
     this.metaService.updateTag({ property: 'og:description', content: 'Free online JSON formatter and validator. Convert raw JSON into beautifully formatted, readable structure with customizable indentation. Includes validation, copy, and download options.' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
     
     // Note: Schema.org structured data is now added directly in the HTML template
     // This ensures it will be visible to search engine crawlers during server-side rendering
