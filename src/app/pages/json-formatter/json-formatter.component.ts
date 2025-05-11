@@ -3,18 +3,11 @@ import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@an
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
-
-// Import PrimeNG components properly
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { PrimeNgModule } from '../../shared/modules/primeng.module';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -35,12 +28,7 @@ interface SpacingOption {
     CommonModule, 
     FormsModule, 
     MonacoEditorModule,
-    InputTextModule,
-    ButtonModule,
-    DropdownModule,
-    ToastModule,
-    TooltipModule,
-    CardModule
+    PrimeNgModule
   ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
@@ -86,7 +74,8 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    }
+    },
+    fixedOverflowWidgets: true
   };
   
   outputEditorOptions = {
@@ -107,7 +96,8 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    }
+    },
+    fixedOverflowWidgets: true
   };
   
   isBrowser: boolean = false;
@@ -161,6 +151,16 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         console.error('Error removing JSON-LD script:', e);
       }
     }
+
+    // // Корректно уничтожаем экземпляры Monaco Editor, если они существуют
+    // if (this.isBrowser) {
+    //   if (this.inputMonacoEditor?.editor) {
+    //     this.inputMonacoEditor.editor.dispose();
+    //   }
+    //   if (this.outputMonacoEditor?.editor) {
+    //     this.outputMonacoEditor.editor.dispose();
+    //   }
+    // }
   }
   
   /**

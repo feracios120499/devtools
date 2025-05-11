@@ -3,19 +3,11 @@ import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@an
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
-
-// Import PrimeNG components properly
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
-import { ToastModule } from 'primeng/toast';
-import { TooltipModule } from 'primeng/tooltip';
-import { CardModule } from 'primeng/card';
 import { MessageService } from 'primeng/api';
-import { FloatLabelModule } from 'primeng/floatlabel';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { PrimeNgModule } from '../../shared/modules/primeng.module';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -31,13 +23,7 @@ interface Monaco {
     CommonModule,
     FormsModule,
     MonacoEditorModule,
-    InputTextModule,
-    ButtonModule,
-    DropdownModule,
-    ToastModule,
-    TooltipModule,
-    CardModule,
-    FloatLabelModule
+    PrimeNgModule
   ],
   providers: [MessageService],
   templateUrl: './json-to-xml.component.html',
@@ -52,6 +38,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
 
   editorTheme: string = 'vs-dark'; // Default theme
+
+  // For JSON-LD script
+  private schemaScriptElement: HTMLElement | null = null;
 
   inputEditorOptions = {
     theme: this.editorTheme,
@@ -72,7 +61,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    }
+    },
+    fixedOverflowWidgets: true
   };
 
   outputEditorOptions = {
@@ -93,7 +83,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    }
+    },
+    fixedOverflowWidgets: true
   };
 
   isBrowser: boolean = false;
@@ -129,6 +120,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // SEO setup
     this.setupSeo();
+    
+    // Add JSON-LD to head
+    this.addJsonLdToHead();
   }
 
   ngAfterViewInit() {
@@ -137,6 +131,25 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     // Clean up any subscriptions or timers if needed
+    
+    // Корректно уничтожаем экземпляры Monaco Editor, если они существуют
+    if (this.isBrowser) {
+      if (this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.dispose();
+      }
+      if (this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.dispose();
+      }
+    }
+    
+    // Remove JSON-LD script element when component is destroyed
+    if (this.isBrowser && this.schemaScriptElement) {
+      try {
+        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
+      } catch (e) {
+        console.error('Error removing JSON-LD script:', e);
+      }
+    }
   }
 
   /**
@@ -377,5 +390,35 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     });
     
     return formatted.substring(1, formatted.length - 2);
+  }
+
+  /**
+   * Add JSON-LD schema to document head
+   */
+  private addJsonLdToHead() {
+    const schema = {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "JSON to XML Converter",
+      "description": "Free online tool for converting JSON data to XML format",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "All"
+    };
+    
+    const jsonLdContent = JSON.stringify(schema);
+    
+    try {
+      const scriptElement = this.renderer.createElement('script');
+      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
+      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
+      
+      // Add to head
+      this.renderer.appendChild(this.document.head, scriptElement);
+      
+      // Save reference for later removal
+      this.schemaScriptElement = scriptElement;
+    } catch (e) {
+      console.error('Error adding JSON-LD script:', e);
+    }
   }
 }

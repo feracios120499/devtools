@@ -4,7 +4,7 @@
         <span class="text-primary font-bold">{{ item.label }}</span>
     </ng-template>
     <ng-template #item let-item>
-        <a pRipple class="flex items-center p-menu-item-link" [routerLink]="item.routerLink">
+        <a pRipple class="flex items-center p-menu-item-link" [routerLink]="item.routerLink" routerLinkActive="active-menuitem" [routerLinkActiveOptions]="{exact: item.routerLink === '/'}">
             <span [class]="item.icon"></span>
             <h6 class="ml-2">{{ item.label }}</h6>
             <p-badge *ngIf="item.badge" class="ml-auto" [value]="item.badge" />

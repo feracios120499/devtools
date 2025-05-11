@@ -30,7 +30,7 @@
         </textarea>
         
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative">
+        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
           <ngx-monaco-editor
             #inputMonacoEditor
             [options]="inputEditorOptions" 
@@ -75,7 +75,7 @@
         </textarea>
         
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative">
+        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
           <ngx-monaco-editor
             #outputMonacoEditor
             [options]="outputEditorOptions" 

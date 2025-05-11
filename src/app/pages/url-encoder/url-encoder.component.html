@@ -1,0 +1,139 @@
+<div class="flex flex-col w-full h-full">
+  <div class="mb-2 p-3">
+    <h4 class="text-lg text-700">Tool for encoding and decoding URLs for safe web use</h4>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-1 gap-4 flex-1">
+    <!-- Левая колонка - Input Text -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+
+        <!-- Операция (encode/decode) с радиокнопками -->
+        <div class="mb-3 flex items-center">
+          <div class="flex items-center gap-3">
+            <p-radiobutton [(ngModel)]="activeTab" inputId="decode" name="operation" value="1" (onClick)="processText()"/>
+            <label for="decode">Decode URL</label>
+
+            <p-radiobutton [(ngModel)]="activeTab" inputId="encode" name="operation" value="2" (onClick)="processText()"/>
+            <label for="encode">Encode URL</label>
+          </div>
+        </div>
+
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">Input URL</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearText()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+
+
+        <!-- Поле ввода с плавающей меткой -->
+        <div class="p-fluid w-full mt-3">
+          <textarea class="w-full" id="on_label" rows="1" cols="30" pTextarea [autoResize]="true" placeholder="URL" [(ngModel)]="inputText" 
+          (ngModelChange)="processText()" ></textarea>
+          <!-- <p-floatLabel variant="on">
+            <input 
+              pInputText 
+              id="input_text" 
+              [(ngModel)]="inputText" 
+              (ngModelChange)="processText()" 
+              autocomplete="off"
+              class="input-url" />
+            <label for="input_text">{{ activeTab == 0 ? 'Text to encode' : 'Text to decode' }}</label>
+          </p-floatLabel> -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - Output Text -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
+              [disabled]="!outputText" class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Отступ для выравнивания -->
+        <div class="mb-3"></div>
+
+        <!-- Поле вывода с плавающей меткой -->
+        <div class="p-fluid flex-1 output-container output-wrapper">
+          <textarea class="w-full" id="on_label" rows="1" cols="30" [readonly]="true" pTextarea [autoResize]="true" placeholder="{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}" [(ngModel)]="outputText" ></textarea>
+          <!-- <p-floatLabel variant="on">
+            <input pInputText id="output_text" [(ngModel)]="outputText" readonly class="output-url" />
+            <label for="output_text">{{ activeTab == 0 ? 'Encoded result' : 'Decoded result' }}</label>
+          </p-floatLabel> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- URL Components Table -->
+  <div class="mt-4 mb-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h5 class="text-xl font-medium text-800 mb-2">URL Components</h5>
+    <p-table [value]="urlComponents" [tableStyle]="{'min-width': '50rem'}" [responsive]="true" styleClass="url-components-table">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Component</th>
+          <th>Value</th>
+          <th>Description</th>
+          <th style="width: 70px"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-component>
+        <tr>
+          <td><strong>{{component.name}}</strong></td>
+          <td>
+            <span *ngIf="component.name !== 'Query Parameters' || !component.value" [ngClass]="{'text-primary': component.value}">
+              {{component.value || '-'}}
+            </span>
+            <span *ngIf="component.name === 'Query Parameters' && component.value" [ngClass]="{'text-primary': true}">
+              <div [innerHTML]="component.value | nl2br"></div>
+            </span>
+          </td>
+          <td>{{component.description}}</td>
+          <td class="text-center">
+            <button *ngIf="component.value" 
+                    pButton 
+                    pRipple 
+                    type="button" 
+                    icon="pi pi-copy" 
+                    (click)="copyComponentValue(component)"
+                    class="p-button-rounded p-button-text p-button-sm copy-button"
+                    pTooltip="Copy value"
+                    tooltipPosition="left"></button>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h3 class="text-xl font-semibold mb-2">About URL Encoding</h3>
+    <p class="mb-2 text-sm">
+      URL encoding converts characters that are not allowed in URLs to character-entity references.
+      Spaces are converted to plus signs (+) or %20, and reserved characters like ?, &, #, etc. are
+      converted to their hexadecimal values.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>When to use URL encoding:</strong>
+      When you need to send data in a URL (like form submissions, API calls) or when creating links
+      with special characters in the parameters.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>

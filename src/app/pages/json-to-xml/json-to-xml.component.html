@@ -28,7 +28,7 @@
         </textarea>
         
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative">
+        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
           <ngx-monaco-editor
             #inputMonacoEditor
             [options]="inputEditorOptions" 
@@ -46,7 +46,7 @@
         <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">XML Output</h5>
-          <div class="flex gap-2">
+          <div class="flex gap-2 items-center">
             <p-floatlabel variant="on">
                 <input pInputText id="root_name" [(ngModel)]="rootName" (ngModelChange)="convertJsonToXml()" autocomplete="off" />
                 <label for="root_name">Root name</label>
@@ -71,7 +71,7 @@
         </textarea>
         
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative">
+        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
           <ngx-monaco-editor
             #outputMonacoEditor
             [options]="outputEditorOptions" 

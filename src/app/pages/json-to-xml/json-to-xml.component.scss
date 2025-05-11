@@ -1,3 +1,6 @@
+// Импортируем общие стили
+@import '../../shared/styles/shared-component-styles.scss';
+
 // Используем классы Tailwind и PrimeNG вместо кастомных стилей
 // Минимальные стили для компонентов, которым требуется высота
 
@@ -57,8 +60,8 @@
     }
   }
 
+  // Установить только размеры для Monaco Editor
   .monaco-editor {
-    border: none;
     width: 100% !important;
     height: 100% !important;
   }
@@ -78,11 +81,6 @@
     .monaco-editor {
       min-height: 250px;
     }
-  }
-
-  // Удаление светящихся эффектов 
-  .monaco-editor .overflow-guard {
-    box-shadow: none !important;
   }
 
   // Сохраняем правильное отображение
@@ -230,6 +228,19 @@
     
     .p-floatlabel label {
       font-size: 0.75rem;
+    }
+  }
+}
+
+.monaco-container {
+  height: calc(100% - 10px) !important;
+  overflow: hidden;
+  
+  ::ng-deep {
+    .monaco-editor,
+    .monaco-editor .overflow-guard {
+      height: 100% !important;
+      width: 100% !important;
     }
   }
 } 

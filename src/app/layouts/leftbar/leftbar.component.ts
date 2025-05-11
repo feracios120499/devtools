@@ -47,6 +47,21 @@ export class LeftbarComponent implements OnInit {
           }
         ],
       },
+      {
+        label: 'URL TOOLS',
+      },
+      {
+        separator: true,
+      },
+      {
+        items: [
+          {
+            label: 'URL Encoder',
+            icon: 'pi pi-link',
+            routerLink: '/url-encoder',
+          }
+        ],
+      },
     ];
   }
 }

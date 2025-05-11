@@ -5,6 +5,7 @@
 @tailwind utilities;
 :root {
   --primary-color: var(--p-primary-color);
+  --primary-color-rgb: 74, 222, 128; /* RGB значение для #4ade80 (зеленый цвет по умолчанию) */
 }
 
 
@@ -31,4 +32,41 @@ body {
 .p-panelmenu-header:not(.p-disabled) .p-panelmenu-header-content:hover {
   background-color: var(--p-primary-50) !important;
   color: var(--p-primary-700) !important
+}
+
+/* Monaco Editor overrides - prevent blue outline/glow effects */
+.monaco-editor {
+  outline: none !important;
+  border: none !important;
+}
+
+.monaco-editor-background,
+.monaco-editor .inputarea.ime-input,
+.monaco-editor .overflow-guard {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove outline from containers */
+.monaco-editor-container,
+.editor-container,
+ngx-monaco-editor,
+.monaco-editor-container:focus,
+.monaco-editor-container:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Remove all focus indicators from editor components */
+.monaco-editor *:focus,
+.monaco-editor *:focus-visible,
+.monaco-editor *:focus-within {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.p-menu-item{
+  &:not(:last-child){
+    padding-bottom: 6px;
+  }
 }

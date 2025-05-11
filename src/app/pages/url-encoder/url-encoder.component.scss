@@ -1,0 +1,242 @@
+// Импортируем общие стили
+@import '../../shared/styles/shared-component-styles.scss';
+
+// Используем классы Tailwind и PrimeNG вместо кастомных стилей
+// Минимальные стили для компонентов, которым требуется высота
+
+.min-h-96 {
+  min-height: 24rem; // 384px для Monaco Editor
+}
+
+// Добавляем медиа-запрос для адаптивности на мобильных устройствах
+@media (max-width: 768px) {
+  .min-h-96 {
+    min-height: 16rem; // уменьшаем высоту на мобильных
+  }
+}
+
+// Use host element to fill the available space in the parent layout
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: var(--surface-ground);
+}
+
+// Дополнительные стили, специфичные для URL Encoder
+:host ::ng-deep {
+  // Стилизация радио-кнопок
+  .p-radiobutton .p-radiobutton-box.p-highlight {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+  }
+  
+  .p-radiobutton .p-radiobutton-box.p-highlight:not(.p-disabled):hover {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+  }
+  
+  // Стили для контейнеров ввода/вывода
+  .input-wrapper, .output-wrapper {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    position: relative;
+    
+    .p-float-label {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  
+  // Стили для p-floatLabel
+  .p-float-label {
+    display: block;
+    position: relative;
+    width: 100%;
+    
+    input.p-inputtext {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  
+  // Стили для полей ввода
+  .input-url, .output-url {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    font-family: monospace;
+    padding: 1rem 0.75rem 0 0.75rem;
+    white-space: pre-wrap;
+    overflow: auto;
+  }
+  
+  // Для readonly поля
+  .output-url {
+    background-color: var(--surface-50);
+    color: var(--text-color);
+  }
+  
+  // Сохраняем правильное отображение
+  .grid {
+    display: grid;
+  }
+
+  .col {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  // Стили для флоатлейбла
+  .p-float-label input:focus ~ label,
+  .p-float-label input.p-filled ~ label {
+    top: 0.25rem;
+    background-color: var(--surface-card);
+    padding: 0 0.25rem;
+    margin-left: -0.25rem;
+    font-size: 0.75rem;
+  }
+
+  // Styles for URL components table
+  .url-components-table {
+    .p-datatable-thead > tr > th {
+      background-color: var(--surface-section);
+      color: var(--text-color);
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+    }
+    
+    .p-datatable-tbody > tr > td {
+      padding: 0.75rem 1rem;
+      vertical-align: top;
+      
+      &:nth-child(2) {
+        // Value column - add word break for long URLs
+        word-break: break-all;
+        max-width: 250px;
+        
+        // Query parameters with line breaks
+        div {
+          line-height: 1.6;
+        }
+      }
+
+      // Copy button column
+      &:last-child {
+        padding: 0.5rem;
+        text-align: center;
+        vertical-align: middle;
+      }
+    }
+    
+    .text-primary {
+      color: var(--primary-color);
+    }
+    
+    tr:nth-child(even) {
+      background-color: var(--surface-section);
+    }
+
+    // Style for copy button
+    .copy-button {
+      width: 2rem;
+      height: 2rem;
+      font-size: 0.875rem;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: var(--surface-200);
+      }
+    }
+  }
+}
+
+/* Адаптивная верстка */
+@media (max-width: 1200px) {
+  :host ::ng-deep {
+    .input-url, .output-url {
+      min-height: 250px;
+    }
+  }
+}
+
+@media (max-width: 992px) {
+  :host ::ng-deep {
+    .p-button-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .input-url, .output-url {
+      min-height: 220px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  :host {
+    height: calc(100vh - 60px); // Вычитаем высоту topbar
+    overflow-y: auto;
+  }
+  
+  :host ::ng-deep {
+    .card {
+      padding: 0.5rem;
+    }
+    
+    h5.text-xl {
+      font-size: 1rem;
+    }
+    
+    .input-url, .output-url {
+      min-height: 200px;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  :host {
+    height: calc(100vh - 60px); // Вычитаем высоту topbar
+    overflow-y: auto;
+  }
+  
+  :host ::ng-deep {
+    .card {
+      padding: 0.25rem;
+    }
+    
+    h5.text-xl {
+      font-size: 0.875rem;
+    }
+    
+    .p-button-sm {
+      height: 1.5rem;
+      padding: 0 0.5rem;
+      
+      .p-button-icon {
+        font-size: 0.875rem;
+      }
+      
+      .p-button-label {
+        font-size: 0.75rem;
+      }
+    }
+    
+    .input-url, .output-url {
+      min-height: 150px;
+      font-size: 0.875rem;
+    }
+  }
+} 

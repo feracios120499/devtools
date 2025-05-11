@@ -55,6 +55,7 @@
   overflow-y: auto;
   background-color: var(--surface-card);
   border-right: 1px solid var(--surface-border);
+  padding-left: 1rem;
   @media (max-width: 768px) {
     display: none;
   }
@@ -65,6 +66,22 @@
     width: 100%;
     border: none !important;
     background: transparent !important;
+  }  
+  // Стили для активного пункта меню
+  .active-menuitem {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+    border-radius: 6px;
+    
+    span, h6 {
+      color: white !important;
+    }
+  }
+  
+  // Также можно добавить hover-эффект для неактивных пунктов, но с более светлым оттенком primary
+  .p-menu-item-link:not(.active-menuitem):hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1) !important;
+    border-radius: 6px;
   }
 }
 
