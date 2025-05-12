@@ -50,7 +50,7 @@
 
 :host {
   display: block;
-  width: var(--leftbar-width, 15rem);
+  min-width: 290px;
   height: 100%;
   overflow-y: auto;
   background-color: var(--surface-card);

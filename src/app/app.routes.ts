@@ -17,5 +17,10 @@ export const routes: Routes = [
     path: 'url-encoder', 
     loadComponent: () => import('./pages/url-encoder/url-encoder.component').then(m => m.UrlEncoderComponent),
     title: 'URL Encoder and Decoder | DevTools' 
+  },
+  { 
+    path: 'base64', 
+    loadComponent: () => import('./pages/base64/base64.component').then(m => m.Base64Component),
+    title: 'Base64 Encoder and Decoder | DevTools' 
   }
 ];

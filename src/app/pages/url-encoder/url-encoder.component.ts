@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { FavoritePageDirective } from '../../directives/favorite-page.directive';
 
 interface UrlComponent {
   name: string;
@@ -35,7 +36,8 @@ export class Nl2brPipe implements PipeTransform {
     CommonModule,
     FormsModule,
     PrimeNgModule,
-    Nl2brPipe
+    Nl2brPipe,
+    FavoritePageDirective
   ],
   providers: [MessageService],
   templateUrl: './url-encoder.component.html',

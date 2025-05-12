@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, effect } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { MenuModule } from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
@@ -6,6 +6,8 @@ import { RippleModule } from 'primeng/ripple';
 import { AvatarModule } from 'primeng/avatar';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { FavoritesService } from '../../services/favorites.service';
+
 @Component({
   selector: 'app-leftbar',
   standalone: true,
@@ -13,10 +15,27 @@ import { RouterModule } from '@angular/router';
   templateUrl: './leftbar.component.html',
   styleUrls: ['./leftbar.component.scss'],
 })
-export class LeftbarComponent implements OnInit {
+export class LeftbarComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
+  
+  constructor(private favoritesService: FavoritesService) {
+    // Используем effect для отслеживания изменений в сигнале
+    effect(() => {
+      // При изменении favorites сигнала, обновляем меню
+      this.favoritesService.favorites();
+      this.updateMenuItems();
+    });
+  }
 
   ngOnInit() {
+    this.updateMenuItems();
+  }
+  
+  ngOnDestroy() {
+    // Очистка ресурсов при необходимости
+  }
+
+  private updateMenuItems() {
     this.items = [
       {
         items: [
@@ -24,6 +43,8 @@ export class LeftbarComponent implements OnInit {
             label: 'Home',
             icon: 'pi pi-home',
             routerLink: '/',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/')
           },
         ],
       },
@@ -39,11 +60,15 @@ export class LeftbarComponent implements OnInit {
             label: 'JSON Formatter',
             icon: 'pi pi-code',
             routerLink: '/json-formatter',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/json-formatter')
           },
           {
             label: 'JSON to XML',
             icon: 'pi pi-sync',
             routerLink: '/json-to-xml',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/json-to-xml')
           }
         ],
       },
@@ -59,6 +84,15 @@ export class LeftbarComponent implements OnInit {
             label: 'URL Encoder',
             icon: 'pi pi-link',
             routerLink: '/url-encoder',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/url-encoder')
+          },
+          {
+            label: 'Base64 Encoder/Decoder',
+            icon: 'pi pi-file-export',
+            routerLink: '/base64',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/base64')
           }
         ],
       },
