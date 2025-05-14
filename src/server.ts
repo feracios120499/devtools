@@ -46,6 +46,19 @@ app.use((req, res, next) => {
   next();
 });
 
+// Редирект со старого домена на новый (301 постоянный редирект)
+app.use((req, res, next) => {
+  const host = req.headers.host?.toLowerCase();
+  
+  if (host === 'onlinedevtools.it.com' || host?.includes('onlinedevtools.it.com')) {
+    const newUrl = `https://onlinewebdevtools.com${req.originalUrl}`;
+    console.log(`[${new Date().toISOString()}] Redirecting from ${host}${req.originalUrl} to ${newUrl}`);
+    return res.redirect(301, newUrl);
+  }
+  
+  next();
+});
+
 // ВАЖНО: Эндпоинты для проверки здоровья должны быть определены раньше других маршрутов
 // Главный маршрут проверки здоровья для Render - должен отвечать с кодом 200
 app.get('/', (req, res, next) => {
