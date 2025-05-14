@@ -1,0 +1,31 @@
+.qr-code-container {
+  min-height: 250px;
+}
+
+.qr-code-wrapper {
+  background-color: var(--surface-section);
+}
+
+.qr-code-body{
+  min-height: 700px;
+}
+
+.qr-code-image {
+  max-width: 100%;
+  height: auto;
+}
+
+:host ::ng-deep {
+  .p-colorpicker {
+    width: 100%;
+    
+    .p-colorpicker-preview {
+      width: 100%;
+    }
+  }
+} 
+:host{
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+}

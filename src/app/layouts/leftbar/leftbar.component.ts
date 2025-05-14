@@ -88,6 +88,13 @@ export class LeftbarComponent implements OnInit, OnDestroy {
             isFavorite: this.favoritesService.isFavorite('/url-encoder')
           },
           {
+            label: 'URL to QR Code',
+            icon: 'pi pi-qrcode',
+            routerLink: '/url-to-qr',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/url-to-qr')
+          },
+          {
             label: 'Base64 Encoder/Decoder',
             icon: 'pi pi-file-export',
             routerLink: '/base64',

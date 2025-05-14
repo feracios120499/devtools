@@ -11,7 +11,8 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { TextareaModule } from 'primeng/textarea';
 import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
-
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { SliderModule } from 'primeng/slider';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -28,7 +29,9 @@ import { MessageService } from 'primeng/api';
     TableModule,
     FloatLabelModule,
     TextareaModule,
-    RippleModule
+    RippleModule,
+    ColorPickerModule,
+    SliderModule
   ],
   exports: [
     InputTextModule,
@@ -41,7 +44,9 @@ import { MessageService } from 'primeng/api';
     TableModule,
     FloatLabelModule,
     TextareaModule,
-    RippleModule
+    RippleModule,
+    ColorPickerModule,
+    SliderModule
   ],
   providers: [
     MessageService

@@ -174,8 +174,9 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       "@type": "WebApplication",
       "name": "JSON Formatter and Validator",
       "description": "Free online tool for formatting and validating JSON code",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "All"
+      "applicationCategory": "Utilities",
+      "operatingSystem": "All",
+      "url": "https://onlinewebdevtools.com/json-formatter"
     };
     
     const jsonLdContent = JSON.stringify(schema);

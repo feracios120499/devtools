@@ -1,0 +1,124 @@
+<div class="flex flex-col w-full h-full">
+  <div class="mb-2 p-3" appFavoritePage>
+    <h4 class="text-lg text-700">Generate QR codes from URLs for easy mobile scanning</h4>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 qr-code-body">
+    <!-- Левая колонка - Input & Options -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">Input URL</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- URL input -->
+        <div class="p-fluid w-full mt-3">
+          <textarea class="w-full" id="url_input" rows="3" cols="30" pTextarea [autoResize]="true" placeholder="Enter URL" 
+            [(ngModel)]="inputUrl" 
+            (ngModelChange)="generateQrCode()"></textarea>
+        </div>
+
+        <!-- QR code options -->
+        <div class="mt-4">
+          <h5 class="text-lg font-medium text-800 mb-3">QR Code Options</h5>
+          
+          <!-- Size -->
+          <div class="field mb-3">
+            <label for="qr_size" class="block text-sm font-medium mb-1">Size (px)</label>
+            <p-slider [(ngModel)]="qrSize" [min]="100" [max]="500" [step]="50" class="w-full"></p-slider>
+            <div class="text-xs text-right mt-1">{{qrSize}}px</div>
+          </div>
+          
+          <!-- Error correction level -->
+          <div class="field mb-3">
+            <label for="error_correction" class="block text-sm font-medium mb-1">Error Correction Level</label>
+            <p-dropdown [options]="correctionLevelOptions" [(ngModel)]="errorCorrectionLevel" 
+                        optionLabel="label" optionValue="value"
+                        styleClass="w-full"></p-dropdown>
+          </div>
+          
+          <!-- Colors -->
+          <div class="grid grid-cols-2 gap-3">
+            <div class="field">
+              <label for="dark_color" class="block text-sm font-medium mb-1">Foreground Color</label>
+              <p-colorPicker [(ngModel)]="darkColor" [inline]="false" [appendTo]="'body'" format="hex"></p-colorPicker>
+            </div>
+            
+            <div class="field">
+              <label for="light_color" class="block text-sm font-medium mb-1">Background Color</label>
+              <p-colorPicker [(ngModel)]="lightColor" [inline]="false" [appendTo]="'body'" format="hex"></p-colorPicker>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - QR Code Result -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">QR Code Result</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadQrCode()"
+              [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- QR code display area -->
+        <div class="flex-1 flex flex-col items-center justify-center mt-4 qr-code-container">
+          <div *ngIf="inputUrl" class="qr-code-wrapper p-3 border-1 surface-border border-round-lg flex items-center justify-center">
+            <qrcode
+              [qrdata]="inputUrl"
+              [width]="qrSize"
+              [errorCorrectionLevel]="errorCorrectionLevel"
+              [colorDark]="darkColor"
+              [colorLight]="lightColor"
+              [margin]="2"
+              [cssClass]="'qr-code-image'"
+              [elementType]="'canvas'"
+              (qrCodeURL)="onChangeQRCodeURL($event)"
+              [title]="'QR Code for ' + inputUrl"
+              id="qrCodeCanvas"></qrcode>
+          </div>
+          <div *ngIf="!inputUrl" class="text-center text-500 p-5">
+            <i class="pi pi-qrcode text-4xl mb-3 block"></i>
+            <p>Enter a URL and generate a QR code</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h3 class="text-xl font-semibold mb-2">About QR Codes</h3>
+    <p class="mb-2 text-sm">
+      QR (Quick Response) codes are two-dimensional barcodes that can be scanned by smartphone cameras to quickly access URLs, contact information, or other data.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Error correction levels:</strong>
+    </p>
+    <ul class="text-sm ml-3 mb-2">
+      <li><strong>L (Low):</strong> 7% of data can be restored if damaged</li>
+      <li><strong>M (Medium):</strong> 15% of data can be restored if damaged</li>
+      <li><strong>Q (Quartile):</strong> 25% of data can be restored if damaged</li>
+      <li><strong>H (High):</strong> 30% of data can be restored if damaged</li>
+    </ul>
+    <p class="text-sm">
+      Higher error correction levels make the QR code more resilient but also more complex (more dense).
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

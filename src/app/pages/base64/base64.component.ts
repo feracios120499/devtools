@@ -206,14 +206,10 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
       '@context': 'https://schema.org',
       '@type': 'SoftwareApplication',
       'name': 'Base64 Encoder and Decoder',
-      'applicationCategory': 'DeveloperApplication',
+      'applicationCategory': 'Utilities',
       'description': 'Online tool to encode and decode text to and from Base64 format',
-      'operatingSystem': 'Any',
-      'offers': {
-        '@type': 'Offer',
-        'price': '0',
-        'priceCurrency': 'USD'
-      }
+      'operatingSystem': 'All',
+      'url': 'https://onlinewebdevtools.com/base64'
     };
 
     const jsonLdContent = JSON.stringify(schemaData);

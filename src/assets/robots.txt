@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://onlinedevtools.it.com/sitemap.xml 
+Sitemap: https://onlinewebdevtools.com/sitemap.xml 

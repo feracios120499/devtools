@@ -131,8 +131,9 @@ export class UrlEncoderComponent implements OnInit {
       "@type": "WebApplication",
       "name": "URL Encoder and Decoder",
       "description": "Free online tool for encoding and decoding URLs for web use",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "All"
+      "applicationCategory": "Utilities",
+      "operatingSystem": "All",
+      "url": "https://onlinewebdevtools.com/url-encoder"
     };
     
     const jsonLdContent = JSON.stringify(schema);

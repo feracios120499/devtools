@@ -403,8 +403,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       "@type": "WebApplication",
       "name": "JSON to XML Converter",
       "description": "Free online tool for converting JSON data to XML format",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "All"
+      "applicationCategory": "Utilities",
+      "operatingSystem": "All",
+      "url": "https://onlinewebdevtools.com/json-to-xml"
     };
     
     const jsonLdContent = JSON.stringify(schema);

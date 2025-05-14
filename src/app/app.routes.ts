@@ -19,6 +19,11 @@ export const routes: Routes = [
     title: 'URL Encoder and Decoder | DevTools' 
   },
   { 
+    path: 'url-to-qr', 
+    loadComponent: () => import('./pages/url-to-qr/url-to-qr.component').then(m => m.UrlToQrComponent),
+    title: 'URL to QR Code Generator | DevTools' 
+  },
+  { 
     path: 'base64', 
     loadComponent: () => import('./pages/base64/base64.component').then(m => m.Base64Component),
     title: 'Base64 Encoder and Decoder | DevTools' 
