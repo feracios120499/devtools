@@ -1,0 +1,81 @@
+<div class="flex flex-col w-full h-full">
+  <div class="mb-2 p-3" appFavoritePage>
+    <h4 class="text-lg text-700">Convert Base64 encoded data to downloadable files</h4>
+  </div>
+
+  <div class="grid grid-cols-1 gap-4 flex-1">
+    <!-- Base64 Input Section -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">Base64 Input</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Base64 input -->
+        <div class="p-fluid w-full mt-3 flex-1">
+          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="inputBase64" 
+            (ngModelChange)="onBase64Changed()" 
+            placeholder="Paste your Base64 encoded data here"></textarea>
+        </div>
+
+        <!-- File Name Input -->
+        <div class="mt-4">
+          <div class="field">
+            <label for="file_name" class="block text-sm font-medium mb-1">File Name</label>
+            <div class="p-inputgroup">
+              <input pInputText id="file_name" [(ngModel)]="fileName" placeholder="Enter file name (with or without extension)">
+              <span class="p-inputgroup-addon" *ngIf="detectedFileType">
+                <i class="pi pi-check text-success"></i> {{detectedFileType}} detected
+              </span>
+              <span class="p-inputgroup-addon" *ngIf="!detectedFileType && inputBase64">
+                <i class="pi pi-info-circle"></i> Using .bin
+              </span>
+            </div>
+            <small *ngIf="detectedFileType" class="text-sm text-500 block mt-1">
+              MIME type: {{mimeTypeService.getMimeTypeByExtension(detectedFileType)}}
+            </small>
+          </div>
+        </div>
+
+        <!-- Convert & Download Button -->
+        <div class="mt-4">
+          <button pButton type="button" label="Convert & Download" icon="pi pi-download" 
+            (click)="convertAndDownload()" 
+            [disabled]="!inputBase64" 
+            class="w-full"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h3 class="text-xl font-semibold mb-2">About Base64 to File Converter</h3>
+    <p class="mb-2 text-sm">
+      This tool allows you to convert Base64 encoded data back into downloadable files. It automatically detects common file types from the Base64 signature.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Supported file types:</strong>
+    </p>
+    <p class="mb-2 text-sm">
+      Images (JPG, PNG, GIF, BMP, TIFF, WEBP), Documents (PDF, DOC, DOCX, RTF, XML, HTML, TXT), 
+      Archives (ZIP, RAR, GZ, BZ2, 7Z), Audio (MP3, AAC, OGG, FLAC, WAV), Video (MP4, MPG, MKV, AVI, WMV), 
+      and Font files (TTF, OTF, WOFF, WOFF2).
+    </p>
+    <p class="text-sm">
+      If the file type cannot be detected, the file will be saved as a .bin file. You can also manually specify the file name with the desired extension.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

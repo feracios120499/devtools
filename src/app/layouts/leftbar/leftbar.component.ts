@@ -93,13 +93,30 @@ export class LeftbarComponent implements OnInit, OnDestroy {
             routerLink: '/url-to-qr',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/url-to-qr')
-          },
+          }
+        ],
+      },
+      {
+        label: 'BASE64 TOOLS',
+      },
+      {
+        separator: true,
+      },
+      {
+        items: [
           {
             label: 'Base64 Encoder/Decoder',
             icon: 'pi pi-file-export',
             routerLink: '/base64',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/base64')
+          },
+          {
+            label: 'Base64 to File',
+            icon: 'pi pi-download',
+            routerLink: '/base64-to-file',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/base64-to-file')
           }
         ],
       },
