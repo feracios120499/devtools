@@ -14,6 +14,8 @@ import { RippleModule } from 'primeng/ripple';
 import { MessageService } from 'primeng/api';
 import { ColorPickerModule } from 'primeng/colorpicker';
 import { SliderModule } from 'primeng/slider';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -33,7 +35,9 @@ import { SliderModule } from 'primeng/slider';
     TextareaModule,
     RippleModule,
     ColorPickerModule,
-    SliderModule
+    SliderModule,
+    IconFieldModule,
+    InputIconModule
   ],
   exports: [
     InputTextModule,
@@ -49,7 +53,9 @@ import { SliderModule } from 'primeng/slider';
     TextareaModule,
     RippleModule,
     ColorPickerModule,
-    SliderModule
+    SliderModule, 
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [
     MessageService

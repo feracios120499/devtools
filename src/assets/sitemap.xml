@@ -42,5 +42,11 @@
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
+  <url>
+    <loc>https://onlinewebdevtools.com/json-query</loc>
+    <lastmod>2025-05-17</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
   <!-- Add more URLs as needed -->
 </urlset> 

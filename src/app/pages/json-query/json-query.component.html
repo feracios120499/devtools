@@ -1,0 +1,118 @@
+<div class="flex flex-col w-full h-full">
+  <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
+
+  <div class="mb-2 p-3" appFavoritePage>
+    <h4 class="text-lg text-700">Tool for querying and exploring JSON data with JavaScript expressions</h4>
+  </div>
+
+  <!-- Основной контейнер с редакторами -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 editor-columns">
+    <!-- Левая колонка - Input JSON -->
+    <div class="col">
+      <div class="card p-3 surface-card shadow-sm editor-container">
+        <!-- Заголовок -->
+        <div class="editor-header">
+          <h5 class="text-xl font-medium text-800 m-0">JSON Input</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleJson()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearJson()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Format" icon="pi pi-align-justify" (click)="formatJson()"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Содержимое редактора -->
+        <div class="editor-content">
+          <!-- Fallback textarea for server-side rendering -->
+          <textarea *ngIf="!isBrowser" [(ngModel)]="inputJson" (ngModelChange)="formatJson()"
+            class="w-full p-2 border-1 surface-100 editor-input">
+          </textarea>
+
+          <!-- Monaco editor for browser environment -->
+          <div *ngIf="isBrowser" class="monaco-container">
+            <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputJson"
+              (ngModelChange)="formatJson()" class="w-full h-full editor-container">
+            </ngx-monaco-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - Query and Result -->
+    <div class="col">
+      <div class="card p-3 surface-card shadow-sm editor-container">
+        <!-- Заголовок -->
+        <div class="editor-header">
+          <h5 class="text-xl font-medium text-800 m-0">Query Result</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadResult()"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Query input -->
+        <div class="mb-3 query-input-container">
+          <p-iconfield iconPosition="left" class="w-full">
+            <p-inputicon>
+              <i class="pi pi-search"></i>
+            </p-inputicon>
+            <input type="text" pInputText class="w-full" placeholder="Enter query (e.g., data.users.filter(u => u.active))" 
+              [(ngModel)]="queryString" (ngModelChange)="executeQuery()" (keydown.enter)="executeQuery()">
+          </p-iconfield>
+          <small class="block mt-1 text-400">
+            Start with <code class="text-primary px-1 rounded">data</code> to refer to the JSON object. Use JavaScript expressions.
+          </small>
+        </div>
+
+        <!-- Error message -->
+        <div *ngIf="error" class="mb-2 p-2 bg-red-50 rounded-md border-1 border-red-300 text-red-700">
+          <i class="pi pi-exclamation-triangle mr-2"></i>{{ error }}
+        </div>
+
+        <!-- Содержимое редактора -->
+        <div class="editor-content">
+          <!-- Fallback textarea for server-side rendering -->
+          <textarea *ngIf="!isBrowser" [(ngModel)]="queryResult" readonly
+            class="w-full p-2 border-1 surface-100 editor-output">
+          </textarea>
+
+          <!-- Monaco editor for browser environment -->
+          <div *ngIf="isBrowser" class="monaco-container">
+            <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="queryResult"
+              class="w-full h-full editor-container">
+            </ngx-monaco-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+    <h3 class="text-xl font-semibold mb-2">About JSON Query Explorer</h3>
+    <p class="mb-2 text-sm">
+      This tool allows you to query and extract data from JSON using standard JavaScript expressions. The JSON data is assigned to a variable called <code class="text-primary px-1 rounded">data</code>, which you can use in your queries.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Example queries:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><code class="text-primary px-1 rounded">data.users.filter(user => user.age > 30)</code> - Get users older than 30</li>
+      <li><code class="text-primary px-1 rounded">data.products.map(p => p.name)</code> - Extract names only</li>
+      <li><code class="text-primary px-1 rounded">data.orders.reduce((sum, order) => sum + order.total, 0)</code> - Calculate total value</li>
+      <li><code class="text-primary px-1 rounded">Object.keys(data.settings)</code> - Get all keys from settings object</li>
+    </ul>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> You can use all valid JavaScript expressions, including filter, map, reduce, find, and standard object methods.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 
