@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -20,6 +21,13 @@ interface Monaco {
 interface SpacingOption {
   label: string;
   value: number;
+}
+
+// Добавляем интерфейс для опций стилей ключей
+interface KeyCaseOption {
+  label: string;
+  value: string;
+  transform: (key: string) => string;
 }
 
 @Component({
@@ -53,6 +61,18 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   
   // Default spacing selection
   selectedSpacing: SpacingOption = this.spacingOptions[0];
+  
+  // Добавляем опции для стилей ключей
+  keyCaseOptions: KeyCaseOption[] = [
+    { label: 'Original', value: 'original', transform: (key) => key },
+    { label: 'camelCase', value: 'camelCase', transform: camelCase },
+    { label: 'snake_case', value: 'snakeCase', transform: snakeCase },
+    { label: 'PascalCase', value: 'pascalCase', transform: pascalCase },
+    { label: 'kebab-case', value: 'kebabCase', transform: kebabCase }
+  ];
+  
+  // Default key case selection
+  selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
   
   // Для SSR и манипуляций с DOM
   private schemaScriptElement: HTMLElement | null = null;
@@ -295,7 +315,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
    * Load sample JSON data
    */
   loadSampleJson() {
-    this.inputCode = `{"example":"data","number":123,"array":[1,2,3]}`;
+    this.inputCode = `{"exampleString":"exampleData","exampleNumber":123,"exampleArray":[1,2,3]}`;
     this.formatJson();
   }
   
@@ -407,8 +427,13 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       // First parse to validate JSON
       const parsedJson = JSON.parse(this.inputCode);
       
+      // Transform keys if needed
+      const transformedJson = this.selectedKeyCase.value !== 'original' 
+        ? this.transformJsonKeys(parsedJson, this.selectedKeyCase.transform)
+        : parsedJson;
+      
       // Then format with selected spacing
-      this.outputCode = this.prettyPrintJson(this.inputCode);
+      this.outputCode = this.prettyPrintJson(JSON.stringify(transformedJson));
       
       // Clear any previous error messages
       this.messageService.clear();
@@ -430,5 +455,37 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         this.outputCode = 'Error formatting JSON: ' + (formatError instanceof Error ? formatError.message : 'Unknown error');
       }
     }
+  }
+  
+  /**
+   * Transform all keys in JSON object using the provided function
+   */
+  transformJsonKeys(obj: any, transformFn: (key: string) => string): any {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.transformJsonKeys(item, transformFn));
+    }
+    
+    const result: Record<string, any> = {};
+    
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const transformedKey = transformFn(key);
+        result[transformedKey] = this.transformJsonKeys(obj[key], transformFn);
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Handle key case option change
+   */
+  onKeyCaseChange() {
+    // Reformat JSON with the new key case
+    this.formatJson();
   }
 } 

@@ -2,7 +2,7 @@
   <div class="mb-2 p-3" appFavoritePage>
     <h4 class="text-lg text-700">Tool for converting JSON data to XML format with proper structure</h4>
   </div>
-  
+
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
     <!-- Left column - Input JSON -->
     <div class="col flex flex-col h-full">
@@ -11,35 +11,33 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">Input JSON</h5>
           <div class="flex gap-2">
-            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()" class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleJson()" class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearJson()" severity="danger" class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleJson()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearJson()" severity="danger"
+              class="p-button-text p-button-sm"></button>
           </div>
         </div>
-        
+
         <!-- Margin for alignment with right column -->
         <div class="mb-2"></div>
-        
+
         <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" 
-          [(ngModel)]="inputCode" 
-          (ngModelChange)="convertJsonToXml()"
+        <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="convertJsonToXml()"
           class="w-full p-2 border-1 surface-100 font-mono flex-1">
         </textarea>
-        
+
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor
-            #inputMonacoEditor
-            [options]="inputEditorOptions" 
-            [(ngModel)]="inputCode" 
-            (ngModelChange)="convertJsonToXml()"
-            class="w-full h-full">
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
+          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+            (ngModelChange)="convertJsonToXml()" class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>
     </div>
-    
+
     <!-- Right column - XML Output -->
     <div class="col flex flex-col h-full">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
@@ -47,42 +45,58 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">XML Output</h5>
           <div class="flex gap-2 items-center">
-            <p-floatlabel variant="on">
-                <input pInputText id="root_name" [(ngModel)]="rootName" (ngModelChange)="convertJsonToXml()" autocomplete="off" />
+            <div class="flex items-center gap-2" style="height: 35px;">
+              <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
+                (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
+                [style]="{'min-width': '140px', 'height': '35px'}" [panelStyleClass]="'same-width-panel'"
+                appendTo="body">
+                <ng-template pTemplate="selectedItem">
+                  <div class="flex align-items-center">
+                    <span>Key: {{selectedKeyCase.label}}</span>
+                  </div>
+                </ng-template>
+                <ng-template let-option pTemplate="item">
+                  <div class="flex align-items-center">
+                    <span>{{option.label}}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+
+              <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
+                <input pInputText id="root_name" [(ngModel)]="rootName" (ngModelChange)="convertJsonToXml()"
+                  autocomplete="off" class="h-full" />
                 <label for="root_name">Root name</label>
-            </p-floatlabel>
-            <button pButton type="button" label="Copy" icon="pi pi-copy" 
-                    (click)="copyToClipboard()" 
-                    class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Download" icon="pi pi-download" 
-                    (click)="downloadXml()" 
-                    class="p-button-text p-button-sm"></button>
+              </p-floatlabel>
+            </div>
+
+
+
+            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadXml()"
+              class="p-button-text p-button-sm"></button>
           </div>
         </div>
-        
+
         <!-- Margin for alignment -->
         <div class="mb-2"></div>
-        
+
         <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" 
-          [(ngModel)]="outputCode" 
-          readonly
+        <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
           class="w-full p-2 border-1 surface-100 font-mono flex-1">
         </textarea>
-        
+
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser" class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor
-            #outputMonacoEditor
-            [options]="outputEditorOptions" 
-            [(ngModel)]="outputCode" 
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
+          <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
             class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>
     </div>
   </div>
-  
+
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
 </div>

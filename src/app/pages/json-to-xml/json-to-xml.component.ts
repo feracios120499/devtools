@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -15,6 +16,13 @@ import { FavoritePageDirective } from '../../directives/favorite-page.directive'
 interface Monaco {
   editor: any;
   languages: any;
+}
+
+// Добавляем интерфейс для опций стилей ключей
+interface KeyCaseOption {
+  label: string;
+  value: string;
+  transform: (key: string) => string;
 }
 
 @Component({
@@ -40,6 +48,18 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
 
   editorTheme: string = 'vs-dark'; // Default theme
+  
+  // Добавляем опции для стилей ключей
+  keyCaseOptions: KeyCaseOption[] = [
+    { label: 'Original', value: 'original', transform: (key) => key },
+    { label: 'camelCase', value: 'camelCase', transform: camelCase },
+    { label: 'snake_case', value: 'snakeCase', transform: snakeCase },
+    { label: 'PascalCase', value: 'pascalCase', transform: pascalCase },
+    { label: 'kebab-case', value: 'kebabCase', transform: kebabCase }
+  ];
+  
+  // Default key case selection
+  selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
 
   // For JSON-LD script
   private schemaScriptElement: HTMLElement | null = null;
@@ -242,7 +262,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   loadSampleJson() {
     this.inputCode = `{
-  "person": {
+  "personData": {
     "name": "John",
     "age": 30,
     "address": {
@@ -250,7 +270,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       "city": "Anytown",
       "country": "USA"
     },
-    "phones": [
+    "phonesArray": [
       "555-1234",
       "555-5678"
     ]
@@ -298,6 +318,38 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     };
   }
 
+  /**
+   * Handle key case option change
+   */
+  onKeyCaseChange() {
+    // Преобразовать JSON в XML с новым стилем ключей
+    this.convertJsonToXml();
+  }
+  
+  /**
+   * Transform keys in an object using the provided function
+   */
+  transformJsonKeys(obj: any, transformFn: (key: string) => string): any {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.transformJsonKeys(item, transformFn));
+    }
+    
+    const result: Record<string, any> = {};
+    
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        const transformedKey = transformFn(key);
+        result[transformedKey] = this.transformJsonKeys(obj[key], transformFn);
+      }
+    }
+    
+    return result;
+  }
+
   convertJsonToXml() {
     if (!this.inputCode.trim()) {
       this.outputCode = '';
@@ -308,8 +360,13 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       // Parse the JSON
       const jsonData = JSON.parse(this.inputCode);
       
+      // Transform keys if needed
+      const transformedJson = this.selectedKeyCase.value !== 'original' 
+        ? this.transformJsonKeys(jsonData, this.selectedKeyCase.transform)
+        : jsonData;
+      
       // Convert to XML
-      const xml = this.jsonToXml(jsonData, this.rootName);
+      const xml = this.jsonToXml(transformedJson, this.rootName);
       
       // Format XML for readability
       this.outputCode = this.formatXml(xml);

@@ -22,27 +22,78 @@
 
         <!-- Base64 input -->
         <div class="p-fluid w-full mt-3 flex-1">
-          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="inputBase64" 
-            (ngModelChange)="onBase64Changed()" 
+          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="displayBase64" 
+            (ngModelChange)="onInputChange($event)" 
             placeholder="Paste your Base64 encoded data here"></textarea>
+        </div>
+
+        <!-- Warning about hidden content -->
+        <div *ngIf="hiddenSymbolsCount > 0" class="bg-yellow-50 rounded-md p-2 mt-2 mb-3 border-1 border-yellow-300">
+          <div class="flex items-center">
+            <i class="pi pi-info-circle text-yellow-600 mr-2"></i>
+            <span class="text-yellow-800">
+              <strong>Content truncated for display only:</strong> {{hiddenSymbolsCount}} of {{originalBase64.length}} characters are hidden. 
+              The complete data will be used when processing.
+            </span>
+          </div>
+        </div>
+
+        <!-- Error for invalid base64 -->
+        <div *ngIf="invalidBase64" class="bg-red-50 rounded-md p-2 mt-2 mb-3 border-1 border-red-300">
+          <div class="flex items-center">
+            <i class="pi pi-exclamation-triangle text-red-600 mr-2"></i>
+            <span class="text-red-800">
+              <strong>Invalid Base64 format:</strong> The input does not appear to be a valid Base64 string. 
+              Please check your data and ensure it's correctly encoded.
+            </span>
+          </div>
         </div>
 
         <!-- File Name Input -->
         <div class="mt-4">
           <div class="field">
-            <label for="file_name" class="block text-sm font-medium mb-1">File Name</label>
-            <div class="p-inputgroup">
-              <input pInputText id="file_name" [(ngModel)]="fileName" placeholder="Enter file name (with or without extension)">
-              <span class="p-inputgroup-addon" *ngIf="detectedFileType">
-                <i class="pi pi-check text-success"></i> {{detectedFileType}} detected
-              </span>
-              <span class="p-inputgroup-addon" *ngIf="!detectedFileType && inputBase64">
-                <i class="pi pi-info-circle"></i> Using .bin
-              </span>
+            <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
+              <input pInputText id="file_name" [(ngModel)]="fileName"
+                autocomplete="off" class="h-full" />
+              <label for="file_name">File name</label>
+            </p-floatlabel>
+            
+            <!-- File Type Selector -->
+            <div class="mt-3">
+              <div *ngIf="typeOptions.length > 0">
+                <label class="block text-500 mb-1">File type:</label>
+                <p-select [options]="typeOptions" [(ngModel)]="selectedTypeOption" 
+                  optionLabel="description" [style]="{'width': '100%'}" appendTo="body"
+                  (onChange)="onFileTypeChange()">
+                  <ng-template pTemplate="selectedItem">
+                    <div class="flex align-items-center" *ngIf="selectedTypeOption">
+                      <span>{{selectedTypeOption.description}} (.{{selectedTypeOption.extension}})</span>
+                    </div>
+                  </ng-template>
+                  <ng-template let-option pTemplate="item">
+                    <div class="flex align-items-center">
+                      <span>{{option.description}} (.{{option.extension}})</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+                
+                <!-- MIME Type Information -->
+                <div *ngIf="mimeTypeInfo.length > 0" class="mt-2">
+                  <div class="flex align-items-center text-sm text-500">
+                    <strong>MIME Type:</strong> 
+                    <span class="ml-1">{{mimeTypeService.getMimeTypeByExtension(selectedTypeOption?.extension)}}</span>
+                  </div>
+                  <div *ngIf="mimeTypeInfo.length > 1" class="mt-1 text-xs text-400">
+                    <div>Alternative MIME types:</div>
+                    <ul class="pl-3 m-0 mt-1">
+                      <li *ngFor="let mime of mimeTypeInfo.slice(1)">
+                        {{mime.mimeType}} - {{mime.description}}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
-            <small *ngIf="detectedFileType" class="text-sm text-500 block mt-1">
-              MIME type: {{mimeTypeService.getMimeTypeByExtension(detectedFileType)}}
-            </small>
           </div>
         </div>
 
@@ -50,7 +101,7 @@
         <div class="mt-4">
           <button pButton type="button" label="Convert & Download" icon="pi pi-download" 
             (click)="convertAndDownload()" 
-            [disabled]="!inputBase64" 
+            [disabled]="!inputBase64 || !fileName" 
             class="w-full"></button>
         </div>
       </div>

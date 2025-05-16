@@ -4,6 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { TableModule } from 'primeng/table';
@@ -24,6 +25,7 @@ import { SliderModule } from 'primeng/slider';
     CardModule,
     RadioButtonModule,
     DropdownModule,
+    SelectModule,
     ToastModule,
     TooltipModule,
     TableModule,
@@ -39,6 +41,7 @@ import { SliderModule } from 'primeng/slider';
     CardModule,
     RadioButtonModule,
     DropdownModule,
+    SelectModule,
     ToastModule,
     TooltipModule,
     TableModule,
