@@ -1,0 +1,112 @@
+<div class="flex-col w-full h-full">
+  <div class="mb-2 p-3" appFavoritePage>
+    <h4 class="text-lg text-700">Tool for converting Base64 data to hexadecimal format with various formatting options</h4>
+  </div>
+
+  <!-- Основной контейнер с редакторами -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 editor-columns">
+    <!-- Левая колонка - Input Base64 -->
+    <div class="col">
+      <div class="card p-3 surface-card shadow-sm editor-container">
+        <!-- Заголовок -->
+        <div class="editor-header">
+          <h5 class="text-xl font-medium text-800 m-0">Input Base64</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleBase64()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Содержимое редактора -->
+        <div class="editor-content">
+          <!-- Fallback textarea for server-side rendering -->
+          <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="convertBase64ToHex()"
+            class="w-full p-2 border-1 surface-100 font-mono editor-input">
+          </textarea>
+
+          <!-- Monaco editor for browser environment -->
+          <div *ngIf="isBrowser" class="monaco-container">
+            <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+              (ngModelChange)="convertBase64ToHex()" class="w-full h-full">
+            </ngx-monaco-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - HEX Output -->
+    <div class="col">
+      <div class="card p-3 surface-card shadow-sm editor-container">
+        <!-- Заголовок -->
+        <div class="editor-header">
+          <h5 class="text-xl font-medium text-800 m-0">HEX Output</h5>
+          <div class="flex gap-2 items-center">
+            <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
+              (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}} ({{option.example}})</span>
+                </div>
+              </ng-template>
+            </p-select>
+
+            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadHex()"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- Содержимое редактора -->
+        <div class="editor-content">
+          <!-- Fallback textarea for server-side rendering -->
+          <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
+            class="w-full p-2 border-1 surface-100 font-mono editor-output">
+          </textarea>
+
+          <!-- Monaco editor for browser environment -->
+          <div *ngIf="isBrowser" class="monaco-container">
+            <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+              class="w-full h-full">
+            </ngx-monaco-editor>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+    <h3 class="text-xl font-semibold mb-2">About Base64 to HEX Converter</h3>
+    <p class="mb-2 text-sm">
+      This tool allows you to convert Base64 encoded data to hexadecimal (HEX) format with various display options. Base64 is a binary-to-text encoding scheme commonly used to represent binary data in a format that is not affected by text processing systems.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Available HEX output formats:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase hex characters (DEADBEEF)</li>
+      <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
+      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
+      <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
+      <li><code class="text-primary px-1 rounded">Lowercase</code> - Simple lowercase hex characters (deadbeef)</li>
+      <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
+    </ul>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> This conversion is performed locally in your browser - no data is sent to any server.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

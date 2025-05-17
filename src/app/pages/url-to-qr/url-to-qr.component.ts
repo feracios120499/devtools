@@ -5,11 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { QRCodeComponent, QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { Router } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { FavoritePageDirective } from '../../directives/favorite-page.directive';
+import { UserPreferencesService, UrlToQrSettings } from '../../services/user-preferences.service';
 
 @Component({
   selector: 'app-url-to-qr',
@@ -28,7 +30,7 @@ import { FavoritePageDirective } from '../../directives/favorite-page.directive'
 export class UrlToQrComponent implements OnInit {
   // Content for inputs
   inputUrl: string = '';
-  qrSize: number = 200;
+  qrSize: number = 300;
   errorCorrectionLevel: QRCodeErrorCorrectionLevel = 'M';
   darkColor: string = '#000000';
   lightColor: string = '#FFFFFF';
@@ -39,6 +41,12 @@ export class UrlToQrComponent implements OnInit {
   // For JSON-LD
   isBrowser: boolean = false;
   private schemaScriptElement: HTMLElement | null = null;
+  
+  // URL текущей страницы для хранения настроек
+  private pageUrl: string = 'url-to-qr';
+  
+  // Флаг для отслеживания изменений настроек
+  private settingsChanged: boolean = false;
   
   // Options for error correction
   correctionLevelOptions = [
@@ -57,9 +65,16 @@ export class UrlToQrComponent implements OnInit {
     private metaService: Meta,
     private titleService: Title,
     private messageService: MessageService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private router: Router,
+    private userPreferencesService: UserPreferencesService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+    
+    // Получаем текущий URL для хранения настроек
+    if (this.isBrowser) {
+      this.pageUrl = this.router.url;
+    }
   }
 
   ngOnInit() {
@@ -72,8 +87,13 @@ export class UrlToQrComponent implements OnInit {
     // Add JSON-LD to head
     this.addJsonLdToHead();
     
-    // Generate a sample QR code
-    this.loadSample();
+    // Загружаем сохраненные настройки
+    this.loadUserPreferences();
+    
+    // Generate a sample QR code if no URL is provided
+    if (!this.inputUrl) {
+      this.loadSample();
+    }
   }
 
   ngOnDestroy() {
@@ -85,6 +105,56 @@ export class UrlToQrComponent implements OnInit {
         console.error('Error removing JSON-LD script:', e);
       }
     }
+    
+    // Сохраняем настройки при уничтожении компонента
+    if (this.settingsChanged) {
+      this.saveUserPreferences();
+    }
+  }
+
+  /**
+   * Загружает пользовательские настройки из localStorage
+   */
+  private loadUserPreferences() {
+    if (!this.isBrowser) return;
+    
+    const settings = this.userPreferencesService.loadPageSettings<UrlToQrSettings>(this.pageUrl);
+    
+    if (settings) {
+      // Применяем сохраненные настройки
+      if (settings.qrSize) {
+        this.qrSize = settings.qrSize;
+      }
+      
+      if (settings.errorCorrectionLevel) {
+        this.errorCorrectionLevel = settings.errorCorrectionLevel as QRCodeErrorCorrectionLevel;
+      }
+      
+      if (settings.darkColor) {
+        this.darkColor = settings.darkColor;
+      }
+      
+      if (settings.lightColor) {
+        this.lightColor = settings.lightColor;
+      }
+    }
+  }
+  
+  /**
+   * Сохраняет пользовательские настройки в localStorage
+   */
+  private saveUserPreferences() {
+    if (!this.isBrowser) return;
+    
+    const settings: UrlToQrSettings = {
+      qrSize: this.qrSize,
+      errorCorrectionLevel: this.errorCorrectionLevel,
+      darkColor: this.darkColor,
+      lightColor: this.lightColor
+    };
+    
+    this.userPreferencesService.savePageSettings(this.pageUrl, settings);
+    this.settingsChanged = false;
   }
 
   /**
@@ -156,6 +226,9 @@ export class UrlToQrComponent implements OnInit {
       });
       return;
     }
+    
+    // Отмечаем, что настройки изменились
+    this.settingsChanged = true;
   }
 
   /**
@@ -178,6 +251,33 @@ export class UrlToQrComponent implements OnInit {
    */
   clearInput() {
     this.inputUrl = '';
+  }
+
+  /**
+   * Handle QR size change
+   */
+  onQrSizeChange() {
+    // Отмечаем, что настройки изменились и сохраняем их
+    this.settingsChanged = true;
+    this.saveUserPreferences();
+  }
+  
+  /**
+   * Handle error correction level change
+   */
+  onErrorCorrectionLevelChange() {
+    // Отмечаем, что настройки изменились и сохраняем их
+    this.settingsChanged = true;
+    this.saveUserPreferences();
+  }
+  
+  /**
+   * Handle color change
+   */
+  onColorChange() {
+    // Отмечаем, что настройки изменились и сохраняем их
+    this.settingsChanged = true;
+    this.saveUserPreferences();
   }
 
   /**

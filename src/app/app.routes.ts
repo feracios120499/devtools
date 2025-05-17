@@ -37,5 +37,10 @@ export const routes: Routes = [
     path: 'base64-to-file', 
     loadComponent: () => import('./pages/base64-to-file/base64-to-file.component').then(m => m.Base64ToFileComponent),
     title: 'Base64 to File Converter | DevTools' 
+  },
+  { 
+    path: 'base64-to-hex', 
+    loadComponent: () => import('./pages/base64-to-hex/base64-to-hex.component').then(m => m.Base64ToHexComponent),
+    title: 'Base64 to HEX Converter | DevTools' 
   }
 ];
