@@ -71,6 +71,13 @@ export class LeftbarComponent implements OnInit, OnDestroy {
             isFavorite: this.favoritesService.isFavorite('/json-to-xml')
           },
           {
+            label: 'JSON to ENV',
+            icon: 'pi pi-server',
+            routerLink: '/json-to-env',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/json-to-env')
+          },
+          {
             label: 'JSON Query Explorer',
             icon: 'pi pi-search',
             routerLink: '/json-query',

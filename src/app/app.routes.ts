@@ -14,6 +14,11 @@ export const routes: Routes = [
     title: 'JSON to XML Converter | DevTools' 
   },
   { 
+    path: 'json-to-env', 
+    loadComponent: () => import('./pages/json-to-env/json-to-env.component').then(m => m.JsonToEnvComponent),
+    title: 'JSON to ENV Converter | DevTools' 
+  },
+  { 
     path: 'json-query', 
     loadComponent: () => import('./pages/json-query/json-query.component').then(m => m.JsonQueryComponent),
     title: 'JSON Query Explorer | DevTools' 
