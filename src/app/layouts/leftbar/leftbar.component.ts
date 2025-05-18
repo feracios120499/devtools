@@ -87,6 +87,23 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         ],
       },
       {
+        label: 'CSV TOOLS',
+      },
+      {
+        separator: true,
+      },
+      {
+        items: [
+          {
+            label: 'CSV Viewer',
+            icon: 'pi pi-table',
+            routerLink: '/csv-viewer',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/csv-viewer')
+          },
+        ],
+      },
+      {
         label: 'URL TOOLS',
       },
       {

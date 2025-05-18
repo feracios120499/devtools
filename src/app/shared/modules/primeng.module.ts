@@ -16,6 +16,10 @@ import { ColorPickerModule } from 'primeng/colorpicker';
 import { SliderModule } from 'primeng/slider';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -37,7 +41,11 @@ import { InputIconModule } from 'primeng/inputicon';
     ColorPickerModule,
     SliderModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    FileUploadModule,
+    ProgressBarModule,
+    MultiSelectModule,
+    CheckboxModule
   ],
   exports: [
     InputTextModule,
@@ -55,7 +63,11 @@ import { InputIconModule } from 'primeng/inputicon';
     ColorPickerModule,
     SliderModule, 
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    FileUploadModule,
+    ProgressBarModule,
+    MultiSelectModule,
+    CheckboxModule
   ],
   providers: [
     MessageService

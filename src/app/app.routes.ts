@@ -24,6 +24,11 @@ export const routes: Routes = [
     title: 'JSON Query Explorer | DevTools' 
   },
   { 
+    path: 'csv-viewer', 
+    loadComponent: () => import('./pages/csv-viewer/csv-viewer.component').then(m => m.CsvViewerComponent),
+    title: 'CSV Viewer and Analyzer | DevTools' 
+  },
+  { 
     path: 'url-encoder', 
     loadComponent: () => import('./pages/url-encoder/url-encoder.component').then(m => m.UrlEncoderComponent),
     title: 'URL Encoder and Decoder | DevTools' 

@@ -1,0 +1,224 @@
+<div class="flex flex-col w-full h-full">
+    <div class="mb-2 p-3" appFavoritePage>
+        <h4 class="text-lg text-700">View and analyze CSV data with interactive sorting, filtering, and pagination</h4>
+    </div>
+
+    <!-- Панель настроек -->
+    <div class="card p-3 surface-card shadow-sm mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div class="col">
+                <label for="delimiter" class="block text-700 mb-2">Delimiter</label>
+                <p-select [options]="delimiterOptions" [(ngModel)]="selectedDelimiter" optionLabel="label"
+                    (onChange)="onDelimiterChange()" styleClass="p-select-sm custom-select w-full" appendTo="body"
+                    inputId="delimiter">
+                    <ng-template pTemplate="selectedItem">
+                        <div class="flex align-items-center">
+                            <span>{{selectedDelimiter.label}}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <div class="flex align-items-center">
+                            <span>{{option.label}}</span>
+                            <span class="text-xs text-500 ml-2">({{option.description}})</span>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <div class="col">
+                <label for="quoteChar" class="block text-700 mb-2">Quote Character</label>
+                <p-select [options]="quoteCharOptions" [(ngModel)]="selectedQuoteChar" optionLabel="label"
+                    (onChange)="onQuoteCharChange()" styleClass="p-select-sm custom-select w-full" appendTo="body"
+                    inputId="quoteChar">
+                    <ng-template pTemplate="selectedItem">
+                        <div class="flex items-center">
+                            <span>{{selectedQuoteChar.label}}</span>
+                        </div>
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                        <div class="flex items-center">
+                            <span>{{option.label}}</span>
+                            <span class="text-xs text-500 ml-2">({{option.description}})</span>
+                        </div>
+                    </ng-template>
+                </p-select>
+            </div>
+
+            <div class="col flex flex-col">
+                <label for="quoteChar" class="block text-700 mb-2" style="visibility: hidden;">aadasd</label>
+                <div class="field-checkbox">
+                    <p-checkbox [(ngModel)]="hasHeader" [binary]="true" inputId="hasHeader"
+                        (onChange)="onHeaderOptionChange()"></p-checkbox>
+                    <label for="hasHeader" class="ml-2">First row as header</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSV Input Section -->
+    <div class="card p-3 surface-card shadow-sm mb-4">
+        <div class="flex justify-between items-center mb-3">
+            <h5 class="text-xl font-medium text-800 m-0">CSV Input</h5>
+            <div class="flex gap-2">
+                <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+                    class="p-button-text p-button-sm"></button>
+                <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleCsv()"
+                    class="p-button-text p-button-sm"></button>
+                <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
+                    class="p-button-text p-button-sm"></button>
+            </div>
+        </div>
+
+        <!-- Text area for CSV input -->
+        <div class="p-fluid w-full">
+            <textarea class="w-full" rows="8" pTextarea [(ngModel)]="csvData"
+                (ngModelChange)="originalCsvData = $event; onCsvDataChange()"
+                placeholder="Paste your CSV data here or use the upload button"></textarea>
+        </div>
+
+        <!-- Warning about hidden content -->
+        <div *ngIf="hiddenSymbolsCount > 0" class="bg-yellow-50 rounded-md p-2 mt-2 mb-3 border-1 border-yellow-300">
+            <div class="flex items-center">
+                <i class="pi pi-info-circle text-yellow-600 mr-2"></i>
+                <span class="text-yellow-800">
+                    <strong>Content truncated for display only:</strong> {{hiddenSymbolsCount}} of
+                    {{originalCsvData.length}} characters are hidden.
+                    The complete data will be used for processing.
+                </span>
+            </div>
+        </div>
+
+        <!-- File upload button -->
+        <div class="mt-3">
+            <p-fileUpload mode="basic" chooseLabel="Upload CSV File" [auto]="true" accept=".csv,.txt,.tsv"
+                (uploadHandler)="onFileUpload($event)" [customUpload]="true" chooseIcon="pi pi-upload"
+                class="w-full"></p-fileUpload>
+        </div>
+
+        <!-- Error message -->
+        <div *ngIf="errorMessage" class="mt-3 p-2 bg-red-50 border-round text-red-700 border-1 border-red-300">
+            <i class="pi pi-exclamation-triangle mr-2"></i>{{errorMessage}}
+        </div>
+    </div>
+
+    <!-- CSV Table Result -->
+    <div *ngIf="parsedData.length > 0" class="card p-3 surface-card shadow-sm mb-4">
+        <div class="flex justify-between items-center mb-3">
+            <div>
+                <h5 class="text-xl font-medium text-800 m-0">CSV Data</h5>
+                <p class="m-0 mt-1 text-sm text-500">{{totalRows}} rows, {{totalColumns}} columns</p>
+            </div>
+            <div class="flex gap-2">
+                <button pButton type="button" label="Clear Filters" icon="pi pi-filter-slash"
+                    (click)="clearAllFilters()" class="p-button-text p-button-sm"></button>
+                <button pButton type="button" label="Export" icon="pi pi-download" (click)="exportToCsv()"
+                    class="p-button-text p-button-sm"></button>
+            </div>
+        </div>
+
+
+
+        <!-- PrimeNG Table with filtering, sorting and pagination -->
+        <div class="table-container">
+            <p-table #csvTable stripedRows showGridlines [value]="parsedData" [columns]="selectedColumns"
+                styleClass="p-datatable-sm p-datatable-striped" [paginator]="true" [rows]="10"
+                [showCurrentPageReport]="true" responsiveLayout="scroll"
+                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+                [rowsPerPageOptions]="[10, 25, 50, 100]" [globalFilterFields]="filterFields" [filterDelay]="500"
+                [resizableColumns]="true" [reorderableColumns]="true" [scrollable]="true">
+
+                <ng-template pTemplate="caption">
+                    <div class="flex justify-between flex-column sm:flex-row">
+                        <div class="mb-2 sm:mb-0">
+                            <p-iconfield iconPosition="left" class="w-full">
+                                <p-inputicon>
+                                    <i class="pi pi-search"></i>
+                                </p-inputicon>
+                                <input #searchInput type="text" pInputText class="w-full" placeholder="Search keyword"
+                                    (input)="csvTable.filterGlobal(searchInput.value, 'contains')">
+                            </p-iconfield>
+                        </div>
+                        <!-- Выбор колонок для отображения -->
+                        <div class="flex gap-2 mb-3">
+                            <p-multiSelect [options]="availableColumns" [(ngModel)]="selectedColumns"
+                                optionLabel="header" [maxSelectedLabels]="3" [showToggleAll]="true"
+                                (onChange)="onColumnSelectionChange()" placeholder="Select Columns"
+                                styleClass="p-multiselect-sm" display="chip">
+                                <ng-template let-value pTemplate="selectedItems">
+                                    <div class="flex align-items-center gap-2" *ngIf="value">
+                                        <span *ngIf="value.length > 0">{{value.length}} columns selected</span>
+                                        <span *ngIf="value.length === 0">All columns</span>
+                                    </div>
+                                </ng-template>
+                            </p-multiSelect>
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let col of columns" [pSortableColumn]="col.field" [style]="{'min-width': '150px'}"
+                            pResizableColumn pReorderableColumn>
+                            {{col.header}}
+                            <p-sortIcon [field]="col.field"></p-sortIcon>
+                            <p-columnFilter [field]="col.field" matchMode="contains" [showMatchModes]="false"
+                                [showOperator]="false" [showAddButton]="false" display="menu"></p-columnFilter>
+                        </th>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr>
+                        <td *ngFor="let col of columns" [style]="{'min-width': '150px'}" class="p-2">
+                            {{rowData[col.field]}}
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="emptymessage">
+                    <tr>
+                        <td [attr.colspan]="selectedColumns.length" class="text-center p-4">
+                            No data available
+                        </td>
+                    </tr>
+                </ng-template>
+
+                <ng-template pTemplate="loadingbody" *ngIf="loading">
+                    <tr>
+                        <td [attr.colspan]="selectedColumns.length" class="text-center p-4">
+                            Loading data...
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- Information Section -->
+    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+        <h3 class="text-xl font-semibold mb-2">About CSV Viewer and Analyzer</h3>
+        <p class="mb-2 text-sm">
+            This tool allows you to view and analyze CSV (Comma-Separated Values) data in an interactive table format.
+            CSV files are commonly used to store tabular data and can be exported from spreadsheets and databases.
+        </p>
+        <p class="mb-2 text-sm">
+            <strong>Features:</strong>
+        </p>
+        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+            <li><strong>Customizable parser:</strong> Choose the delimiter, quote character, and whether to treat the
+                first row as headers</li>
+            <li><strong>Interactive table:</strong> Sort, filter, and paginate through your data with a powerful data
+                grid</li>
+            <li><strong>Data import options:</strong> Paste CSV text directly, upload CSV files, or use a sample dataset
+            </li>
+            <li><strong>Export capability:</strong> Export the filtered and sorted data back to CSV format</li>
+        </ul>
+        <p class="text-sm text-500">
+            <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to
+            any server.
+        </p>
+    </div>
+
+    <!-- Toast component -->
+    <p-toast position="bottom-right"></p-toast>
+</div>
