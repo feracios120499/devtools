@@ -1,11 +1,9 @@
-<div class="flex flex-col w-full h-full">
+<div class="dt-container">
   <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
 
-  <div class="mb-2 p-3" appFavoritePage>
-    <h4 class="text-lg text-700">Tool for formatting, validating and improving JSON code readability</h4>
-  </div>
+  <app-page-header>Tool for formatting, validating and improving JSON code readability</app-page-header>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+  <div class="dt-editors">
     <!-- Левая колонка - Input JSON -->
     <div class="col flex flex-col h-full">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
@@ -48,25 +46,25 @@
           <h5 class="text-xl font-medium text-800 m-0">Formatted JSON</h5>
           <div class="flex gap-2 items-center">
 
-             <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
-               (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '140px'}"
-               [panelStyleClass]="'same-width-panel'" appendTo="body">
-                <ng-template pTemplate="selectedItem">
-                  <div class="flex align-items-center">
-                    <span>Key: {{selectedKeyCase.label}}</span>
-                  </div>
-                </ng-template>
-                <ng-template let-option pTemplate="item">
-                  <div class="flex align-items-center">
-                    <span>{{option.label}}</span>
-                  </div>
-                </ng-template>
-              </p-select>
+            <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
+              (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '140px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>Key: {{selectedKeyCase.label}}</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}}</span>
+                </div>
+              </ng-template>
+            </p-select>
 
-             <p-select [options]="spacingOptions" [(ngModel)]="selectedSpacing" optionLabel="label"
-               (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
-               [panelStyleClass]="'same-width-panel'" appendTo="body">
-             </p-select>
+            <p-select [options]="spacingOptions" [(ngModel)]="selectedSpacing" optionLabel="label"
+              (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+            </p-select>
             <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
               class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadJson()"
@@ -91,6 +89,32 @@
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+    <h3 class="text-xl font-semibold mb-2">About JSON Formatter</h3>
+    <p class="mb-2 text-sm">
+      This tool helps you format, validate, and beautify JSON data for improved readability and debugging.
+      JSON (JavaScript Object Notation) is a lightweight data interchange format widely used for APIs and configuration
+      files.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Features:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><strong>JSON validation:</strong> Automatically checks your JSON for syntax errors and invalid formats</li>
+      <li><strong>Code formatting:</strong> Beautifies and properly indents your JSON for better readability</li>
+      <li><strong>Key case options:</strong> Change case format of JSON keys (preserve case, camelCase, snake_case,
+        etc.)</li>
+      <li><strong>Spacing configuration:</strong> Customize indentation level to match your code style preferences</li>
+      <li><strong>Advanced editor:</strong> Syntax highlighting, error indicators, and code completion</li>
+      <li><strong>Export options:</strong> Copy the formatted JSON or download it as a file</li>
+    </ul>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any
+      server.
+    </p>
   </div>
 
   <!-- Toast component -->

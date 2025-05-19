@@ -18,6 +18,14 @@ export interface Base64ToHexSettings extends PageSettings {
 }
 
 /**
+ * Интерфейс для настроек конвертера цветов
+ */
+export interface ColorConverterSettings extends PageSettings {
+  selectedFormat: string;
+  selectedColor: string;
+}
+
+/**
  * Интерфейс для настроек генератора QR-кодов из URL
  */
 export interface UrlToQrSettings extends PageSettings {

@@ -1,4 +1,3 @@
-
 // Используем классы Tailwind и PrimeNG вместо кастомных стилей
 // Минимальные стили для компонентов, которым требуется высота
 
@@ -6,47 +5,14 @@
   min-height: 24rem; // 384px для Monaco Editor
 }
 
-// Добавляем медиа-запрос для адаптивности на мобильных устройствах
+// Адаптивность на мобильных устройствах
 @media (max-width: 768px) {
   .min-h-96 {
     min-height: 16rem; // уменьшаем высоту на мобильных
   }
 }
 
-// Стили для dropdown, чтобы панель имела такую же ширину как и сам dropdown
 :host ::ng-deep {
-  .custom-dropdown {
-    .p-dropdown-panel {
-      min-width: 120px !important;
-      width: 100% !important;
-    }
-    
-    .p-dropdown-items {
-      width: 100% !important;
-    }
-    
-    .p-dropdown-item {
-      width: 100% !important;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-    }
-  }
-  
-  // Исправление для панели, которая открывается как appendTo="body"
-  .same-width-panel {
-    min-width: 120px !important;
-    
-    .p-dropdown-items {
-      width: 100% !important;
-    }
-    
-    .p-dropdown-item {
-      width: 100% !important;
-      padding-left: 0.75rem;
-      padding-right: 0.75rem;
-    }
-  }
-
   // Установить только размеры для Monaco Editor
   .monaco-editor {
     width: 100% !important;
@@ -80,22 +46,44 @@
     flex-direction: column;
   }
 
-  // Выравнивание выпадающего списка
-  .p-dropdown {
-    min-width: 120px;
-    .p-dropdown-label {
-      padding-right: 1.75rem;
-    }
-  }
-
-  .custom-dropdown .p-dropdown-label {
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
+  // Стили для checkbox
+  .p-checkbox {
+    align-self: flex-start;
+    margin-top: 0.125rem;
   }
 
   // Высота кнопок
   .p-button-sm {
     height: 2rem;
+  }
+}
+
+// Контейнер для Monaco Editor
+.monaco-container {
+  height: calc(100% - 10px) !important;
+  overflow: hidden;
+  
+  ::ng-deep {
+    .monaco-editor,
+    .monaco-editor .overflow-guard {
+      height: 100% !important;
+      width: 100% !important;
+    }
+  }
+}
+
+/* Стили для редакторов */
+.dt-editors {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  height: 500px; // Фиксированная высота для редакторов
+}
+
+@media (min-width: 1024px) {
+  .dt-editors {
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -128,10 +116,6 @@
         margin: 0;
       }
     }
-    
-    .p-dropdown {
-      min-width: 100px;
-    }
   }
 }
 
@@ -142,8 +126,8 @@
     overflow-y: auto;
   }
   
-  .min-h-96 {
-    min-height: 16rem;
+  .dt-editors {
+    height: 400px; // Уменьшаем высоту на мобильных
   }
   
   :host ::ng-deep {
@@ -164,12 +148,10 @@
 @media (max-width: 576px) {
   :host {
     padding: 0.25rem;
-    height: calc(100vh - 60px); // Вычитаем высоту topbar
-    overflow-y: auto;
   }
   
-  .min-h-96 {
-    min-height: 14rem;
+  .dt-editors {
+    height: 350px; // Ещё меньше для очень маленьких экранов
   }
   
   :host ::ng-deep {
@@ -189,23 +171,6 @@
       .p-button-icon {
         font-size: 0.875rem;
       }
-    }
-    
-    .p-dropdown {
-      min-width: 80px;
-    }
-  }
-}
-
-.monaco-container {
-  height: calc(100% - 10px) !important;
-  overflow: hidden;
-  
-  ::ng-deep {
-    .monaco-editor,
-    .monaco-editor .overflow-guard {
-      height: 100% !important;
-      width: 100% !important;
     }
   }
 } 

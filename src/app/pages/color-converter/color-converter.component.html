@@ -1,0 +1,174 @@
+<div class="dt-container">
+  <div class="mb-2 p-3" appFavoritePage>
+    <h4 class="text-lg text-700">Tool for converting colors between different formats</h4>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Left column - Color picker and input -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <h5 class="text-xl font-medium text-800 mb-3">Choose color</h5>
+
+        <!-- Color picker -->
+        <div class="mb-4">
+          <p-colorPicker [(ngModel)]="selectedColor" (onChange)="onColorChange()" format="hex" inline="true"
+            class="w-full color-picker-custom"></p-colorPicker>
+        </div>
+
+        <!-- Format selection -->
+        <div class="mb-3">
+          <h5 class="text-base font-medium text-800 mb-2">Input format</h5>
+          <div class="flex flex-wrap gap-3">
+            <div *ngFor="let format of colorFormats" class="field-radiobutton">
+              <p-radioButton [inputId]="format" name="format" [value]="format" [(ngModel)]="selectedFormat"
+                (onClick)="onFormatChange()"></p-radioButton>
+              <label [for]="format" class="ml-2">{{format}}</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text input -->
+        <div class="mb-4 p-fluid">
+          <h5 class="text-base font-medium text-800 mb-2">Value in {{selectedFormat}} format</h5>
+          <div class="flex">
+            <input pInputText [(ngModel)]="inputColorValue" (ngModelChange)="onInputChange()"
+              placeholder="Enter color value" class="w-full" />
+          </div>
+          <small class="text-red-500 block mt-1" *ngIf="inputError">{{inputError}}</small>
+        </div>
+
+        <!-- Preview -->
+        <div class="mt-2">
+          <h5 class="text-base font-medium text-800 mb-2">Preview</h5>
+          <div class="flex items-center">
+            <div class="color-preview mr-3" [style.background-color]="selectedColor"></div>
+            <span class="text-sm">{{selectedColor}}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column - Converted values -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1">
+        <h5 class="text-xl font-medium text-800 mb-3">Converted values</h5>
+
+        <!-- List of converted colors -->
+        <div class="converted-colors-list">
+          <div class="grid grid-cols-2 gap-4">
+            <div *ngFor="let color of convertedColors"
+              class="converted-color-item mb-3 p-3 surface-ground border-round">
+              <div class="flex justify-content-between align-items-center">
+                <div>
+                  <span class="font-medium text-800">{{color.name}} <button pButton pRipple type="button"
+                      icon="pi pi-copy" class="p-button-rounded p-button-text p-button-sm"
+                      (click)="copyColorValue(color)"></button></span>
+                  <div class="mt-1 text-sm">{{color.value}}</div>
+
+                </div>
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Color History Table -->
+  <div class="mt-4 card p-3 surface-card shadow-sm" *ngIf="colorHistory.length > 0">
+    <div class="flex justify-between items-center mb-3">
+      <h5 class="text-xl font-medium text-800 m-0">Color History</h5>
+
+      <div class="flex gap-2">
+        <p-multiSelect [options]="historyColumns" [(ngModel)]="selectedHistoryColumns" optionLabel="header"
+          selectedItemsLabel="{0} columns selected" [style]="{'min-width': '14rem'}" placeholder="Select Columns"
+          styleClass="p-multiselect-sm" (onChange)="onHistoryColumnChange()">
+          <ng-template let-value pTemplate="selectedItems">
+            <div class="flex align-items-center gap-2" *ngIf="value">
+              <span *ngIf="value.length > 0">{{value.length}} columns selected</span>
+              <span *ngIf="value.length === 0">All columns</span>
+            </div>
+          </ng-template>
+        </p-multiSelect>
+
+        <button pButton pRipple type="button" icon="pi pi-trash"
+          class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="clearHistory()"
+          pTooltip="Clear history"></button>
+      </div>
+    </div>
+
+    <p-table [value]="colorHistory" stripedRows [columns]="selectedHistoryColumns"
+      styleClass="p-datatable-sm p-datatable-striped" [scrollable]="true" [resizableColumns]="true"
+      [reorderableColumns]="true">
+
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{col.header}}
+          </th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-item let-columns="columns">
+        <tr (click)="loadFromHistory(item)" class="cursor-pointer">
+          <td *ngFor="let col of columns">
+            <ng-container *ngIf="col.field === 'timestamp'">
+              {{formatDateTime(item.timestamp)}}
+            </ng-container>
+
+            <ng-container *ngIf="col.field === 'color'">
+              <div class="flex items-center">
+                <div class="color-preview mr-2" [style.background-color]="item.color"></div>
+                <span>{{item.color}}</span>
+              </div>
+            </ng-container>
+
+            <ng-container *ngIf="col.field !== 'timestamp' && col.field !== 'color'">
+              <ng-container *ngIf="item.values && item.values[col.field]">
+                {{item.values[col.field]}}
+              </ng-container>
+            </ng-container>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td [attr.colspan]="selectedHistoryColumns.length" class="text-center p-4">
+            No color history available. Copy a color value to add to history.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- Information section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h3 class="text-xl font-semibold mb-2">About Color Converter</h3>
+    <p class="mb-2 text-sm">
+      Color Converter allows you to easily transform colors between different formats used in web development and
+      graphic design.
+      You can either select a color using the visual picker or enter a color value in any of the supported formats.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Supported formats:</strong>
+    </p>
+    <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
+      <li><span class="text-primary">HEX:</span> Hexadecimal notation (#RRGGBB)</li>
+      <li><span class="text-primary">RGB:</span> Red-Green-Blue (rgb(255, 255, 255))</li>
+      <li><span class="text-primary">RGBA:</span> RGB with alpha channel (rgba(255, 255, 255, 1))</li>
+      <li><span class="text-primary">HSL:</span> Hue-Saturation-Lightness (hsl(360, 100%, 100%))</li>
+      <li><span class="text-primary">HSV/HSB:</span> Hue-Saturation-Value/Brightness</li>
+      <li><span class="text-primary">HWB:</span> Hue-Whiteness-Blackness</li>
+      <li><span class="text-primary">CMYK:</span> Cyan-Magenta-Yellow-Key used in printing</li>
+      <li><span class="text-primary">LCH:</span> Lightness-Chroma-Hue perceptually uniform color space</li>
+      <li><span class="text-primary">LAB:</span> CIELAB color space, designed to be perceptually uniform with respect to
+        human color vision</li>
+    </ul>
+  </div>
+
+  <!-- Toast for notifications -->
+  <p-toast position="bottom-right"></p-toast>
+</div>

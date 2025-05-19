@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, NgZone, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, NgZone, OnDestroy, Renderer2, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -40,6 +40,7 @@ interface KeyCaseOption {
   styleUrl: './json-to-xml.component.scss'
 })
 export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
   rootName: string = 'root'; // Добавляем свойство для корневого элемента XML

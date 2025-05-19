@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -9,7 +9,7 @@ import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -38,13 +38,15 @@ interface KeyCaseOption {
     FormsModule, 
     MonacoEditorModule,
     PrimeNgModule,
-    FavoritePageDirective
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
   styleUrl: './json-formatter.component.scss'
 })
 export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
   

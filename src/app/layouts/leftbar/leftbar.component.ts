@@ -158,6 +158,40 @@ export class LeftbarComponent implements OnInit, OnDestroy {
           }
         ],
       },
+      {
+        label: 'REACT TOOLS',
+      },
+      {
+        separator: true,
+      },
+      {
+        items: [
+          {
+            label: 'SVG to React Component',
+            icon: 'pi pi-code',
+            routerLink: '/svg-to-react-component',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/svg-to-react-component')
+          }
+        ],
+      },
+      {
+        label: 'MISC TOOLS',
+      },
+      {
+        separator: true,
+      },
+      {
+        items: [
+          {
+            label: 'Color Converter',
+            icon: 'pi pi-palette',
+            routerLink: '/color-converter',
+            // Добавляем флаг избранного
+            isFavorite: this.favoritesService.isFavorite('/color-converter')
+          }
+        ],
+      },
     ];
   }
 }

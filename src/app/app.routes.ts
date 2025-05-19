@@ -52,5 +52,15 @@ export const routes: Routes = [
     path: 'base64-to-hex', 
     loadComponent: () => import('./pages/base64-to-hex/base64-to-hex.component').then(m => m.Base64ToHexComponent),
     title: 'Base64 to HEX Converter | DevTools' 
+  },
+  { 
+    path: 'color-converter', 
+    loadComponent: () => import('./pages/color-converter/color-converter.component').then(m => m.ColorConverterComponent),
+    title: 'Color Converter | DevTools' 
+  },
+  { 
+    path: 'svg-to-react-component', 
+    loadComponent: () => import('./pages/svg-to-react-component/svg-to-react-component.component').then(m => m.SvgToReactComponentComponent),
+    title: 'SVG to React Component | DevTools' 
   }
 ];

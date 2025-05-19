@@ -1,4 +1,4 @@
-import { Component, OnInit, Pipe, PipeTransform, Inject, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { Component, OnInit, Pipe, PipeTransform, Inject, PLATFORM_ID, Renderer2, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -21,6 +21,8 @@ interface UrlComponent {
   standalone: true
 })
 export class Nl2brPipe implements PipeTransform {
+  @HostBinding('class') class = 'dt-page';
+  
   constructor(private sanitizer: DomSanitizer) {}
 
   transform(value: string): SafeHtml {
