@@ -276,7 +276,7 @@
 
 .editor-button {
   position: absolute !important;
-  bottom: 12px;
+  top: 12px;
   right: 12px;
   z-index: 100;
   cursor: pointer;
@@ -288,6 +288,6 @@
 }
 
 .fullscreen-editor .editor-button{
-  bottom: 32px;
+  top: 32px;
   right: 32px;
 }
