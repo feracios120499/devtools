@@ -10,7 +10,7 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-
+import { IconsModule } from '../../shared/modules/icons.module';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -34,11 +34,12 @@ interface KeyCaseOption {
   selector: 'app-json-formatter',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
@@ -49,21 +50,21 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
-  
+
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
-  
+
   editorTheme: string = 'vs-dark'; // Default theme
-  
+
   // Spacing options for the dropdown
   spacingOptions: SpacingOption[] = [
     { label: '2 Spaces', value: 2 },
     { label: '4 Spaces', value: 4 }
   ];
-  
+
   // Default spacing selection
   selectedSpacing: SpacingOption = this.spacingOptions[0];
-  
+
   // Добавляем опции для стилей ключей
   keyCaseOptions: KeyCaseOption[] = [
     { label: 'Original', value: 'original', transform: (key) => key },
@@ -72,13 +73,13 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     { label: 'PascalCase', value: 'pascalCase', transform: pascalCase },
     { label: 'kebab-case', value: 'kebabCase', transform: kebabCase }
   ];
-  
+
   // Default key case selection
   selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
-  
+
   // Для SSR и манипуляций с DOM
   private schemaScriptElement: HTMLElement | null = null;
-  
+
   inputEditorOptions = {
     theme: this.editorTheme,
     language: 'json',
@@ -101,7 +102,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     },
     fixedOverflowWidgets: true
   };
-  
+
   outputEditorOptions = {
     theme: this.editorTheme,
     language: 'json',
@@ -123,9 +124,9 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     },
     fixedOverflowWidgets: true
   };
-  
+
   isBrowser: boolean = false;
-  
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -137,8 +138,10 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     private titleService: Title,
     private messageService: MessageService
   ) {
+    // Set page title
+    this.pageTitleService.setTitle('JSON Formatter and Validator');
     this.isBrowser = isPlatformBrowser(this.platformId);
-    
+
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
       effect(() => {
@@ -146,26 +149,25 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         this.updateEditorTheme();
       });
     }
-    
-    // Set page title
-    this.pageTitleService.setTitle('JSON Formatter and Validator');
+
+
   }
-  
+
   ngOnInit() {
     // Start with empty input
     this.inputCode = '';
-    
+
     // SEO setup
     this.setupSeo();
-    
+
     // Добавить JSON-LD в head
     this.addJsonLdToHead();
   }
-  
+
   ngAfterViewInit() {
     // No initialization needed
   }
-  
+
   ngOnDestroy() {
     // Удаляем элемент при уничтожении компонента, только в браузере
     if (this.isBrowser && this.schemaScriptElement) {
@@ -186,7 +188,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     //   }
     // }
   }
-  
+
   /**
    * Добавляет JSON-LD скрипт в head документа
    */
@@ -200,26 +202,26 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       "operatingSystem": "All",
       "url": "https://onlinewebdevtools.com/json-formatter"
     };
-    
+
     const jsonLdContent = JSON.stringify(schema);
-    
+
     // Добавляем скрипт в head с помощью Renderer2 на сервере и в браузере
     // Renderer2 абстрагирует DOM операции и правильно работает в SSR
     try {
       const scriptElement = this.renderer.createElement('script');
       this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
       this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
+
       // Добавляем в head
       this.renderer.appendChild(this.document.head, scriptElement);
-      
+
       // Сохраняем ссылку для последующего удаления
       this.schemaScriptElement = scriptElement;
     } catch (e) {
       console.error('Error adding JSON-LD script using Renderer2:', e);
     }
   }
-  
+
   /**
    * Handles spacing option change
    */
@@ -227,13 +229,13 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     // Reformat JSON with the new spacing
     this.formatJson();
   }
-  
+
   /**
    * Copy formatted JSON to clipboard
    */
   copyToClipboard() {
     if (!this.isBrowser || !this.outputCode) return;
-    
+
     navigator.clipboard.writeText(this.outputCode).then(() => {
       this.messageService.add({
         severity: 'success',
@@ -251,13 +253,13 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       });
     });
   }
-  
+
   /**
    * Download JSON as a file
    */
   downloadJson() {
     if (!this.isBrowser || !this.outputCode) return;
-    
+
     try {
       const blob = new Blob([this.outputCode], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
@@ -268,7 +270,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Downloaded!',
@@ -285,17 +287,17 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       });
     }
   }
-  
+
   /**
    * Paste from clipboard
    */
   pasteFromClipboard() {
     if (!this.isBrowser) return;
-    
+
     navigator.clipboard.readText().then((text) => {
       this.inputCode = text;
       this.formatJson();
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Pasted!',
@@ -312,7 +314,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       });
     });
   }
-  
+
   /**
    * Load sample JSON data
    */
@@ -320,7 +322,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     this.inputCode = `{"exampleString":"exampleData","exampleNumber":123,"exampleArray":[1,2,3]}`;
     this.formatJson();
   }
-  
+
   /**
    * Clear all JSON input
    */
@@ -328,7 +330,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     this.inputCode = '';
     this.outputCode = '';
   }
-  
+
   /**
    * Перезагружает страницу
    */
@@ -337,44 +339,44 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       window.location.reload();
     }
   }
-  
+
   // Setup metadata for SEO
   private setupSeo() {
     // We don't need to set the title here anymore as it's handled by PageTitleService
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online JSON formatter and validator tool. Easily clean, format, and validate messy JSON data with customizable indentation options. Convert raw JSON into beautifully formatted and readable structure for better code readability and debugging. Supports copy, paste, and download features.' 
+
+    this.metaService.updateTag({
+      name: 'description',
+      content: 'Free online JSON formatter and validator tool. Easily clean, format, and validate messy JSON data with customizable indentation options. Convert raw JSON into beautifully formatted and readable structure for better code readability and debugging. Supports copy, paste, and download features.'
     });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'JSON formatter, JSON validator, JSON parser, format JSON online, JSON tools' 
+
+    this.metaService.updateTag({
+      name: 'keywords',
+      content: 'JSON formatter, JSON validator, JSON parser, format JSON online, JSON tools'
     });
-    
+
     // Open Graph meta tags for better social sharing
     this.metaService.updateTag({ property: 'og:title', content: 'JSON Formatter and Validator | DevTools' });
     this.metaService.updateTag({ property: 'og:description', content: 'Free online JSON formatter and validator. Convert raw JSON into beautifully formatted, readable structure with customizable indentation. Includes validation, copy, and download options.' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
     this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-    
+
     // Note: Schema.org structured data is now added directly in the HTML template
     // This ensures it will be visible to search engine crawlers during server-side rendering
   }
-  
+
   // Update editor settings when theme changes
   updateEditorTheme() {
     this.inputEditorOptions = {
       ...this.inputEditorOptions,
       theme: this.editorTheme
     };
-    
+
     this.outputEditorOptions = {
       ...this.outputEditorOptions,
       theme: this.editorTheme
     };
   }
-  
+
   /**
    * Format a JSON string with proper indentation but keep arrays on one line
    */
@@ -382,23 +384,23 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     try {
       // Parse the JSON to ensure it's valid
       const parsedJson = JSON.parse(json);
-      
+
       // Format with the selected spacing
       const spacingCount = this.selectedSpacing.value;
-      
+
       // Create the spacing string
       const spacer = ' '.repeat(spacingCount);
-      
+
       // Custom replacer function to format JSON
       const formattedJson = JSON.stringify(parsedJson, null, spacer);
-      
+
       // Improved regex to handle arrays of any length and keep them on a single line
       // First collapse simple arrays to single line
       let result = formattedJson;
-      
+
       // This regex pattern finds arrays with items on separate lines and collapses them
       const arrayPattern = new RegExp(`\\[(\\s*\n\\s*[^\\[\\]\\{\\}]+(,\\s*\n\\s*[^\\[\\]\\{\\}]+)*\\s*\n\\s*)\\]`, 'g');
-      
+
       // Process arrays
       result = result.replace(arrayPattern, (match, content) => {
         // Remove newlines and extra spaces between elements
@@ -408,14 +410,14 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
           .replace(/\s*,\s*/g, ', '); // Ensure consistent spacing around commas
         return '[' + singleLine.trim() + ']';
       });
-      
+
       return result;
     } catch (e) {
       // If parsing fails, return the original string
       return json;
     }
   }
-  
+
   /**
    * Format the JSON input
    */
@@ -424,24 +426,24 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       this.outputCode = '';
       return;
     }
-    
+
     try {
       // First parse to validate JSON
       const parsedJson = JSON.parse(this.inputCode);
-      
+
       // Transform keys if needed
-      const transformedJson = this.selectedKeyCase.value !== 'original' 
+      const transformedJson = this.selectedKeyCase.value !== 'original'
         ? this.transformJsonKeys(parsedJson, this.selectedKeyCase.transform)
         : parsedJson;
-      
+
       // Then format with selected spacing
       this.outputCode = this.prettyPrintJson(JSON.stringify(transformedJson));
-      
+
       // Clear any previous error messages
       this.messageService.clear();
     } catch (e) {
       console.error('JSON parsing error:', e);
-      
+
       // Show error in the UI
       this.messageService.add({
         severity: 'error',
@@ -449,7 +451,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         detail: e instanceof Error ? e.message : 'The input is not valid JSON',
         life: 5000
       });
-      
+
       // Still attempt to format what we can for partial errors
       try {
         this.outputCode = this.inputCode;
@@ -458,7 +460,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       }
     }
   }
-  
+
   /**
    * Transform all keys in JSON object using the provided function
    */
@@ -466,23 +468,23 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     if (obj === null || typeof obj !== 'object') {
       return obj;
     }
-    
+
     if (Array.isArray(obj)) {
       return obj.map(item => this.transformJsonKeys(item, transformFn));
     }
-    
+
     const result: Record<string, any> = {};
-    
+
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const transformedKey = transformFn(key);
         result[transformedKey] = this.transformJsonKeys(obj[key], transformFn);
       }
     }
-    
+
     return result;
   }
-  
+
   /**
    * Handle key case option change
    */

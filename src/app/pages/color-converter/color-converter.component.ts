@@ -7,11 +7,10 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
 import { UserPreferencesService, ColorConverterSettings } from '../../services/user-preferences.service';
 import { ColorConverterService } from './color-converter.service';
 import { ColorFormat, ColorHistoryItem } from './color-converter.types';
-
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 @Component({
     selector: 'app-color-converter',
     standalone: true,
@@ -19,7 +18,7 @@ import { ColorFormat, ColorHistoryItem } from './color-converter.types';
         CommonModule,
         FormsModule,
         PrimeNgModule,
-        FavoritePageDirective
+        PageHeaderComponent
     ],
     providers: [MessageService],
     templateUrl: './color-converter.component.html',

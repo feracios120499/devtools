@@ -9,12 +9,17 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">SVG Input</h5>
           <div class="flex gap-2">
-            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteSvgFromClipboard()"
-                    class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadExampleSvg()" 
-                    class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearSvg()" severity="danger"
-                    class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Paste" (click)="pasteSvgFromClipboard()"
+              class="p-button-text p-button-sm">
+              <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Sample" (click)="loadExampleSvg()" class="p-button-text p-button-sm">
+              <i-tabler name="code" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Clear" (click)="clearSvg()" severity="danger"
+              class="p-button-text p-button-sm">
+              <i-tabler name="trash" class="icon-sm"></i-tabler>
+            </button>
           </div>
         </div>
 
@@ -28,11 +33,8 @@
 
         <!-- Monaco editor for browser environment -->
         <div *ngIf="isBrowser"
-             class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor 
-            [(ngModel)]="svgCode" 
-            [options]="svgEditorOptions"
-            (ngModelChange)="onSvgCodeChange()"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
+          <ngx-monaco-editor [(ngModel)]="svgCode" [options]="svgEditorOptions" (ngModelChange)="onSvgCodeChange()"
             class="w-full h-full">
           </ngx-monaco-editor>
         </div>
@@ -46,10 +48,13 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">React Component</h5>
           <div class="flex gap-2">
-            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyReactCode()"
-                    class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadReactComponent()"
-                    class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Copy" (click)="copyReactCode()" class="p-button-text p-button-sm">
+              <i-tabler name="copy" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Download" (click)="downloadReactComponent()"
+              class="p-button-text p-button-sm">
+              <i-tabler name="download" class="icon-sm"></i-tabler>
+            </button>
           </div>
         </div>
 
@@ -63,11 +68,8 @@
 
         <!-- Monaco editor for browser environment -->
         <div *ngIf="isBrowser"
-             class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor 
-            [(ngModel)]="reactCode" 
-            [options]="reactEditorOptions"
-            class="w-full h-full">
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
+          <ngx-monaco-editor [(ngModel)]="reactCode" [options]="reactEditorOptions" class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>
@@ -77,44 +79,32 @@
   <!-- Component Settings Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
     <h3 class="text-xl font-semibold mb-2">Component Settings</h3>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
       <!-- Имя компонента -->
       <div class="p-field">
         <label for="componentName" class="block mb-2 font-medium">Component Name</label>
-        <input id="componentName" type="text" pInputText 
-               [(ngModel)]="componentName" 
-               (ngModelChange)="onSettingsChange()"
-               class="w-full p-inputtext">
+        <input id="componentName" type="text" pInputText [(ngModel)]="componentName"
+          (ngModelChange)="onSettingsChange()" class="w-full p-inputtext">
       </div>
-      
+
       <!-- Опции компонента -->
       <div class="flex flex-col gap-3">
         <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox 
-            [(ngModel)]="useTypescript" 
-            [binary]="true" 
-            inputId="useTypescript"
+          <p-checkbox [(ngModel)]="useTypescript" [binary]="true" inputId="useTypescript"
             (onChange)="onSettingsChange()">
           </p-checkbox>
           <label for="useTypescript" class="ml-2">Use TypeScript (.tsx)</label>
         </div>
-        
+
         <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox 
-            [(ngModel)]="useProps" 
-            [binary]="true" 
-            inputId="useProps"
-            (onChange)="onSettingsChange()">
+          <p-checkbox [(ngModel)]="useProps" [binary]="true" inputId="useProps" (onChange)="onSettingsChange()">
           </p-checkbox>
           <label for="useProps" class="ml-2">Add common props (width, height, color)</label>
         </div>
-        
+
         <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox 
-            [(ngModel)]="useArrowFunction" 
-            [binary]="true" 
-            inputId="useArrowFunction"
+          <p-checkbox [(ngModel)]="useArrowFunction" [binary]="true" inputId="useArrowFunction"
             (onChange)="onSettingsChange()">
           </p-checkbox>
           <label for="useArrowFunction" class="ml-2">Use arrow function</label>
@@ -126,29 +116,32 @@
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
     <h3 class="text-xl font-semibold mb-2">About This Tool</h3>
-    
+
     <p class="mb-2 text-sm">
-      This tool converts SVG code into reusable React components with support for TypeScript, props, and different function styles.
+      This tool converts SVG code into reusable React components with support for TypeScript, props, and different
+      function styles.
     </p>
-    
+
     <p class="mb-2 text-sm">
       <strong>Features:</strong>
     </p>
-    
+
     <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
       <li><strong>SVG conversion:</strong> Transforms any valid SVG into a React component</li>
       <li><strong>TypeScript support:</strong> Generates properly typed components with interfaces for props</li>
       <li><strong>Customization:</strong> Configure component name, props, and function style</li>
-      <li><strong>Attribute conversion:</strong> Automatically converts HTML attributes to JSX format (kebab-case to camelCase)</li>
+      <li><strong>Attribute conversion:</strong> Automatically converts HTML attributes to JSX format (kebab-case to
+        camelCase)</li>
       <li><strong>Styling support:</strong> Handles inline styles and converts them to React style objects</li>
       <li><strong>Best practices:</strong> Creates components following React best practices</li>
     </ul>
-    
+
     <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your code is never sent to any server.
+      <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your code is never sent to any
+      server.
     </p>
   </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-</div> 
+</div>

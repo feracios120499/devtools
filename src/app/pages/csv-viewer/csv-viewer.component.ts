@@ -8,9 +8,8 @@ import { Table, TableModule } from 'primeng/table';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
-
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 /**
  * Интерфейс для сохранения настроек страницы CSV Viewer
  */
@@ -45,8 +44,8 @@ interface QuoteCharOption {
     CommonModule,
     FormsModule,
     PrimeNgModule,
-    FavoritePageDirective,
-    TableModule
+    TableModule,
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './csv-viewer.component.html',

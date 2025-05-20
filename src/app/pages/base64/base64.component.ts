@@ -16,12 +16,9 @@ import { MessageService } from 'primeng/api';
 import { PageTitleService } from '../../services/page-title.service';
 import { ThemeService } from '../../services/theme.service';
 
-// Directives
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
-
 // Monaco editor
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 @Component({
   selector: 'app-base64',
   standalone: true,
@@ -36,7 +33,7 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
     ToastModule,
     RadioButtonModule,
     MonacoEditorModule,
-    FavoritePageDirective
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './base64.component.html',

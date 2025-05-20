@@ -23,6 +23,7 @@
     "@angular/router": "^19.2.0",
     "@angular/ssr": "^19.2.9",
     "@primeng/themes": "^19.1.0",
+    "angular-tabler-icons": "^3.26.0",
     "angularx-qrcode": "^19.0.0",
     "change-case": "^5.4.4",
     "express": "^4.18.2",

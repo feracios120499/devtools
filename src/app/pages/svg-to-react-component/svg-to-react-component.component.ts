@@ -10,7 +10,7 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService } from '../../services/user-preferences.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-
+import { IconsModule } from '../../shared/modules/icons.module';
 // Интерфейс для сохранения настроек страницы
 export interface SvgToReactSettings {
   componentName: string;
@@ -27,7 +27,8 @@ export interface SvgToReactSettings {
     FormsModule,
     PrimeNgModule,
     MonacoEditorModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './svg-to-react-component.component.html',

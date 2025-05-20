@@ -7,10 +7,9 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
 import { FileTypeService, FileTypeInfo } from '../../services/file-type.service';
 import { MimeTypeService, MimeTypeInfo } from '../../services/mime-type.service';
-
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 // Интерфейс TypeOption совпадает с FileTypeInfo для использования с p-select
 interface TypeOption extends FileTypeInfo {
   // Нет необходимости добавлять поле value, так как будем использовать исходные объекты
@@ -23,7 +22,7 @@ interface TypeOption extends FileTypeInfo {
     CommonModule,
     FormsModule,
     PrimeNgModule,
-    FavoritePageDirective
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './base64-to-file.component.html',

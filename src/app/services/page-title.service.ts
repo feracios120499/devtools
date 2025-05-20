@@ -4,7 +4,7 @@ import { Injectable, Signal, signal } from '@angular/core';
   providedIn: 'root'
 })
 export class PageTitleService {
-  private titleSignal = signal<string>('DevTools');
+  private titleSignal = signal<string>('');
   
   constructor() {}
   

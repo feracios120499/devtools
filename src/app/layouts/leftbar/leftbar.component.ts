@@ -7,17 +7,54 @@ import { AvatarModule } from 'primeng/avatar';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FavoritesService } from '../../services/favorites.service';
+import { provideTablerIcons, TablerIconComponent } from 'angular-tabler-icons';
+import {
+  IconClearFormatting,
+  IconHome,
+  IconFileTypeXml,
+  IconBrandDocker,
+  IconPencilSearch,
+  IconTable,
+  IconUnlink,
+  IconQrcode,
+  IconFileArrowRight,
+  IconAlignLeft2,
+  IconTransform,
+  IconExchange,
+  IconBrandReact,
+  IconPalette,
+  IconStar,
+  IconStarFilled
+} from 'angular-tabler-icons/icons';
 
 @Component({
   selector: 'app-leftbar',
   standalone: true,
-  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule, RouterModule],
+  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule, RouterModule, TablerIconComponent],
   templateUrl: './leftbar.component.html',
   styleUrls: ['./leftbar.component.scss'],
+  providers: [provideTablerIcons({ 
+    IconClearFormatting, 
+    IconHome, 
+    IconFileTypeXml, 
+    IconBrandDocker, 
+    IconPencilSearch, 
+    IconTable, 
+    IconUnlink, 
+    IconQrcode, 
+    IconFileArrowRight, 
+    IconAlignLeft2,
+    IconTransform,
+    IconExchange,
+    IconBrandReact,
+    IconPalette,
+    IconStar,
+    IconStarFilled
+  })]
 })
 export class LeftbarComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
-  
+
   constructor(private favoritesService: FavoritesService) {
     // Используем effect для отслеживания изменений в сигнале
     effect(() => {
@@ -30,7 +67,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.updateMenuItems();
   }
-  
+
   ngOnDestroy() {
     // Очистка ресурсов при необходимости
   }
@@ -41,7 +78,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'Home',
-            icon: 'pi pi-home',
+            icon: 'home',
             routerLink: '/',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/')
@@ -58,28 +95,28 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'JSON Formatter',
-            icon: 'pi pi-code',
+            icon: 'align-left-2',
             routerLink: '/json-formatter',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/json-formatter')
           },
           {
             label: 'JSON to XML',
-            icon: 'pi pi-sync',
+            icon: 'file-type-xml',
             routerLink: '/json-to-xml',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/json-to-xml')
           },
           {
             label: 'JSON to ENV',
-            icon: 'pi pi-server',
+            icon: 'brand-docker',
             routerLink: '/json-to-env',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/json-to-env')
           },
           {
             label: 'JSON Query Explorer',
-            icon: 'pi pi-search',
+            icon: 'pencil-search',
             routerLink: '/json-query',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/json-query')
@@ -96,7 +133,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'CSV Viewer',
-            icon: 'pi pi-table',
+            icon: 'table',
             routerLink: '/csv-viewer',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/csv-viewer')
@@ -113,14 +150,14 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'URL Encoder',
-            icon: 'pi pi-link',
+            icon: 'unlink',
             routerLink: '/url-encoder',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/url-encoder')
           },
           {
             label: 'URL to QR Code',
-            icon: 'pi pi-qrcode',
+            icon: 'qrcode',
             routerLink: '/url-to-qr',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/url-to-qr')
@@ -137,21 +174,21 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'Base64 Encoder/Decoder',
-            icon: 'pi pi-file-export',
+            icon: 'transform',
             routerLink: '/base64',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/base64')
           },
           {
             label: 'Base64 to File',
-            icon: 'pi pi-download',
+            icon: 'file-arrow-right',
             routerLink: '/base64-to-file',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/base64-to-file')
           },
           {
             label: 'Base64 to HEX',
-            icon: 'pi pi-code',
+            icon: 'exchange',
             routerLink: '/base64-to-hex',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/base64-to-hex')
@@ -168,7 +205,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'SVG to React Component',
-            icon: 'pi pi-code',
+            icon: 'brand-react',
             routerLink: '/svg-to-react-component',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/svg-to-react-component')
@@ -185,7 +222,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
         items: [
           {
             label: 'Color Converter',
-            icon: 'pi pi-palette',
+            icon: 'palette',
             routerLink: '/color-converter',
             // Добавляем флаг избранного
             isFavorite: this.favoritesService.isFavorite('/color-converter')

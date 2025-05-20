@@ -8,8 +8,7 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
-
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -25,7 +24,7 @@ interface Monaco {
     FormsModule, 
     MonacoEditorModule,
     PrimeNgModule,
-    FavoritePageDirective
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './json-query.component.html',

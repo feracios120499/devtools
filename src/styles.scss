@@ -101,3 +101,21 @@ p-radiobutton{
     }
   }
 }
+
+.icon{
+  &-xs{
+    width: 12px !important;
+    height: 12px !important;
+  }
+  &-sm{
+    width: 16px !important;
+    height: 16px !important;
+  }
+  &-md{
+    width: 20px !important;
+    height: 20px !important;
+  }
+  &-lg{
+    width: 24px !important;
+  }
+}

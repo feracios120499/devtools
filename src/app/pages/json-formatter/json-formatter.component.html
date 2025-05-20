@@ -11,12 +11,17 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">Input JSON</h5>
           <div class="flex gap-2">
-            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleJson()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearJson()" severity="danger"
-              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Paste" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm">
+              <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Sample" (click)="loadSampleJson()" class="p-button-text p-button-sm">
+              <i-tabler name="code" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Clear" (click)="clearJson()" severity="danger"
+              class="p-button-text p-button-sm">
+              <i-tabler name="trash" class="icon-sm"></i-tabler>
+            </button>
           </div>
         </div>
 
@@ -65,10 +70,12 @@
               (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
               [panelStyleClass]="'same-width-panel'" appendTo="body">
             </p-select>
-            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadJson()"
-              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Copy" (click)="copyToClipboard()" class="p-button-text p-button-sm">
+              <i-tabler name="copy" class="icon-sm"></i-tabler>
+            </button>
+            <button pButton type="button" label="Download" (click)="downloadJson()" class="p-button-text p-button-sm">
+              <i-tabler name="download" class="icon-sm"></i-tabler>
+            </button>
           </div>
         </div>
 

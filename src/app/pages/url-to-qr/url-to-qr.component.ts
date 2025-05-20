@@ -10,8 +10,8 @@ import { Router } from '@angular/router';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { FavoritePageDirective } from '../../directives/favorite-page.directive';
 import { UserPreferencesService, UrlToQrSettings } from '../../services/user-preferences.service';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 
 @Component({
   selector: 'app-url-to-qr',
@@ -19,9 +19,9 @@ import { UserPreferencesService, UrlToQrSettings } from '../../services/user-pre
   imports: [
     CommonModule,
     FormsModule,
-    PrimeNgModule,
-    FavoritePageDirective,
-    QRCodeComponent
+    PrimeNgModule,  
+    QRCodeComponent,
+    PageHeaderComponent
   ],
   providers: [MessageService],
   templateUrl: './url-to-qr.component.html',
