@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -53,6 +53,8 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
 
   editorTheme: string = 'vs-dark'; // Default theme
 
@@ -127,6 +129,10 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   isBrowser: boolean = false;
 
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
+  isFullscreenMode: boolean = false;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -162,6 +168,33 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
     // Добавить JSON-LD в head
     this.addJsonLdToHead();
+  }
+
+  // Добавляем обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+      this.isFullscreenMode = false;
+      
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
+      
+      this.messageService.add({
+        severity: 'info',
+        summary: 'Fullscreen',
+        detail: 'Exited fullscreen mode (ESC)'
+      });
+    }
   }
 
   ngAfterViewInit() {
@@ -491,5 +524,45 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   onKeyCaseChange() {
     // Reformat JSON with the new key case
     this.formatJson();
+  }
+
+  // Toggle fullscreen mode for the specified editor
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+      // Если входной редактор выходит из полноэкранного режима, а выходной в нем не находится
+      // то полностью выходим из полноэкранного режима
+      if (!this.isInputFullscreen && !this.isOutputFullscreen) {
+        this.isFullscreenMode = false;
+      } else {
+        this.isFullscreenMode = true;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+      // Если выходной редактор выходит из полноэкранного режима, а входной в нем не находится
+      // то полностью выходим из полноэкранного режима
+      if (!this.isOutputFullscreen && !this.isInputFullscreen) {
+        this.isFullscreenMode = false;
+      } else {
+        this.isFullscreenMode = true;
+      }
+    }
+    
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
+    
+    this.messageService.add({
+      severity: 'info',
+      summary: 'Fullscreen',
+      detail: this.isFullscreenMode ? 'Entered fullscreen mode' : 'Exited fullscreen mode'
+    });
   }
 } 

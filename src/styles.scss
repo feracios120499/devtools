@@ -99,6 +99,14 @@ p-radiobutton{
     @media (max-width: 768px) {
       grid-template-columns: repeat(1, minmax(0, 1fr));
     }
+    &-editor{
+      min-height:850px;
+      max-height: 100%;
+      position: relative;
+      @media (max-width: 768px) {
+        min-height: 400px;
+      }
+    }
   }
 }
 
