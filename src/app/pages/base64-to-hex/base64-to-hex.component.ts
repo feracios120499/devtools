@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -12,6 +12,7 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, Base64ToHexSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { IconsModule } from '../../shared/modules/icons.module';
   // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -35,18 +36,22 @@ interface HexFormatOption {
     FormsModule, 
     MonacoEditorModule,
     PrimeNgModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './base64-to-hex.component.html',
   styleUrl: './base64-to-hex.component.scss'
 })
 export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
   
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
   
   // Тема редактора
   editorTheme: string = 'vs-dark'; // Default theme
@@ -121,17 +126,15 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   // Default format selection
   selectedFormat: HexFormatOption = this.hexFormatOptions[0];
   
+  // Настройки для редакторов
   inputEditorOptions = {
     theme: this.editorTheme,
     language: 'plaintext',
     automaticLayout: true,
-    scrollBeyondLastLine: false,
     minimap: { enabled: false },
-    folding: true,
+    scrollBeyondLastLine: false,
     lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    formatOnPaste: true,
-    formatOnType: true,
+    wordWrap: 'on',
     scrollbar: {
       useShadows: false,
       verticalHasArrows: false,
@@ -140,20 +143,18 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
+    }
   };
   
   outputEditorOptions = {
     theme: this.editorTheme,
     language: 'plaintext',
-    readOnly: true,
     automaticLayout: true,
-    scrollBeyondLastLine: false,
     minimap: { enabled: false },
-    folding: true,
+    scrollBeyondLastLine: false,
     lineNumbers: 'on',
-    renderLineHighlight: 'all',
+    readOnly: true,
+    wordWrap: 'on',
     scrollbar: {
       useShadows: false,
       verticalHasArrows: false,
@@ -162,11 +163,14 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       horizontal: 'visible',
       verticalScrollbarSize: 10,
       horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
+    }
   };
   
   isBrowser: boolean = false;
+  
+  // Полноэкранный режим
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
   
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -443,5 +447,59 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       
       this.outputCode = 'Error: Invalid Base64 input';
     }
+  }
+  
+  /**
+   * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+      
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
+    }
+  }
+  
+  /**
+   * Toggle fullscreen mode for the specified editor
+   */
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+      
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+      
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
+      }
+    }
+    
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
   }
 } 

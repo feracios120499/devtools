@@ -13,11 +13,11 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Tool, ToolsService } from '../../services/tools.service';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [ButtonModule, MenubarModule, CommonModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule],
+  imports: [ButtonModule, MenubarModule, CommonModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule, RouterModule],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })

@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -54,6 +54,7 @@ interface QuoteCharOption {
   styleUrl: './csv-viewer.component.scss'
 })
 export class CsvViewerComponent implements OnInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   // Ссылка на таблицу для работы с фильтрацией
   @ViewChild('csvTable') csvTable!: Table;
   

@@ -1,46 +1,68 @@
-<div class="flex-col w-full h-full">
+<div class="dt-container">
   <app-page-header>Tool for converting Base64 data to hexadecimal format with various formatting options</app-page-header>
 
   <!-- Основной контейнер с редакторами -->
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 editor-columns">
+  <div class="dt-editors">
     <!-- Левая колонка - Input Base64 -->
-    <div class="col">
-      <div class="card p-3 surface-card shadow-sm editor-container">
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
-        <div class="editor-header">
+        <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">Input Base64</h5>
-          <div class="flex gap-2">
-            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleBase64()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
-              class="p-button-text p-button-sm"></button>
-          </div>
         </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
 
-        <!-- Содержимое редактора -->
-        <div class="editor-content">
-          <!-- Fallback textarea for server-side rendering -->
-          <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="convertBase64ToHex()"
-            class="w-full p-2 border-1 surface-100 font-mono editor-input">
-          </textarea>
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="convertBase64ToHex()"
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
 
-          <!-- Monaco editor for browser environment -->
-          <div *ngIf="isBrowser" class="monaco-container">
-            <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-              (ngModelChange)="convertBase64ToHex()" class="w-full h-full">
-            </ngx-monaco-editor>
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleBase64()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="code" class="icon-sm"> </i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                  (click)="pasteFromClipboard()" severity="contrast">
+                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()" severity="danger"
+                  class=" p-button-sm">
+                  <i-tabler name="trash" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
           </div>
+          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+            (ngModelChange)="convertBase64ToHex()" class="w-full h-full">
+          </ngx-monaco-editor>
         </div>
       </div>
     </div>
 
     <!-- Правая колонка - HEX Output -->
-    <div class="col">
-      <div class="card p-3 surface-card shadow-sm editor-container">
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
-        <div class="editor-header">
+        <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">HEX Output</h5>
           <div class="flex gap-2 items-center">
             <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
@@ -57,34 +79,55 @@
                 </div>
               </ng-template>
             </p-select>
-
-            <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
-              class="p-button-text p-button-sm"></button>
-            <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadHex()"
-              class="p-button-text p-button-sm"></button>
           </div>
         </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
 
-        <!-- Содержимое редактора -->
-        <div class="editor-content">
-          <!-- Fallback textarea for server-side rendering -->
-          <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
-            class="w-full p-2 border-1 surface-100 font-mono editor-output">
-          </textarea>
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
 
-          <!-- Monaco editor for browser environment -->
-          <div *ngIf="isBrowser" class="monaco-container">
-            <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-              class="w-full h-full">
-            </ngx-monaco-editor>
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="copy" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadHex()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="download" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
           </div>
+          <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+            class="w-full h-full">
+          </ngx-monaco-editor>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
     <h3 class="text-xl font-semibold mb-2">About Base64 to HEX Converter</h3>
     <p class="mb-2 text-sm">
       This tool allows you to convert Base64 encoded data to hexadecimal (HEX) format with various display options. Base64 is a binary-to-text encoding scheme commonly used to represent binary data in a format that is not affected by text processing systems.

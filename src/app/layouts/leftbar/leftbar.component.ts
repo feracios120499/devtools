@@ -19,6 +19,7 @@ import { IconsModule } from '../../shared/modules/icons.module';
 })
 export class LeftbarComponent implements OnInit, OnDestroy {
   items: MenuItem[] | undefined;
+  favoriteTools: MenuItem[] | undefined;
   private toolCategories: ToolCategory[] = [];
 
   constructor(
@@ -35,6 +36,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
     this.updateMenuItems();
   }
 
+
   ngOnDestroy() {
     // Очистка ресурсов при необходимости
   }
@@ -48,10 +50,33 @@ export class LeftbarComponent implements OnInit, OnDestroy {
     }
     
     const menuItems: MenuItem[] = [];
+    const allFavoriteTools: MenuItem[] = [];
+    
+    // Собираем избранные инструменты из всех категорий
+    this.toolCategories.forEach(category => {
+      const favoritesFromCategory = category.tools
+        .filter(tool => tool.isFavorite)
+        .map(tool => ({
+          label: tool.label,
+          icon: tool.icon,
+          routerLink: tool.routerLink,
+          isFavorite: tool.isFavorite
+        }));
+      
+      allFavoriteTools.push(...favoritesFromCategory);
+    });
+    
+    // Если есть избранные инструменты, добавляем их как отдельную категорию сверху
+    if (allFavoriteTools.length > 0) {      
+      menuItems.push({
+        items: allFavoriteTools
+      });
+    
+    }
     
     // Для каждой категории добавляем заголовок, сепаратор и инструменты
     this.toolCategories.forEach(category => {
-      // Пропускаем категорию Home, она добавляется отдельно первой
+      // Пропускаем категорию Home
       if (category.name === 'Home') {
         return;
       }
@@ -77,21 +102,7 @@ export class LeftbarComponent implements OnInit, OnDestroy {
       });
     });
     
-    // Создаем итоговое меню, начиная с Home
-    const homeCategory = this.toolCategories.find(c => c.name === 'Home');
-    
-    this.items = [
-      // Добавляем Home первым
-      {
-        items: homeCategory ? homeCategory.tools.map(tool => ({
-          label: tool.label,
-          icon: tool.icon,
-          routerLink: tool.routerLink,
-          isFavorite: tool.isFavorite
-        })) : []
-      },
-      // Добавляем остальные категории
-      ...menuItems
-    ];
+    // Создаем итоговое меню
+    this.items = menuItems;
   }
 }

@@ -68,7 +68,6 @@ export class SeoService {
     }
 
     private addJsonLdToHead(data: JsonLdSchema) {
-        console.log('addJsonLdToHead', data);
         // Не выполняем добавление, если не работаем в браузере или на сервере
         if (!this.isBrowser && !this.isServer) {
             return;

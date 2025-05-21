@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, Renderer2, effect } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, Renderer2, effect, ElementRef, HostListener, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -20,6 +20,8 @@ import { SeoService, MetaData } from '../../services/seo.service';
 // Monaco editor
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { IconsModule } from '../../shared/modules/icons.module';
+
 @Component({
   selector: 'app-base64',
   standalone: true,
@@ -34,16 +36,20 @@ import { PageHeaderComponent } from '../../components/page-header/page-header.co
     ToastModule,
     RadioButtonModule,
     MonacoEditorModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './base64.component.html',
   styleUrl: './base64.component.scss'
 })
 export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   // Редакторы Monaco
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
   
   // Тема редактора
   editorTheme: string = 'vs';
@@ -98,6 +104,10 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
   // Проверка окружения
   isBrowser: boolean;
   
+  // Полноэкранный режим
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
+  
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -136,6 +146,60 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     // Очищаем SEO-элементы при уничтожении компонента
     this.seoService.destroy();
+  }
+  
+  /**
+   * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+      
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
+    }
+  }
+  
+  /**
+   * Toggle fullscreen mode for the specified editor
+   */
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+      
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+      
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
+      }
+    }
+    
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
   }
   
   /**

@@ -1,6 +1,40 @@
 <div class="dt-container">
   <app-page-header>Convert SVG code into a reusable React component</app-page-header>
 
+    <!-- Component Settings Section -->
+    <div class="mt-2 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Имя компонента -->
+        <div class="p-field">
+          <label for="componentName" class="block mb-2 font-medium">Component Name</label>
+          <input id="componentName" type="text" pInputText [(ngModel)]="componentName"
+            (ngModelChange)="onSettingsChange()" class="w-full p-inputtext">
+        </div>
+  
+        <!-- Опции компонента -->
+        <div class="flex flex-col gap-3 p-3">
+          <div class="p-field-checkbox flex align-items-center">
+            <p-checkbox [(ngModel)]="useTypescript" [binary]="true" inputId="useTypescript"
+              (onChange)="onSettingsChange()">
+            </p-checkbox>
+            <label for="useTypescript" class="ml-2">Use TypeScript (.tsx)</label>
+          </div>
+  
+          <div class="p-field-checkbox flex align-items-center">
+            <p-checkbox [(ngModel)]="useProps" [binary]="true" inputId="useProps" (onChange)="onSettingsChange()">
+            </p-checkbox>
+            <label for="useProps" class="ml-2">Add common props (width, height, color)</label>
+          </div>
+  
+          <div class="p-field-checkbox flex align-items-center">
+            <p-checkbox [(ngModel)]="useArrowFunction" [binary]="true" inputId="useArrowFunction"
+              (onChange)="onSettingsChange()">
+            </p-checkbox>
+            <label for="useArrowFunction" class="ml-2">Use arrow function</label>
+          </div>
+        </div>
+      </div>
+    </div>
   <div class="dt-editors">
     <!-- Левая колонка - SVG Input -->
     <div class="col flex flex-col h-full">
@@ -8,23 +42,10 @@
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">SVG Input</h5>
-          <div class="flex gap-2">
-            <button pButton type="button" label="Paste" (click)="pasteSvgFromClipboard()"
-              class="p-button-text p-button-sm">
-              <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-            </button>
-            <button pButton type="button" label="Sample" (click)="loadExampleSvg()" class="p-button-text p-button-sm">
-              <i-tabler name="code" class="icon-sm"></i-tabler>
-            </button>
-            <button pButton type="button" label="Clear" (click)="clearSvg()" severity="danger"
-              class="p-button-text p-button-sm">
-              <i-tabler name="trash" class="icon-sm"></i-tabler>
-            </button>
-          </div>
         </div>
 
-        <!-- Отступ -->
-        <div class="mb-2"></div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
         <textarea *ngIf="!isBrowser" [(ngModel)]="svgCode" (ngModelChange)="onSvgCodeChange()"
@@ -33,9 +54,39 @@
 
         <!-- Monaco editor for browser environment -->
         <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor [(ngModel)]="svgCode" [options]="svgEditorOptions" (ngModelChange)="onSvgCodeChange()"
-            class="w-full h-full">
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                  (click)="pasteSvgFromClipboard()" severity="contrast">
+                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadExampleSvg()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="code" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearSvg()" severity="danger"
+                  class="p-button-sm">
+                  <i-tabler name="trash" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #inputMonacoEditor [(ngModel)]="svgCode" [options]="svgEditorOptions" 
+            (ngModelChange)="onSvgCodeChange()" class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>
@@ -47,19 +98,10 @@
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">React Component</h5>
-          <div class="flex gap-2">
-            <button pButton type="button" label="Copy" (click)="copyReactCode()" class="p-button-text p-button-sm">
-              <i-tabler name="copy" class="icon-sm"></i-tabler>
-            </button>
-            <button pButton type="button" label="Download" (click)="downloadReactComponent()"
-              class="p-button-text p-button-sm">
-              <i-tabler name="download" class="icon-sm"></i-tabler>
-            </button>
-          </div>
         </div>
 
-        <!-- Отступ -->
-        <div class="mb-2"></div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
         <textarea *ngIf="!isBrowser" [(ngModel)]="reactCode" readonly
@@ -68,53 +110,45 @@
 
         <!-- Monaco editor for browser environment -->
         <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container">
-          <ngx-monaco-editor [(ngModel)]="reactCode" [options]="reactEditorOptions" class="w-full h-full">
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyReactCode()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="copy" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadReactComponent()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="download" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #outputMonacoEditor [(ngModel)]="reactCode" [options]="reactEditorOptions" 
+            class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Component Settings Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <h3 class="text-xl font-semibold mb-2">Component Settings</h3>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
-      <!-- Имя компонента -->
-      <div class="p-field">
-        <label for="componentName" class="block mb-2 font-medium">Component Name</label>
-        <input id="componentName" type="text" pInputText [(ngModel)]="componentName"
-          (ngModelChange)="onSettingsChange()" class="w-full p-inputtext">
-      </div>
-
-      <!-- Опции компонента -->
-      <div class="flex flex-col gap-3">
-        <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox [(ngModel)]="useTypescript" [binary]="true" inputId="useTypescript"
-            (onChange)="onSettingsChange()">
-          </p-checkbox>
-          <label for="useTypescript" class="ml-2">Use TypeScript (.tsx)</label>
-        </div>
-
-        <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox [(ngModel)]="useProps" [binary]="true" inputId="useProps" (onChange)="onSettingsChange()">
-          </p-checkbox>
-          <label for="useProps" class="ml-2">Add common props (width, height, color)</label>
-        </div>
-
-        <div class="p-field-checkbox flex align-items-center">
-          <p-checkbox [(ngModel)]="useArrowFunction" [binary]="true" inputId="useArrowFunction"
-            (onChange)="onSettingsChange()">
-          </p-checkbox>
-          <label for="useArrowFunction" class="ml-2">Use arrow function</label>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
     <h3 class="text-xl font-semibold mb-2">About This Tool</h3>
 
     <p class="mb-2 text-sm">

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { provideTablerIcons, TablerIconComponent } from 'angular-tabler-icons';
-import { IconClipboard, IconCode, IconTrash, IconCopy, IconDownload, IconArrowsMaximize, IconArrowsMinimize, IconSearch, IconQrcode, IconClearFormatting, IconExchange, IconHome, IconFileTypeXml, IconBrandDocker, IconPencilSearch, IconTable, IconUnlink, IconFileArrowRight, IconAlignLeft2, IconTransform, IconBrandReact, IconPalette, IconStar, IconStarFilled } from 'angular-tabler-icons/icons';
+import { IconClipboard, IconCode, IconTrash, IconCopy, IconDownload, IconArrowsMaximize, IconArrowsMinimize, IconSearch, IconQrcode, IconClearFormatting, IconExchange, IconHome, IconFileTypeXml, IconBrandDocker, IconPencilSearch, IconTable, IconUnlink, IconFileArrowRight, IconAlignLeft2, IconTransform, IconBrandReact, IconPalette, IconStar, IconStarFilled, IconAlignJustified } from 'angular-tabler-icons/icons';
 
 @NgModule({
    imports: [TablerIconComponent],
@@ -28,7 +28,8 @@ import { IconClipboard, IconCode, IconTrash, IconCopy, IconDownload, IconArrowsM
       IconBrandReact,
       IconPalette,
       IconStar,
-      IconStarFilled 
+      IconStarFilled,
+      IconAlignJustified
    })],
    exports: [TablerIconComponent]
 })

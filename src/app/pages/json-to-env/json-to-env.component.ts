@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -11,6 +11,7 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { IconsModule } from '../../shared/modules/icons.module';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -57,18 +58,22 @@ export interface JsonToEnvSettings extends PageSettings {
     FormsModule, 
     MonacoEditorModule,
     PrimeNgModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './json-to-env.component.html',
   styleUrl: './json-to-env.component.scss'
 })
 export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
   
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
   
   editorTheme: string = 'vs-dark'; // Default theme
   
@@ -151,6 +156,8 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   };
   
   isBrowser: boolean = false;
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
   
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -785,6 +792,56 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       return 'null';
     } else {
       return String(value);
+    }
+  }
+
+  // Toggle fullscreen mode for the specified editor
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+      
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+      
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
+      }
+    }
+    
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
+  }
+
+  // Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+      
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
     }
   }
 } 

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, OnDestroy, HostBinding } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -42,6 +42,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
 
   editorTheme: string = 'vs-dark'; // Default theme
 
@@ -103,6 +105,11 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   isBrowser: boolean = false;
+  
+  // Свойства для полноэкранного режима
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
+  isFullscreenMode: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -265,7 +272,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       OgTitle: 'JSON to XML Converter | DevTools',
       OgDescription: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.',
       description: 'Free JSON to XML converter tool. Convert JSON data to XML format with customizable root element name. Easy to use with copy, paste, and download features.',
-      keywords: ['JSON to XML converter', 'XML converter', 'JSON converter', 'XML transformation', 'data conversion', 'JSON to XML online', 'convert JSON to XML', 'XML generator', 'json to xml', 'jsontoxml', 'json xml converter', 'json to xml converter', 'json to xml online', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter'],
+      keywords: ['JSON to XML converter', 'XML converter', 'JSON converter', 'XML transformation', 'data conversion', 'JSON to XML online', 'convert JSON to XML', 'XML generator', 'json to xml', 'jsontoxml', 'json xml converter', 'json to xml converter', 'json to xml online', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'jsontoxml'],
       jsonLd: {
         name: 'JSON to XML Converter',
         description: 'Free online tool for converting JSON data to XML format',
@@ -419,5 +426,58 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     return formatted.substring(1, formatted.length - 2);
+  }
+
+  // Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+      
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
+    }
+  }
+
+  // Toggle fullscreen mode for the specified editor
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+      
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+      
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
+      }
+    }
+    
+    // Общий флаг полноэкранного режима
+    this.isFullscreenMode = this.isInputFullscreen || this.isOutputFullscreen;
+    
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
   }
 }

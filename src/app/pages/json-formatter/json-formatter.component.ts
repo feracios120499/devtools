@@ -122,7 +122,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   isInputFullscreen: boolean = false;
   isOutputFullscreen: boolean = false;
-  isFullscreenMode: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -156,7 +155,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;
       this.isOutputFullscreen = false;
-      this.isFullscreenMode = false;
       
       // Обновляем размер редакторов
       setTimeout(() => {
@@ -167,12 +165,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
           this.outputMonacoEditor.editor.layout();
         }
       }, 100);
-      
-      this.messageService.add({
-        severity: 'info',
-        summary: 'Fullscreen',
-        detail: 'Exited fullscreen mode (ESC)'
-      });
     }
   }
 
@@ -445,21 +437,17 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
     if (editorType === 'input') {
       this.isInputFullscreen = !this.isInputFullscreen;
-      // Если входной редактор выходит из полноэкранного режима, а выходной в нем не находится
-      // то полностью выходим из полноэкранного режима
-      if (!this.isInputFullscreen && !this.isOutputFullscreen) {
-        this.isFullscreenMode = false;
-      } else {
-        this.isFullscreenMode = true;
+      
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
       }
     } else {
       this.isOutputFullscreen = !this.isOutputFullscreen;
-      // Если выходной редактор выходит из полноэкранного режима, а входной в нем не находится
-      // то полностью выходим из полноэкранного режима
-      if (!this.isOutputFullscreen && !this.isInputFullscreen) {
-        this.isFullscreenMode = false;
-      } else {
-        this.isFullscreenMode = true;
+      
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
       }
     }
     
@@ -471,11 +459,5 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         this.outputMonacoEditor.editor.layout();
       }
     }, 100);
-    
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Fullscreen',
-      detail: this.isFullscreenMode ? 'Entered fullscreen mode' : 'Exited fullscreen mode'
-    });
   }
 } 

@@ -24,13 +24,6 @@ export class ToolsService {
   
   // Сигнал со всеми инструментами
   private _allTools = signal<Tool[]>([
-    {
-      id: 'home',
-      label: 'Home',
-      icon: 'home',
-      routerLink: '/',
-      category: 'Home'
-    },
     // JSON TOOLS
     {
       id: 'json-formatter',

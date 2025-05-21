@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2 } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -10,6 +10,7 @@ import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { IconsModule } from '../../shared/modules/icons.module';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -22,33 +23,37 @@ interface Monaco {
   selector: 'app-json-query',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './json-query.component.html',
   styleUrl: './json-query.component.scss'
 })
 export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
+  @HostBinding('class') class = 'dt-page';
   // Input data
   inputJson: string = '';
   queryString: string = '';
   queryResult: string = '';
-  
+
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
-  
+  @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
+  @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
+
   editorTheme: string = 'vs-dark'; // Default theme
-  
+
   // Error handling
   error: string | null = null;
-  
+
   // For SSR and DOM manipulations
   private schemaScriptElement: HTMLElement | null = null;
-  
+
   inputEditorOptions = {
     theme: this.editorTheme,
     language: 'json',
@@ -71,7 +76,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     fixedOverflowWidgets: true
   };
-  
+
   outputEditorOptions = {
     theme: this.editorTheme,
     language: 'json',
@@ -93,9 +98,11 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     fixedOverflowWidgets: true
   };
-  
+
   isBrowser: boolean = false;
-  
+  isInputFullscreen: boolean = false;
+  isOutputFullscreen: boolean = false;
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -109,7 +116,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-    
+
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
       effect(() => {
@@ -117,29 +124,29 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.updateEditorTheme();
       });
     }
-    
+
     // Set page title
     this.pageTitleService.setTitle('JSON Query Explorer');
   }
-  
+
   ngOnInit() {
     // Start with empty input
     this.inputJson = '';
     this.queryString = 'data';
-    
+
     // SEO setup
     this.setupSeo();
   }
-  
+
   ngAfterViewInit() {
     // No initialization needed
   }
-  
+
   ngOnDestroy() {
     // Очищаем SEO элементы
     this.seoService.destroy();
   }
-  
+
   /**
    * Настройка SEO для страницы
    */
@@ -155,10 +162,10 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         url: 'https://onlinewebdevtools.com/json-query'
       }
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
-  
+
   /**
    * Update Monaco editor theme dynamically
    */
@@ -172,20 +179,20 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.outputMonacoEditor.editor.updateOptions({ theme: this.editorTheme });
         }
       });
-      
+
       // Update editor options objects to reflect current theme
       this.inputEditorOptions = {
         ...this.inputEditorOptions,
         theme: this.editorTheme
       };
-      
+
       this.outputEditorOptions = {
         ...this.outputEditorOptions,
         theme: this.editorTheme
       };
     }
   }
-  
+
   /**
    * Copy result to clipboard
    */
@@ -209,7 +216,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
   }
-  
+
   /**
    * Download query result as JSON file
    */
@@ -223,7 +230,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         a.download = 'query-result.json';
         a.click();
         window.URL.revokeObjectURL(url);
-        
+
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
@@ -240,7 +247,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
-  
+
   /**
    * Paste from clipboard to JSON input
    */
@@ -261,7 +268,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         });
     }
   }
-  
+
   /**
    * Load sample JSON for demonstration
    */
@@ -301,16 +308,16 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     };
-    
+
     this.inputJson = JSON.stringify(sampleJson, null, 2);
-    
+
     // Load sample query
     this.queryString = 'data.orders.filter(order => order.price > 1000).map(order => ({ id: order.id, product: order.product }))';
-    
+
     // Execute query with sample data
     this.executeQuery();
   }
-  
+
   /**
    * Clear JSON data
    */
@@ -318,11 +325,11 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputJson = '';
     this.queryResult = '';
     this.error = null;
-    
+
     // Reset query to default
     this.queryString = 'data';
   }
-  
+
   /**
    * Format the input JSON for readability
    */
@@ -332,7 +339,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.error = null;
       return;
     }
-    
+
     try {
       const parsedJson = JSON.parse(this.inputJson);
       this.inputJson = JSON.stringify(parsedJson, null, 2);
@@ -349,44 +356,44 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-  
+
   /**
    * Execute the query against the input JSON
    */
   executeQuery() {
     this.error = null;
     this.queryResult = '';
-    
+
     if (!this.inputJson.trim()) {
       return;
     }
-    
+
     try {
       // Parse the JSON data
       const data = JSON.parse(this.inputJson);
-      
+
       // Check if query is empty or just 'data'
       if (!this.queryString.trim() || this.queryString.trim() === 'data') {
         this.queryResult = JSON.stringify(data, null, 2);
         return;
       }
-      
+
       // Execute the query expression
       const result = this.evaluateQuery(data);
-      
+
       // Format the result as JSON
       this.queryResult = JSON.stringify(result, null, 2);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.error = `Error executing query: ${errorMessage}`;
-    //   this.messageService.add({
-    //     severity: 'error',
-    //     summary: 'Error',
-    //     detail: `Error executing query: ${errorMessage}`
-    //   });
+      //   this.messageService.add({
+      //     severity: 'error',
+      //     summary: 'Error',
+      //     detail: `Error executing query: ${errorMessage}`
+      //   });
     }
   }
-  
+
   /**
    * Evaluate the query expression with the provided data
    */
@@ -401,11 +408,65 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
           throw new Error(e.message);
         }
       `);
-      
+
       return queryFunction(data);
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       throw new Error(`Invalid query: ${errorMessage}`);
     }
+  }
+
+  /**
+   * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+   */
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isInputFullscreen || this.isOutputFullscreen) {
+      // Выходим из полноэкранного режима
+      this.isInputFullscreen = false;
+      this.isOutputFullscreen = false;
+
+      // Обновляем размер редакторов
+      setTimeout(() => {
+        if (this.inputMonacoEditor?.editor) {
+          this.inputMonacoEditor.editor.layout();
+        }
+        if (this.outputMonacoEditor?.editor) {
+          this.outputMonacoEditor.editor.layout();
+        }
+      }, 100);
+    }
+  }
+
+  /**
+   * Toggle fullscreen mode for the specified editor
+   */
+  toggleFullscreen(editorType: 'input' | 'output') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'input') {
+      this.isInputFullscreen = !this.isInputFullscreen;
+
+      if (this.isInputFullscreen) {
+        // Если переключаем на полноэкранный режим для input, выключаем для output
+        this.isOutputFullscreen = false;
+      }
+    } else {
+      this.isOutputFullscreen = !this.isOutputFullscreen;
+
+      if (this.isOutputFullscreen) {
+        // Если переключаем на полноэкранный режим для output, выключаем для input
+        this.isInputFullscreen = false;
+      }
+    }
+
+    // Resize the editor after toggling fullscreen
+    setTimeout(() => {
+      if (editorType === 'input' && this.inputMonacoEditor?.editor) {
+        this.inputMonacoEditor.editor.layout();
+      } else if (editorType === 'output' && this.outputMonacoEditor?.editor) {
+        this.outputMonacoEditor.editor.layout();
+      }
+    }, 100);
   }
 } 

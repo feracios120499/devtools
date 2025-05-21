@@ -10,7 +10,8 @@
   .topbar-left {
     align-items: center;
     width: 60px;
-
+    margin-left: 16px;
+    cursor: pointer;
     .logo {
       font-size: 1.5rem;
       font-weight: 700;
@@ -21,7 +22,7 @@
 
   .topbar-spacer {
     width: 290px;
-    margin-left: -60px;
+    margin-left: -76px;
   }
 
   .topbar-title-container {
