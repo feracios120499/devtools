@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2 } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -10,6 +10,7 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { FileTypeService, FileTypeInfo } from '../../services/file-type.service';
 import { MimeTypeService, MimeTypeInfo } from '../../services/mime-type.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
 // Интерфейс TypeOption совпадает с FileTypeInfo для использования с p-select
 interface TypeOption extends FileTypeInfo {
   // Нет необходимости добавлять поле value, так как будем использовать исходные объекты
@@ -28,7 +29,7 @@ interface TypeOption extends FileTypeInfo {
   templateUrl: './base64-to-file.component.html',
   styleUrl: './base64-to-file.component.scss'
 })
-export class Base64ToFileComponent implements OnInit {
+export class Base64ToFileComponent implements OnInit, OnDestroy {
   // Входные данные
   inputBase64: string = '';
   displayBase64: string = ''; // Отображаемый текст (возможно обрезанный)
@@ -49,7 +50,6 @@ export class Base64ToFileComponent implements OnInit {
   
   // Для SEO
   isBrowser: boolean = false;
-  private schemaScriptElement: HTMLElement | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -61,7 +61,8 @@ export class Base64ToFileComponent implements OnInit {
     private titleService: Title,
     private messageService: MessageService,
     private fileTypeService: FileTypeService,
-    public mimeTypeService: MimeTypeService
+    public mimeTypeService: MimeTypeService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -72,74 +73,30 @@ export class Base64ToFileComponent implements OnInit {
     
     // Настройка SEO
     this.setupSeo();
-    
-    // Добавляем структурированные данные Schema.org для SEO
-    this.addJsonLdToHead();
   }
 
   ngOnDestroy() {
-    // Удаляем элемент схемы при уничтожении компонента
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO-элементы при уничтожении компонента
+    this.seoService.destroy();
   }
 
   /**
    * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('Base64 to File Converter | DevTools');
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online Base64 to File converter. Convert Base64 encoded data back to files. Download files from Base64 strings with automatic file type detection. Perfect for developers and data processing.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'base64 to file, base64 decoder, base64 converter, convert base64 to file, download file from base64, base64 file converter, base64 to binary' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'Base64 to File Converter | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online Base64 to File converter. Convert Base64 encoded data back to downloadable files with automatic file type detection.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-  }
-  
-  /**
-   * Добавление JSON-LD для SEO
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Base64 to File Converter",
-      "description": "Free online tool for converting Base64 encoded data to downloadable files",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/base64-to-file"
+    const metaData: MetaData = {
+      OgTitle: 'Base64 to File Converter | DevTools',
+      OgDescription: 'Free online Base64 to File converter. Convert Base64 encoded data back to downloadable files with automatic file type detection.',
+      description: 'Free online Base64 to File converter. Convert Base64 encoded data back to files. Download files from Base64 strings with automatic file type detection. Perfect for developers and data processing.',
+      keywords: ['base64 to file', 'base64 decoder', 'base64 converter', 'convert base64 to file', 'download file from base64', 'base64 file converter', 'base64 to binary'],
+      jsonLd: {
+        name: 'Base64 to File Converter',
+        description: 'Free online tool for converting Base64 encoded data to downloadable files',
+        url: 'https://onlinewebdevtools.com/base64-to-file'
+      }
     };
     
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
 
   /**

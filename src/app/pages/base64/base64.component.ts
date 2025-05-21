@@ -15,6 +15,7 @@ import { MessageService } from 'primeng/api';
 // Services
 import { PageTitleService } from '../../services/page-title.service';
 import { ThemeService } from '../../services/theme.service';
+import { SeoService, MetaData } from '../../services/seo.service';
 
 // Monaco editor
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -97,9 +98,6 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
   // Проверка окружения
   isBrowser: boolean;
   
-  // Элемент схемы JSON-LD
-  private schemaScriptElement: HTMLElement | null = null;
-  
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -108,7 +106,8 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
     private pageTitleService: PageTitleService,
     private titleService: Title,
     private metaService: Meta,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -127,9 +126,6 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
     
     // Настройка SEO
     this.setupSeo();
-    
-    // Добавляем структурированные данные Schema.org для SEO
-    this.addJsonLdToHead();
   }
   
   ngAfterViewInit() {
@@ -138,37 +134,27 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
   }
   
   ngOnDestroy() {
-    // Удаляем элемент схемы при уничтожении компонента
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO-элементы при уничтожении компонента
+    this.seoService.destroy();
   }
   
   /**
    * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('Base64 Encoder and Decoder | DevTools');
+    const metaData: MetaData = {
+      OgTitle: 'Base64 Encoder and Decoder | DevTools',
+      OgDescription: 'Free online Base64 encoder and decoder. Convert text to Base64 or decode Base64 strings back to readable text. Includes copy and download features.',
+      description: 'Free online Base64 encoder and decoder tool. Easily convert text to Base64 encoding or decode Base64 strings back to readable text. Perfect for data encoding needs, email attachments, and more.',
+      keywords: ['base64 encoder', 'base64 decoder', 'base64 converter', 'online base64 tool', 'text to base64', 'base64 to text'],
+      jsonLd: {
+        name: 'Base64 Encoder and Decoder',
+        description: 'Online tool to encode and decode text to and from Base64 format',
+        url: 'https://onlinewebdevtools.com/base64'
+      }
+    };
     
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online Base64 encoder and decoder tool. Easily convert text to Base64 encoding or decode Base64 strings back to readable text. Perfect for data encoding needs, email attachments, and more.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'base64 encoder, base64 decoder, base64 converter, online base64 tool, text to base64, base64 to text' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'Base64 Encoder and Decoder | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online Base64 encoder and decoder. Convert text to Base64 or decode Base64 strings back to readable text. Includes copy and download features.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
+    this.seoService.setupSeo(metaData);
   }
   
   /**
@@ -192,37 +178,6 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
     
     if (this.outputMonacoEditor?.editor) {
       this.outputMonacoEditor.editor.updateOptions({ theme: this.editorTheme });
-    }
-  }
-  
-  /**
-   * Добавление структурированных данных Schema.org для SEO
-   */
-  private addJsonLdToHead() {
-    const schemaData = {
-      '@context': 'https://schema.org',
-      '@type': 'SoftwareApplication',
-      'name': 'Base64 Encoder and Decoder',
-      'applicationCategory': 'Utilities',
-      'description': 'Online tool to encode and decode text to and from Base64 format',
-      'operatingSystem': 'All',
-      'url': 'https://onlinewebdevtools.com/base64'
-    };
-
-    const jsonLdContent = JSON.stringify(schemaData);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Добавляем в head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Сохраняем ссылку для последующего удаления
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
     }
   }
   

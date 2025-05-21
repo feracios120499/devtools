@@ -1,29 +1,23 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-// Only declare Monaco type for type checking, don't use directly
-// It will be accessed dynamically only in browser context
-interface Monaco {
-  editor: any;
-  languages: any;
-}
 
+// Интерфейсы для типизации
 interface SpacingOption {
   label: string;
   value: number;
 }
 
-// Добавляем интерфейс для опций стилей ключей
 interface KeyCaseOption {
   label: string;
   value: string;
@@ -67,7 +61,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   // Default spacing selection
   selectedSpacing: SpacingOption = this.spacingOptions[0];
 
-  // Добавляем опции для стилей ключей
+  // Опции для стилей ключей
   keyCaseOptions: KeyCaseOption[] = [
     { label: 'Original', value: 'original', transform: (key) => key },
     { label: 'camelCase', value: 'camelCase', transform: camelCase },
@@ -78,9 +72,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // Default key case selection
   selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
-
-  // Для SSR и манипуляций с DOM
-  private schemaScriptElement: HTMLElement | null = null;
 
   inputEditorOptions = {
     theme: this.editorTheme,
@@ -135,13 +126,9 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    @Inject(DOCUMENT) private document: Document,
-    private ngZone: NgZone,
-    private renderer: Renderer2,
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
-    private metaService: Meta,
-    private titleService: Title,
+    private seoService: SeoService,
     private messageService: MessageService
   ) {
     // Set page title
@@ -155,22 +142,14 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
         this.updateEditorTheme();
       });
     }
-
-
   }
 
   ngOnInit() {
-    // Start with empty input
     this.inputCode = '';
-
-    // SEO setup
     this.setupSeo();
-
-    // Добавить JSON-LD в head
-    this.addJsonLdToHead();
   }
 
-  // Добавляем обработчик нажатия клавиши ESC для выхода из полноэкранного режима
+  // Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
   @HostListener('document:keydown.escape', ['$event'])
   handleEscapeKey(event: KeyboardEvent) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
@@ -202,64 +181,32 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngOnDestroy() {
-    // Удаляем элемент при уничтожении компонента, только в браузере
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
-
-    // // Корректно уничтожаем экземпляры Monaco Editor, если они существуют
-    // if (this.isBrowser) {
-    //   if (this.inputMonacoEditor?.editor) {
-    //     this.inputMonacoEditor.editor.dispose();
-    //   }
-    //   if (this.outputMonacoEditor?.editor) {
-    //     this.outputMonacoEditor.editor.dispose();
-    //   }
-    // }
+    this.seoService.destroy();
   }
 
   /**
-   * Добавляет JSON-LD скрипт в head документа
+   * Настройка SEO-метаданных через SeoService
    */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "JSON Formatter and Validator",
-      "description": "Free online tool for formatting and validating JSON code",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/json-formatter"
+  private setupSeo() {
+    const metaData: MetaData = {
+      OgTitle: 'JSON Formatter and Validator | DevTools',
+      OgDescription: 'Free online JSON formatter and validator. Convert raw JSON into beautifully formatted, readable structure with customizable indentation. Includes validation, copy, and download options.',
+      description: 'Free online tool for formatting and validating JSON code. Easily clean, format, and validate messy JSON data with customizable indentation options. Convert raw JSON into beautifully formatted and readable structure for better code readability and debugging. Supports copy, paste, and download features.',
+      keywords: ['JSON formatter', 'JSON validator', 'JSON parser', 'format JSON online', 'JSON tools', 'JSON beautifier', 'JSON editor', 'JSON viewer', 'JSON pretty print', 'JSON lint', 'JSON checker', 'JSON format online', 'JSON beautify online', 'JSON validate online'],
+      jsonLd: {
+        name: 'JSON Formatter and Validator',
+        description: 'Free online tool for formatting and validating JSON code',
+        url: 'https://onlinewebdevtools.com/json-formatter'
+      }
     };
 
-    const jsonLdContent = JSON.stringify(schema);
-
-    // Добавляем скрипт в head с помощью Renderer2 на сервере и в браузере
-    // Renderer2 абстрагирует DOM операции и правильно работает в SSR
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-
-      // Добавляем в head
-      this.renderer.appendChild(this.document.head, scriptElement);
-
-      // Сохраняем ссылку для последующего удаления
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script using Renderer2:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
 
   /**
    * Handles spacing option change
    */
   onSpacingChange() {
-    // Reformat JSON with the new spacing
     this.formatJson();
   }
 
@@ -362,39 +309,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   clearJson() {
     this.inputCode = '';
     this.outputCode = '';
-  }
-
-  /**
-   * Перезагружает страницу
-   */
-  reloadPage() {
-    if (this.isBrowser) {
-      window.location.reload();
-    }
-  }
-
-  // Setup metadata for SEO
-  private setupSeo() {
-    // We don't need to set the title here anymore as it's handled by PageTitleService
-
-    this.metaService.updateTag({
-      name: 'description',
-      content: 'Free online JSON formatter and validator tool. Easily clean, format, and validate messy JSON data with customizable indentation options. Convert raw JSON into beautifully formatted and readable structure for better code readability and debugging. Supports copy, paste, and download features.'
-    });
-
-    this.metaService.updateTag({
-      name: 'keywords',
-      content: 'JSON formatter, JSON validator, JSON parser, format JSON online, JSON tools'
-    });
-
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'JSON Formatter and Validator | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online JSON formatter and validator. Convert raw JSON into beautifully formatted, readable structure with customizable indentation. Includes validation, copy, and download options.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-
-    // Note: Schema.org structured data is now added directly in the HTML template
-    // This ensures it will be visible to search engine crawlers during server-side rendering
   }
 
   // Update editor settings when theme changes
@@ -522,7 +436,6 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
    * Handle key case option change
    */
   onKeyCaseChange() {
-    // Reformat JSON with the new key case
     this.formatJson();
   }
 

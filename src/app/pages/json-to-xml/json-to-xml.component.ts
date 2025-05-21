@@ -1,23 +1,18 @@
-import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, NgZone, OnDestroy, Renderer2, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
+import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, OnDestroy, HostBinding } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-// Only declare Monaco type for type checking, don't use directly
-// It will be accessed dynamically only in browser context
-interface Monaco {
-  editor: any;
-  languages: any;
-}
+import { IconsModule } from '../../shared/modules/icons.module';
 
-// Добавляем интерфейс для опций стилей ключей
+// Интерфейс для опций стилей ключей
 interface KeyCaseOption {
   label: string;
   value: string;
@@ -32,7 +27,8 @@ interface KeyCaseOption {
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
-    PageHeaderComponent
+    PageHeaderComponent,
+    IconsModule
   ],
   providers: [MessageService],
   templateUrl: './json-to-xml.component.html',
@@ -42,14 +38,14 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
-  rootName: string = 'root'; // Добавляем свойство для корневого элемента XML
+  rootName: string = 'root'; // Свойство для корневого элемента XML
 
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
 
   editorTheme: string = 'vs-dark'; // Default theme
-  
-  // Добавляем опции для стилей ключей
+
+  // Опции для стилей ключей
   keyCaseOptions: KeyCaseOption[] = [
     { label: 'Original', value: 'original', transform: (key) => key },
     { label: 'camelCase', value: 'camelCase', transform: camelCase },
@@ -57,12 +53,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'PascalCase', value: 'pascalCase', transform: pascalCase },
     { label: 'kebab-case', value: 'kebabCase', transform: kebabCase }
   ];
-  
+
   // Default key case selection
   selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
-
-  // For JSON-LD script
-  private schemaScriptElement: HTMLElement | null = null;
 
   inputEditorOptions = {
     theme: this.editorTheme,
@@ -113,13 +106,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    @Inject(DOCUMENT) private document: Document,
-    private ngZone: NgZone,
-    private renderer: Renderer2,
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
-    private metaService: Meta,
-    private titleService: Title,
+    private seoService: SeoService,
     private messageService: MessageService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
@@ -142,9 +131,6 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // SEO setup
     this.setupSeo();
-    
-    // Add JSON-LD to head
-    this.addJsonLdToHead();
   }
 
   ngAfterViewInit() {
@@ -152,26 +138,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Clean up any subscriptions or timers if needed
-    
-    // Корректно уничтожаем экземпляры Monaco Editor, если они существуют
-    if (this.isBrowser) {
-      if (this.inputMonacoEditor?.editor) {
-        this.inputMonacoEditor.editor.dispose();
-      }
-      if (this.outputMonacoEditor?.editor) {
-        this.outputMonacoEditor.editor.dispose();
-      }
-    }
-    
-    // Remove JSON-LD script element when component is destroyed
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очистка SEO-элементов
+    this.seoService.destroy();
   }
 
   /**
@@ -236,6 +204,8 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
    * Paste from clipboard
    */
   pasteFromClipboard() {
+    if (!this.isBrowser) return;
+
     navigator.clipboard.readText().then((text) => {
       this.inputCode = text;
       this.convertJsonToXml();
@@ -287,22 +257,23 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.outputCode = '';
   }
 
+  /**
+   * Настройка SEO-метаданных через SeoService
+   */
   private setupSeo() {
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free JSON to XML converter tool. Convert JSON data to XML format with customizable root element name. Easy to use with copy, paste, and download features.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'JSON to XML converter, XML converter, JSON converter, XML transformation, data conversion' 
-    });
-    
-    // Open Graph meta tags
-    this.metaService.updateTag({ property: 'og:title', content: 'JSON to XML Converter | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
+    const metaData: MetaData = {
+      OgTitle: 'JSON to XML Converter | DevTools',
+      OgDescription: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.',
+      description: 'Free JSON to XML converter tool. Convert JSON data to XML format with customizable root element name. Easy to use with copy, paste, and download features.',
+      keywords: ['JSON to XML converter', 'XML converter', 'JSON converter', 'XML transformation', 'data conversion', 'JSON to XML online', 'convert JSON to XML', 'XML generator', 'json to xml', 'jsontoxml', 'json xml converter', 'json to xml converter', 'json to xml online', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter'],
+      jsonLd: {
+        name: 'JSON to XML Converter',
+        description: 'Free online tool for converting JSON data to XML format',
+        url: 'https://onlinewebdevtools.com/json-to-xml'
+      }
+    };
+
+    this.seoService.setupSeo(metaData);
   }
 
   // Update editor settings when theme changes
@@ -311,7 +282,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       ...this.inputEditorOptions,
       theme: this.editorTheme
     };
-    
+
     this.outputEditorOptions = {
       ...this.outputEditorOptions,
       theme: this.editorTheme
@@ -322,10 +293,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
    * Handle key case option change
    */
   onKeyCaseChange() {
-    // Преобразовать JSON в XML с новым стилем ключей
     this.convertJsonToXml();
   }
-  
+
   /**
    * Transform keys in an object using the provided function
    */
@@ -333,20 +303,20 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     if (obj === null || typeof obj !== 'object') {
       return obj;
     }
-    
+
     if (Array.isArray(obj)) {
       return obj.map(item => this.transformJsonKeys(item, transformFn));
     }
-    
+
     const result: Record<string, any> = {};
-    
+
     for (const key in obj) {
       if (Object.prototype.hasOwnProperty.call(obj, key)) {
         const transformedKey = transformFn(key);
         result[transformedKey] = this.transformJsonKeys(obj[key], transformFn);
       }
     }
-    
+
     return result;
   }
 
@@ -359,23 +329,23 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       // Parse the JSON
       const jsonData = JSON.parse(this.inputCode);
-      
+
       // Transform keys if needed
-      const transformedJson = this.selectedKeyCase.value !== 'original' 
+      const transformedJson = this.selectedKeyCase.value !== 'original'
         ? this.transformJsonKeys(jsonData, this.selectedKeyCase.transform)
         : jsonData;
-      
+
       // Convert to XML
       const xml = this.jsonToXml(transformedJson, this.rootName);
-      
+
       // Format XML for readability
       this.outputCode = this.formatXml(xml);
-      
+
       // Clear any previous error messages
       this.messageService.clear();
     } catch (e) {
       console.error('JSON parsing error:', e);
-      
+
       // Show error in the UI
       this.messageService.add({
         severity: 'error',
@@ -383,7 +353,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
         detail: e instanceof Error ? e.message : 'The input is not valid JSON',
         life: 5000
       });
-      
+
       this.outputCode = 'Error converting JSON to XML. Please check your JSON syntax.';
     }
   }
@@ -394,17 +364,17 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       if (element === null || element === undefined) {
         return `<${name} xsi:nil="true"/>`;
       }
-      
+
       // Handle primitive types (string, number, boolean)
       if (typeof element !== 'object') {
         return `<${name}>${this.escapeXml(element.toString())}</${name}>`;
       }
-      
+
       // Handle arrays
       if (Array.isArray(element)) {
         return element.map(item => convertElement(item, name)).join('\n');
       }
-      
+
       // Handle objects
       let result = `<${name}>`;
       for (const key in element) {
@@ -415,11 +385,11 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       result += `\n</${name}>`;
       return result;
     };
-    
+
     // Escape XML special characters
     return `<?xml version="1.0" encoding="UTF-8"?>\n${convertElement(json, rootName)}`;
   }
-  
+
   private escapeXml(unsafe: string): string {
     return unsafe
       .replace(/&/g, '&amp;')
@@ -433,52 +403,21 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     let formatted = '';
     let indent = '';
     const tab = '  '; // 2 spaces for indentation
-    
+
     xml.split(/>\s*</).forEach(node => {
       if (node.match(/^\/\w/)) {
         // Closing tag
         indent = indent.substring(tab.length);
       }
-      
+
       formatted += indent + '<' + node + '>\n';
-      
+
       if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('?xml')) {
         // Opening tag
         indent += tab;
       }
     });
-    
-    return formatted.substring(1, formatted.length - 2);
-  }
 
-  /**
-   * Add JSON-LD schema to document head
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "JSON to XML Converter",
-      "description": "Free online tool for converting JSON data to XML format",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/json-to-xml"
-    };
-    
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    return formatted.substring(1, formatted.length - 2);
   }
 }

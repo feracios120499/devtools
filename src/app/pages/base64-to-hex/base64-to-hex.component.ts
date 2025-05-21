@@ -11,7 +11,8 @@ import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, Base64ToHexSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-// Only declare Monaco type for type checking, don't use directly
+import { SeoService, MetaData } from '../../services/seo.service';
+  // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
   editor: any;
@@ -47,6 +48,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
   
+  // Тема редактора
   editorTheme: string = 'vs-dark'; // Default theme
   
   // URL текущей страницы для хранения настроек
@@ -119,9 +121,6 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   // Default format selection
   selectedFormat: HexFormatOption = this.hexFormatOptions[0];
   
-  // Для SSR и манипуляций с DOM
-  private schemaScriptElement: HTMLElement | null = null;
-  
   inputEditorOptions = {
     theme: this.editorTheme,
     language: 'plaintext',
@@ -180,7 +179,8 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     private titleService: Title,
     private messageService: MessageService,
     private router: Router,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -210,9 +210,6 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // SEO setup
     this.setupSeo();
-    
-    // Добавить JSON-LD в head
-    this.addJsonLdToHead();
   }
   
   ngAfterViewInit() {
@@ -220,14 +217,8 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   ngOnDestroy() {
-    // Удаляем элемент при уничтожении компонента, только в браузере
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO элементы
+    this.seoService.destroy();
   }
   
   /**
@@ -260,38 +251,6 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     };
     
     this.userPreferencesService.savePageSettings(this.pageUrl, settings);
-  }
-  
-  /**
-   * Добавляет JSON-LD скрипт в head документа
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "Base64 to HEX Converter",
-      "description": "Free online tool for converting Base64 data to hexadecimal format with various formatting options",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/base64-to-hex"
-    };
-    
-    const jsonLdContent = JSON.stringify(schema);
-    
-    // Добавляем скрипт в head с помощью Renderer2
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Добавляем в head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Сохраняем ссылку для последующего удаления
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script using Renderer2:', e);
-    }
   }
   
   /**
@@ -417,23 +376,19 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   
   // Setup metadata for SEO
   private setupSeo() {
-    // We don't need to set the title here anymore as it's handled by PageTitleService
+    const metaData: MetaData = {
+      OgTitle: 'Base64 to HEX Converter | DevTools',
+      OgDescription: 'Free online Base64 to HEX converter and HEX to Base64 converter. Convert between different encodings with ease and precision.',
+      description: 'Free online tool to convert between Base64 and Hexadecimal formats. Easily encode and decode data for various applications. Supports custom options like spacing, prefixes, and different case styles.',
+      keywords: ['base64 to hex', 'hex to base64', 'base64 converter', 'hex converter', 'encoding converter', 'base64 decode', 'hexadecimal converter', 'base64 to hex converter', 'hex to base64 converter'],
+      jsonLd: {
+        name: 'Base64 to HEX Converter',
+        description: 'Online tool to convert between Base64 and Hexadecimal formats',
+        url: 'https://onlinewebdevtools.com/base64-to-hex'
+      }
+    };
     
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online Base64 to HEX converter tool. Convert Base64 encoded data to hexadecimal format with various formatting options including plain, spaced, prefixed (0x), colon-separated, and more.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'Base64 to HEX, Base64 converter, hex converter, hex formatting, binary conversion, online converter' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'Base64 to HEX Converter | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online Base64 to HEX converter tool. Convert Base64 encoded data to hexadecimal format with various formatting options.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
+    this.seoService.setupSeo(metaData);
   }
   
   // Update editor settings when theme changes

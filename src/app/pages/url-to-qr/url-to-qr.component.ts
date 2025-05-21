@@ -12,6 +12,7 @@ import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, UrlToQrSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
 
 @Component({
   selector: 'app-url-to-qr',
@@ -67,7 +68,8 @@ export class UrlToQrComponent implements OnInit {
     private messageService: MessageService,
     private sanitizer: DomSanitizer,
     private router: Router,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -84,9 +86,6 @@ export class UrlToQrComponent implements OnInit {
     // SEO setup
     this.setupSeo();
     
-    // Add JSON-LD to head
-    this.addJsonLdToHead();
-    
     // Загружаем сохраненные настройки
     this.loadUserPreferences();
     
@@ -97,14 +96,8 @@ export class UrlToQrComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    // Remove JSON-LD script element when component is destroyed
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO элементы при уничтожении компонента
+    this.seoService.destroy();
     
     // Сохраняем настройки при уничтожении компонента
     if (this.settingsChanged) {
@@ -161,59 +154,21 @@ export class UrlToQrComponent implements OnInit {
    * Setup metadata for SEO
    */
   private setupSeo() {
-    if (!this.metaService) {
-      console.error('Meta service is not available');
-      return;
-    }
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online URL to QR Code generator tool. Create QR codes from any URL for easy mobile scanning. Customize size, colors, and error correction level. No registration required.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'URL to QR code, QR code generator, generate QR code from URL, URL QR code creator, QR code maker, custom QR code generator' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'URL to QR Code Generator | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online URL to QR Code generator. Create customizable QR codes from any URL for easy mobile scanning.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-  }
-  
-  /**
-   * Add JSON-LD schema to document head
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "URL to QR Code Generator",
-      "description": "Free online tool for generating QR codes from URLs",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/url-to-qr"
+    const metaData: MetaData = {
+      OgTitle: 'URL to QR Code Generator | DevTools',
+      OgDescription: 'Free online URL to QR Code generator. Create QR codes from any URL for easy mobile scanning with customizable options.',
+      description: 'Free online URL to QR Code generator tool. Create QR codes from any URL for easy mobile scanning. Customize size, colors, and error correction level. No registration required.',
+      keywords: ['URL to QR code', 'QR code generator', 'generate QR code from URL', 'URL QR code creator', 'QR code maker', 'custom QR code generator'],
+      jsonLd: {
+        name: 'URL to QR Code Generator',
+        description: 'Free online tool for generating QR codes from URLs',
+        url: 'https://onlinewebdevtools.com/url-to-qr'
+      }
     };
     
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
-
+  
   /**
    * Generate QR code from input URL
    */

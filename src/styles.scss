@@ -100,11 +100,15 @@ p-radiobutton{
       grid-template-columns: repeat(1, minmax(0, 1fr));
     }
     &-editor{
+      height: calc(100% - 10px);
       min-height:850px;
-      max-height: 100%;
       position: relative;
       @media (max-width: 768px) {
         min-height: 400px;
+      }
+
+      ngx-monaco-editor{
+        height: 100% !important;
       }
     }
   }
@@ -126,4 +130,14 @@ p-radiobutton{
   &-lg{
     width: 24px !important;
   }
+}
+
+.p-dialog-footer{
+  padding: 1rem!important;
+  border-top: 1px solid var(--p-dialog-border-color) !important;
+  justify-content: start!important;
+}
+
+.p-dialog-header{
+  padding:0!important;
 }

@@ -9,6 +9,8 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
+
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -103,7 +105,8 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -126,9 +129,6 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // SEO setup
     this.setupSeo();
-    
-    // Добавить JSON-LD в head
-    this.addJsonLdToHead();
   }
   
   ngAfterViewInit() {
@@ -136,68 +136,27 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   ngOnDestroy() {
-    // Удаляем элемент при уничтожении компонента, только в браузере
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
-  }
-  
-  /**
-   * Добавляет JSON-LD скрипт в head документа
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "JSON Query Explorer",
-      "description": "Free online tool for querying JSON data with JavaScript expressions",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/json-query"
-    };
-    
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    // Очищаем SEO элементы
+    this.seoService.destroy();
   }
   
   /**
    * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('JSON Query Explorer | DevTools');
+    const metaData: MetaData = {
+      OgTitle: 'JSON Query Explorer | DevTools',
+      OgDescription: 'Free online JSON Query tool. Explore and extract data from complex JSON structures using JSONPath queries. Test and visualize results in real-time.',
+      description: 'Free online JSON Query Explorer tool. Easily query, filter, and extract data from complex JSON structures using JSONPath expressions. Features live preview, sample data, and results highlighting. Perfect for developers working with JSON APIs or configurations.',
+      keywords: ['json query', 'jsonpath', 'json explorer', 'json query tool', 'jsonpath query', 'json search', 'query json online', 'json data extraction', 'json path expression', 'json filter online'],
+      jsonLd: {
+        name: 'JSON Query Explorer',
+        description: 'Online tool to query and extract data from JSON using JSONPath expressions',
+        url: 'https://onlinewebdevtools.com/json-query'
+      }
+    };
     
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online JSON Query Explorer tool. Query and extract data from JSON using JavaScript expressions. No installation required. Intuitive interface for developers.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'json query, json explorer, query json, javascript json query, json path, json query tool, extract json data, json search, json filter, json javascript' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'JSON Query Explorer | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online JSON Query Explorer tool. Query and extract data from JSON using JavaScript expressions.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
+    this.seoService.setupSeo(metaData);
   }
   
   /**

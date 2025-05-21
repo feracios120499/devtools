@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, HostBinding, effect } from '@angular/core';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, HostBinding, effect } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -11,6 +11,8 @@ import { UserPreferencesService } from '../../services/user-preferences.service'
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { SeoService, MetaData } from '../../services/seo.service';
+
 // Интерфейс для сохранения настроек страницы
 export interface SvgToReactSettings {
   componentName: string;
@@ -34,7 +36,7 @@ export interface SvgToReactSettings {
   templateUrl: './svg-to-react-component.component.html',
   styleUrl: './svg-to-react-component.component.scss'
 })
-export class SvgToReactComponentComponent implements OnInit {
+export class SvgToReactComponentComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
 
   // Настройки компонента
@@ -66,9 +68,11 @@ export class SvgToReactComponentComponent implements OnInit {
   svgCode: string = '';
   reactCode: string = '';
 
-  // Флаг для браузера (SSR)
+  // Флаг для проверки окружения (браузер или сервер)
   isBrowser: boolean = false;
-  private schemaScriptElement: HTMLElement | null = null;
+  
+  // Флаг для отображения полноэкранного редактора
+  isFullscreen: boolean = false;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -79,7 +83,8 @@ export class SvgToReactComponentComponent implements OnInit {
     private metaService: Meta,
     private titleService: Title,
     private messageService: MessageService,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -99,9 +104,6 @@ export class SvgToReactComponentComponent implements OnInit {
     // Настройка SEO
     this.setupSeo();
     
-    // Добавление JSON-LD в head
-    this.addJsonLdToHead();
-    
     // Загружаем сохраненные настройки
     this.loadSettings();
     
@@ -113,14 +115,8 @@ export class SvgToReactComponentComponent implements OnInit {
   }
 
   ngOnDestroy() {
-    // Удаляем JSON-LD при уничтожении компонента
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO элементы
+    this.seoService.destroy();
   }
   
   /**
@@ -139,57 +135,22 @@ export class SvgToReactComponentComponent implements OnInit {
   }
 
   /**
-   * Настройка метаданных для SEO
+   * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('SVG to React Component | DevTools');
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online SVG to React component converter. Convert SVG code into React components with TypeScript support, props and customization options. Perfect for React developers.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'svg to react, svg converter, react component, typescript react, svg component, jsx converter, tsx converter, react svg props' 
-    });
-    
-    // Мета-теги Open Graph для улучшения шеринга в соцсетях
-    this.metaService.updateTag({ property: 'og:title', content: 'SVG to React Component | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online SVG to React component converter. Convert SVG code into React components with TypeScript support.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-  }
-  
-  /**
-   * Добавление схемы JSON-LD в head документа
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "SVG to React Component Converter",
-      "description": "Free online tool for converting SVG code into React components",
-      "applicationCategory": "DeveloperApplication",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/svg-to-react-component"
+    const metaData: MetaData = {
+      OgTitle: 'SVG to React Component Converter | DevTools',
+      OgDescription: 'Free online SVG to React Component converter. Convert SVG files or code into ready-to-use React components with customizable options.',
+      description: 'Free online tool to convert SVG files or code snippets into React components. Create optimized React components from SVGs with customizable options like TypeScript support, props passing, and styling controls. Perfect for React developers working with SVG icons and graphics.',
+      keywords: ['svg to react', 'react svg component', 'convert svg to react', 'svg react converter', 'react component generator', 'svg component converter', 'svg in react', 'react icon component', 'svg to jsx', 'react svg transformation'],
+      jsonLd: {
+        name: 'SVG to React Component Converter',
+        description: 'Online tool to convert SVG code to reusable React components',
+        url: 'https://onlinewebdevtools.com/svg-to-react-component'
+      }
     };
     
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Добавление в head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Сохранение ссылки для последующего удаления
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
 
   /**

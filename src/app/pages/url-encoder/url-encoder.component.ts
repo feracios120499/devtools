@@ -1,4 +1,4 @@
-import { Component, OnInit, Pipe, PipeTransform, Inject, PLATFORM_ID, Renderer2, HostBinding } from '@angular/core';
+import { Component, OnInit, OnDestroy, Pipe, PipeTransform, Inject, PLATFORM_ID, Renderer2, HostBinding } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -9,6 +9,7 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
 
 interface UrlComponent {
   name: string;
@@ -45,20 +46,19 @@ export class Nl2brPipe implements PipeTransform {
   templateUrl: './url-encoder.component.html',
   styleUrl: './url-encoder.component.scss'
 })
-export class UrlEncoderComponent implements OnInit {
+export class UrlEncoderComponent implements OnInit, OnDestroy {
   // Content for inputs
   inputText: string = '';
   outputText: string = '';
   
-  // URL parsing
+  // Components of the URL
   urlComponents: UrlComponent[] = [];
   
-  // Tab selection: 1 = decode, 2 = encode
+  // Current tab (1 = decode, 2 = encode)
   activeTab: number = 1;
-
-  // For JSON-LD
+  
+  // Flag for browser checks
   isBrowser: boolean = false;
-  private schemaScriptElement: HTMLElement | null = null;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -68,7 +68,8 @@ export class UrlEncoderComponent implements OnInit {
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -80,79 +81,32 @@ export class UrlEncoderComponent implements OnInit {
     // Initialize URL components array with empty values
     this.initUrlComponents();
     
-    // SEO setup
+    // Setup SEO
     this.setupSeo();
-    
-    // Add JSON-LD to head
-    this.addJsonLdToHead();
   }
 
   ngOnDestroy() {
-    // Remove JSON-LD script element when component is destroyed
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Clean up SEO
+    this.seoService.destroy();
   }
 
   /**
    * Setup metadata for SEO
    */
   private setupSeo() {
-    if (!this.metaService) {
-      console.error('Meta service is not available');
-      return;
-    }
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online URL encoder and decoder tool. Safely encode and decode URLs for web applications. Convert special characters to URL-friendly format and back with just a click.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'URL encoder, URL decoder, encode URL, decode URL, URL escape, URL unescape, URL components, URL structure' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'URL Encoder and Decoder | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online URL encoder and decoder tool. Safely encode and decode URLs for web use. Convert special characters and decode encoded URLs easily.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-  }
-  
-  /**
-   * Add JSON-LD schema to document head
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "URL Encoder and Decoder",
-      "description": "Free online tool for encoding and decoding URLs for web use",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/url-encoder"
+    const metaData: MetaData = {
+      OgTitle: 'URL Encoder and Decoder | DevTools',
+      OgDescription: 'Free online URL encoder and decoder tool. Encode and decode URLs, query parameters, and special characters for web development.',
+      description: 'Free online URL encoder and decoder. Easily encode and decode URLs and special characters to ensure proper format for web applications. Features include component-wise URL encoding/decoding, batch processing, and support for different encoding standards.',
+      keywords: ['url encoder', 'url decoder', 'url encoding', 'url decoding', 'encode special characters', 'decode url', 'url encode decode', 'url parameter encoder', 'uri encoder', 'web development tools'],
+      jsonLd: {
+        name: 'URL Encoder and Decoder',
+        description: 'Online tool to encode and decode URLs and special characters for web applications',
+        url: 'https://onlinewebdevtools.com/url-encoder'
+      }
     };
     
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
 
   initUrlComponents() {

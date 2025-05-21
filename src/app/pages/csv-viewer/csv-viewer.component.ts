@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -10,6 +10,8 @@ import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
+
 /**
  * Интерфейс для сохранения настроек страницы CSV Viewer
  */
@@ -112,23 +114,21 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
     private metaService: Meta,
     private titleService: Title,
     private messageService: MessageService,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
 
   ngOnInit() {
     // Устанавливаем заголовок страницы
-    this.pageTitleService.setTitle('CSV Viewer and Analyzer');
+    this.pageTitleService.setTitle('CSV Viewer');
     
     // Загружаем сохраненные настройки
     this.loadSavedSettings();
     
     // Настройка SEO
     this.setupSeo();
-    
-    // Добавляем структурированные данные Schema.org для SEO
-    this.addJsonLdToHead();
   }
 
   ngOnDestroy() {
@@ -140,6 +140,8 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
         console.error('Error removing JSON-LD script:', e);
       }
     }
+    // Очищаем SEO элементы
+    this.seoService.destroy();
   }
   
   /**
@@ -187,55 +189,19 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
    * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('CSV Viewer and Analyzer | DevTools');
-    
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online CSV viewer and analyzer. View, filter, sort and analyze CSV data with an interactive table view. No installation required. Perfect for data analysis and visualization.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'csv viewer, csv analyzer, csv table, view csv online, csv data, parse csv, csv filter, csv sort, comma separated values' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'CSV Viewer and Analyzer | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online CSV viewer and analyzer. View, filter, sort and analyze CSV data with an interactive table view.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:url', content: 'https://onlinewebdevtools.com/csv-viewer' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-  }
-  
-  /**
-   * Добавление JSON-LD для SEO
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "CSV Viewer and Analyzer",
-      "description": "Free online tool for viewing and analyzing CSV data with sorting, filtering, and pagination",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/csv-viewer"
+    const metaData: MetaData = {
+      OgTitle: 'CSV Viewer and Formatter | DevTools',
+      OgDescription: 'Free online CSV viewer and formatter. View and explore CSV files in a convenient table format with sorting and filtering capabilities.',
+      description: 'Free online CSV viewer and formatter tool. View and explore CSV files in a well-formatted table with pagination, sorting, and filtering capabilities. Configure delimiter, quote character, and display options for optimal visualization.',
+      keywords: ['csv viewer', 'csv formatter', 'csv table viewer', 'csv parser', 'csv file viewer', 'online csv viewer', 'csv data viewer', 'csv explorer', 'csv file reader', 'open csv file online'],
+      jsonLd: {
+        name: 'CSV Viewer and Formatter',
+        description: 'Online tool to view and format CSV data in a well-structured table',
+        url: 'https://onlinewebdevtools.com/csv-viewer'
+      }
     };
     
-    const jsonLdContent = JSON.stringify(schema);
-    
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Add to head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Save reference for later removal
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script:', e);
-    }
+    this.seoService.setupSeo(metaData);
   }
   
   /**

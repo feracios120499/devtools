@@ -10,6 +10,7 @@ import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -161,7 +162,8 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     private metaService: Meta,
     private titleService: Title,
     private messageService: MessageService,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
     
@@ -186,9 +188,6 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     
     // SEO setup
     this.setupSeo();
-    
-    // Добавить JSON-LD в head
-    this.addJsonLdToHead();
   }
   
   ngAfterViewInit() {
@@ -196,14 +195,8 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   ngOnDestroy() {
-    // Удаляем элемент при уничтожении компонента, только в браузере
-    if (this.isBrowser && this.schemaScriptElement) {
-      try {
-        this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-      } catch (e) {
-        console.error('Error removing JSON-LD script:', e);
-      }
-    }
+    // Очищаем SEO элементы при уничтожении компонента
+    this.seoService.destroy();
 
     // Корректно уничтожаем экземпляры Monaco Editor, если они существуют
     if (this.isBrowser) {
@@ -267,38 +260,6 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   
-  /**
-   * Добавляет JSON-LD скрипт в head документа
-   */
-  private addJsonLdToHead() {
-    const schema = {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "JSON to ENV Converter",
-      "description": "Free online tool for converting JSON to environment variables, Docker .env, or YAML formats",
-      "applicationCategory": "Utilities",
-      "operatingSystem": "All",
-      "url": "https://onlinewebdevtools.com/json-to-env"
-    };
-    
-    const jsonLdContent = JSON.stringify(schema);
-    
-    // Добавляем скрипт в head с помощью Renderer2 на сервере и в браузере
-    // Renderer2 абстрагирует DOM операции и правильно работает в SSR
-    try {
-      const scriptElement = this.renderer.createElement('script');
-      this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-      this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-      
-      // Добавляем в head
-      this.renderer.appendChild(this.document.head, scriptElement);
-      
-      // Сохраняем ссылку для последующего удаления
-      this.schemaScriptElement = scriptElement;
-    } catch (e) {
-      console.error('Error adding JSON-LD script using Renderer2:', e);
-    }
-  }
   
   /**
    * When format changes
@@ -476,24 +437,19 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
    * Настройка SEO для страницы
    */
   private setupSeo() {
-    this.titleService.setTitle('JSON to ENV Converter | DevTools');
+    const metaData: MetaData = {
+      OgTitle: 'JSON to ENV Converter | DevTools',
+      OgDescription: 'Free online JSON to ENV converter. Transform complex JSON structures into .env files, YAML, Docker Compose, and Kubernetes configurations.',
+      description: 'Free online tool to convert JSON to environment variables (.env), YAML, Docker Compose, or Kubernetes configurations. Perfect for simplifying configuration management across different environments and platforms.',
+      keywords: ['json to env', 'json to yaml', 'json converter', 'env file generator', 'docker env', 'kubernetes yaml', 'configuration converter', 'json to environment variables'],
+      jsonLd: {
+        name: 'JSON to ENV Converter',
+        description: 'Free online tool for converting JSON to environment variables, Docker .env, or YAML formats',
+        url: 'https://onlinewebdevtools.com/json-to-env'
+      }
+    };
     
-    this.metaService.updateTag({ 
-      name: 'description', 
-      content: 'Free online JSON to ENV Converter tool. Convert JSON to environment variables, Docker .env, YAML formats. No installation required. Perfect for developers and DevOps.' 
-    });
-    
-    this.metaService.updateTag({ 
-      name: 'keywords', 
-      content: 'json to env, json to environment variables, json to docker env, json to yaml, convert json, environment configuration, docker env, kubernetes config, yaml generator' 
-    });
-    
-    // Open Graph meta tags for better social sharing
-    this.metaService.updateTag({ property: 'og:title', content: 'JSON to ENV Converter | DevTools' });
-    this.metaService.updateTag({ property: 'og:description', content: 'Free online tool to convert JSON to environment variables, Docker .env, or YAML formats.' });
-    this.metaService.updateTag({ property: 'og:type', content: 'website' });
-    this.metaService.updateTag({ property: 'og:url', content: 'https://onlinewebdevtools.com/json-to-env' });
-    this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
+    this.seoService.setupSeo(metaData);
   }
   
   /**

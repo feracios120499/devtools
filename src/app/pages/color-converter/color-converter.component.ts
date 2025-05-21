@@ -1,4 +1,4 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, HostBinding } from '@angular/core';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, HostBinding, OnDestroy } from '@angular/core';
 import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
@@ -11,6 +11,8 @@ import { UserPreferencesService, ColorConverterSettings } from '../../services/u
 import { ColorConverterService } from './color-converter.service';
 import { ColorFormat, ColorHistoryItem } from './color-converter.types';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { SeoService, MetaData } from '../../services/seo.service';
+
 @Component({
     selector: 'app-color-converter',
     standalone: true,
@@ -24,7 +26,7 @@ import { PageHeaderComponent } from '../../components/page-header/page-header.co
     templateUrl: './color-converter.component.html',
     styleUrl: './color-converter.component.scss'
 })
-export class ColorConverterComponent implements OnInit {
+export class ColorConverterComponent implements OnInit, OnDestroy {
     @HostBinding('class') class = 'dt-page';
     // Цветовые форматы
     colorFormats: string[] = ['HEX', 'RGB', 'RGBA', 'HSL', 'HSV', 'HSB', 'HWB', 'CMYK', 'LCH', 'LAB'];
@@ -59,9 +61,8 @@ export class ColorConverterComponent implements OnInit {
     // Хранилище для конвертированных цветов
     convertedColors: ColorFormat[] = [];
 
-    // Для JSON-LD
-    isBrowser: boolean = false;
-    private schemaScriptElement: HTMLElement | null = null;
+    // Flag for browser checks
+    isBrowser: boolean;
 
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
@@ -73,20 +74,19 @@ export class ColorConverterComponent implements OnInit {
         private titleService: Title,
         private messageService: MessageService,
         private userPreferencesService: UserPreferencesService,
-        private colorConverterService: ColorConverterService
+        private colorConverterService: ColorConverterService,
+        private seoService: SeoService
     ) {
         this.isBrowser = isPlatformBrowser(this.platformId);
     }
 
     ngOnInit() {
-        // Установка заголовка страницы
+        // Устанавливаем заголовок страницы
         this.pageTitleService.setTitle('Color Converter');
-
+        
         // Настройка SEO
         this.setupSeo();
 
-        // Добавление JSON-LD в head
-        this.addJsonLdToHead();
 
         // Загружаем сохраненные настройки
         this.loadSettings();
@@ -107,71 +107,27 @@ export class ColorConverterComponent implements OnInit {
     }
 
     ngOnDestroy() {
-        // Удаляем JSON-LD при уничтожении компонента
-        if (this.isBrowser && this.schemaScriptElement) {
-            try {
-                this.renderer.removeChild(this.document.head, this.schemaScriptElement);
-            } catch (e) {
-                console.error('Error removing JSON-LD script:', e);
-            }
-        }
+        // Очищаем SEO элементы
+        this.seoService.destroy();
     }
 
     /**
-     * Настройка метаданных для SEO
+     * Настройка SEO для страницы
      */
     private setupSeo() {
-        if (!this.metaService) {
-            console.error('Meta service is not available');
-            return;
-        }
-
-        this.metaService.updateTag({
-            name: 'description',
-            content: 'Free online color converter tool. Convert colors between HEX, RGB, RGBA, HSL, HSV, HSB, HWB, CMYK, and LCH formats with ease. Includes a color picker for visual selection.'
-        });
-
-        this.metaService.updateTag({
-            name: 'keywords',
-            content: 'color converter, hex to rgb, rgb to hex, color formats, color picker, hsl, hsv, hsb, cmyk, hwb, lch, color codes'
-        });
-
-        // Мета-теги Open Graph для улучшения шеринга в соцсетях
-        this.metaService.updateTag({ property: 'og:title', content: 'Color Converter | DevTools' });
-        this.metaService.updateTag({ property: 'og:description', content: 'Free online color converter tool. Convert colors between HEX, RGB, RGBA, HSL, HSV, HSB, HWB, CMYK, and LCH formats easily.' });
-        this.metaService.updateTag({ property: 'og:type', content: 'website' });
-        this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-    }
-
-    /**
-     * Добавление схемы JSON-LD в head документа
-     */
-    private addJsonLdToHead() {
-        const schema = {
-            "@context": "https://schema.org",
-            "@type": "WebApplication",
-            "name": "Color Converter",
-            "description": "Free online tool for converting colors between different formats",
-            "applicationCategory": "UtilityApplication",
-            "operatingSystem": "All",
-            "url": "https://onlinewebdevtools.com/color-converter"
+        const metaData: MetaData = {
+            OgTitle: 'Color Converter | DevTools',
+            OgDescription: 'Free online color converter tool. Convert colors between HEX, RGB, HSL, and HSV formats with live preview and color picker.',
+            description: 'Free online color converter. Easily convert colors between different formats including HEX, RGB, HSL, and HSV. Includes a color picker and live preview of selected colors. Perfect for developers and designers.',
+            keywords: ['color converter', 'hex to rgb', 'rgb to hex', 'hsl converter', 'hsv converter', 'color format converter', 'web color tools', 'color picker', 'color code converter'],
+            jsonLd: {
+                name: 'Color Converter',
+                description: 'Online tool to convert colors between different formats including HEX, RGB, HSL, and HSV',
+                url: 'https://onlinewebdevtools.com/color-converter'
+            }
         };
-
-        const jsonLdContent = JSON.stringify(schema);
-
-        try {
-            const scriptElement = this.renderer.createElement('script');
-            this.renderer.setAttribute(scriptElement, 'type', 'application/ld+json');
-            this.renderer.setProperty(scriptElement, 'textContent', jsonLdContent);
-
-            // Добавление в head
-            this.renderer.appendChild(this.document.head, scriptElement);
-
-            // Сохранение ссылки для последующего удаления
-            this.schemaScriptElement = scriptElement;
-        } catch (e) {
-            console.error('Error adding JSON-LD script:', e);
-        }
+        
+        this.seoService.setupSeo(metaData);
     }
 
     /**
