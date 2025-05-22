@@ -74,6 +74,11 @@ export const routes: Routes = [
     title: 'Color Converter | DevTools' 
   },
   { 
+    path: 'jwt-decode', 
+    loadComponent: () => import('./pages/jwt-decode/jwt-decode.component').then(m => m.JwtDecodeComponent),
+    title: 'JWT Decoder and Verifier | DevTools' 
+  },
+  { 
     path: 'svg-to-react-component', 
     loadComponent: () => import('./pages/svg-to-react-component/svg-to-react-component.component').then(m => m.SvgToReactComponentComponent),
     title: 'SVG to React Component | DevTools' 

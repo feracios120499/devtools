@@ -150,6 +150,14 @@ export class ToolsService {
       routerLink: '/color-converter',
       category: 'MISC TOOLS',
       description: 'Convert between color formats (HEX, RGB, HSL)'
+    },
+    {
+      id: 'jwt-decode',
+      label: 'JWT Decode',
+      icon: 'key',
+      routerLink: '/jwt-decode',
+      category: 'MISC TOOLS',
+      description: 'Decode and verify JWT tokens'
     }
   ]);
 

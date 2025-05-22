@@ -1,0 +1,183 @@
+<div class="dt-container">
+  <app-page-header>Tool for decoding and verifying JSON Web Tokens (JWT)</app-page-header>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <!-- JWT Token Input Section -->
+    <div class="lg:col-span-12">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <!-- Header and actions -->
+        <div class="flex justify-between items-center mb-2">
+          <h5 class="text-xl font-medium text-800 m-0">JWT Token</h5>
+        </div>
+        
+        <!-- Control buttons -->
+        <div class="mb-2">
+          <div class="flex justify-between">
+            <div class="flex gap-3 align-items-center">
+              <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleJwt()"
+                class="p-button-sm" severity="contrast">
+                <i class="pi pi-code mr-1"></i>
+              </button>
+              <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                (click)="pasteFromClipboard()" severity="contrast">
+                <i class="pi pi-clipboard mr-1"></i>
+              </button>
+              <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()" severity="danger"
+                class="p-button-sm">
+                <i class="pi pi-times mr-1"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- JWT input textarea -->
+        <textarea id="token_input" [(ngModel)]="jwtToken" (ngModelChange)="onJwtTokenChange()" pInputTextarea
+          class="w-full border-1 surface-border rounded" [rows]="3" placeholder="Paste your JWT token here"></textarea>
+      </div>
+    </div>
+
+    <!-- Decoded Data and Verification Section -->
+    <div class="lg:col-span-8">
+      <div class="card p-3 surface-card shadow-sm h-full">
+        <h5 class="text-xl font-medium text-800 mb-3">Decoded Token</h5>
+
+        <!-- Decoded Header -->
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-500 font-medium">HEADER</label>
+            <button [disabled]="!header" pButton type="button" icon="pi pi-copy" class="p-button-sm p-button-text"
+              (click)="copyToClipboard(formattedHeader, 'Header')"></button>
+          </div>
+          <div *ngIf="isBrowser" class="border-1 surface-border rounded">
+            <ngx-monaco-editor #headerEditor [options]="editorOptions" [(ngModel)]="formattedHeader"
+              class="h-32 w-full"></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Decoded Payload -->
+        <div class="mb-4">
+          <div class="flex justify-between items-center mb-2">
+            <label class="text-500 font-medium">PAYLOAD</label>
+            <button [disabled]="!payload" pButton type="button" icon="pi pi-copy" class="p-button-sm p-button-text"
+              (click)="copyToClipboard(formattedPayload, 'Payload')"></button>
+          </div>
+          <div *ngIf="isBrowser" class="border-1 surface-border rounded">
+            <ngx-monaco-editor #payloadEditor [options]="editorOptions" [(ngModel)]="formattedPayload"
+              class="h-64 w-full"></ngx-monaco-editor>
+          </div>
+        </div>
+
+        <!-- Signature -->
+        <div>
+          <label class="text-500 font-medium block mb-2">SIGNATURE</label>
+          <div *ngIf="!signature" class="p-3 border-1 surface-border rounded  h-16">
+            <!-- Empty signature container -->
+          </div>
+          <div *ngIf="signature" class="p-3 border-1 surface-border rounded break-all font-mono">
+            {{ signature }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verification Section -->
+    <div class="lg:col-span-4">
+      <div class="card p-3 surface-card shadow-sm h-full">
+        <h5 class="text-xl font-medium text-800 mb-3">Verification</h5>
+
+        <!-- Status Indicator -->
+        <div class="mb-4 p-3 border-1 rounded flex items-center" [ngClass]="{
+            'bg-green-50 border-green-200': isSignatureValid === true,
+            'bg-red-50 border-red-200': isSignatureValid === false,
+            'bg-gray-50 border-gray-200': isSignatureValid === null
+          }">
+          <i class="pi mr-2 text-xl" [ngClass]="{
+              'pi-check-circle text-green-500': isSignatureValid === true,
+              'pi-times-circle text-red-500': isSignatureValid === false,
+              'pi-info-circle text-gray-500': isSignatureValid === null
+            }"></i>
+          <span class="font-medium" [ngClass]="{
+              'text-green-700': isSignatureValid === true,
+              'text-red-700': isSignatureValid === false,
+              'text-gray-700': isSignatureValid === null
+            }">
+            {{ isSignatureValid === true ? 'Signature Verified' :
+            isSignatureValid === false ? 'Invalid Signature' :
+            'Signature Not Verified' }}
+          </span>
+        </div>
+
+        <!-- Algorithm Selection -->
+        <div class="mb-4">
+          <label for="algorithm" class="block text-500 mb-1">Algorithm</label>
+          <p-select [options]="algorithms" [(ngModel)]="selectedAlgorithm" optionLabel="name"
+            (onChange)="onAlgorithmChange()" [style]="{'width':'100%'}" appendTo="body">
+            <ng-template pTemplate="selectedItem">
+              <div class="flex align-items-center">
+                <span>{{selectedAlgorithm.name}}</span>
+              </div>
+            </ng-template>
+            <ng-template let-algorithm pTemplate="item">
+              <div class="flex align-items-center">
+                <span>{{algorithm.name}}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+
+        <!-- Secret / Key Input -->
+        <div class="mb-2">
+          <label for="verify_secret" class="block text-500 mb-1">Verification Secret</label>
+          <textarea id="verify_secret" [(ngModel)]="secret" (ngModelChange)="onSecretChange()" pInputTextarea
+            class="w-full" [rows]="4" placeholder="Enter the secret key for HMAC verification"></textarea>
+        </div>
+
+        <!-- Secret Encoding Option -->
+        <div class="mb-4">
+          <p-checkbox [(ngModel)]="isSecretBase64Encoded" [binary]="true" (onChange)="onSecretEncodingChange()"
+            inputId="secret_encoding"></p-checkbox>
+          <label for="secret_encoding" class="ml-2 text-500">Secret is Base64 encoded</label>
+        </div>
+
+        <!-- Информация о ограничениях верификации -->
+        <div class="text-xs text-500 mt-2">
+          <i class="pi pi-info-circle mr-1"></i>
+          <span>Only HMAC algorithms (HS256, HS384, HS512) are supported in the browser.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+    <h3 class="text-xl font-semibold mb-2">About JWT Decoder and Verifier</h3>
+    <p class="mb-2 text-sm">
+      JWT (JSON Web Token) is a compact, URL-safe means of representing claims to be transferred between two parties.
+      This tool allows you to decode JWT tokens to inspect their header and payload data, and verify their signatures.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Key features:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
+      <li>Decode JWT tokens to view header and payload information</li>
+      <li>Verify JWT signatures using various algorithms (HS256, RS256, etc.)</li>
+      <li>Support for both symmetric (HMAC) and asymmetric (RSA, ECDSA) algorithms</li>
+      <li>Option for Base64-encoded secrets</li>
+    </ul>
+    <p class="mb-2 text-sm">
+      <strong>JWT structure:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
+      <li><code class="text-primary px-1 rounded">Header</code> - Contains the token type and signing algorithm</li>
+      <li><code class="text-primary px-1 rounded">Payload</code> - Contains the claims or assertions</li>
+      <li><code class="text-primary px-1 rounded">Signature</code> - Verifies the token hasn't been tampered with</li>
+    </ul>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> This tool performs all operations in your browser - no data is sent to any
+      server.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>

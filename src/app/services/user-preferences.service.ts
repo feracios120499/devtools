@@ -51,6 +51,14 @@ export interface UrlToQrSettings extends PageSettings {
 }
 
 /**
+ * Интерфейс для настроек JWT Decode
+ */
+export interface JwtDecodeSettings extends PageSettings {
+  algorithm: string;
+  isSecretBase64Encoded: boolean;
+}
+
+/**
  * Сервис для сохранения и загрузки пользовательских настроек в localStorage.
  * Каждая страница идентифицируется своим URL путем.
  */
