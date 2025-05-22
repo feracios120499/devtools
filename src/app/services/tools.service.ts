@@ -108,6 +108,31 @@ export class ToolsService {
       category: 'BASE64 TOOLS',
       description: 'Convert between Base64 and hexadecimal formats'
     },
+    // HEX TOOLS
+    {
+      id: 'hex',
+      label: 'HEX Encoder/Decoder',
+      icon: 'binary',
+      routerLink: '/hex',
+      category: 'HEX TOOLS',
+      description: 'Encode and decode text using hexadecimal format'
+    },
+    {
+      id: 'hex-to-file',
+      label: 'HEX to File',
+      icon: 'file-arrow-right',
+      routerLink: '/hex-to-file',
+      category: 'HEX TOOLS',
+      description: 'Convert hexadecimal data to downloadable files'
+    },
+    {
+      id: 'hex-to-base64',
+      label: 'HEX to Base64',
+      icon: 'exchange',
+      routerLink: '/hex-to-base64',
+      category: 'HEX TOOLS',
+      description: 'Convert hexadecimal data to Base64 encoding'
+    },
     // REACT TOOLS
     {
       id: 'svg-to-react-component',

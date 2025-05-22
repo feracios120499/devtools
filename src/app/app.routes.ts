@@ -54,6 +54,21 @@ export const routes: Routes = [
     title: 'Base64 to HEX Converter | DevTools' 
   },
   { 
+    path: 'hex', 
+    loadComponent: () => import('./pages/hex/hex.component').then(m => m.HexComponent),
+    title: 'HEX Encoder/Decoder | DevTools' 
+  },
+  { 
+    path: 'hex-to-file', 
+    loadComponent: () => import('./pages/hex-to-file/hex-to-file.component').then(m => m.HexToFileComponent),
+    title: 'HEX to File Converter | DevTools' 
+  },
+  { 
+    path: 'hex-to-base64', 
+    loadComponent: () => import('./pages/hex-to-base64/hex-to-base64.component').then(m => m.HexToBase64Component),
+    title: 'HEX to Base64 Converter | DevTools' 
+  },
+  { 
     path: 'color-converter', 
     loadComponent: () => import('./pages/color-converter/color-converter.component').then(m => m.ColorConverterComponent),
     title: 'Color Converter | DevTools' 

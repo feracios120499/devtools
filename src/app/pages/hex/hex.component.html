@@ -1,0 +1,183 @@
+<div class="dt-container">
+  <app-page-header>Tool for encoding and decoding text using hexadecimal format</app-page-header>
+  
+  <!-- Блок переключателей операций -->
+  <div class="mb-3 px-3 flex items-center">
+    <div class="flex items-center gap-3">
+      <p-radioButton [(ngModel)]="activeTab" inputId="encode" name="operation" [value]="1" (onClick)="switchMode()"></p-radioButton>
+      <label for="encode">Encode from Text to HEX</label>
+
+      <p-radioButton [(ngModel)]="activeTab" inputId="decode" name="operation" [value]="2" (onClick)="switchMode()"></p-radioButton>
+      <label for="decode">Decode from HEX to Text</label>
+    </div>
+  </div>
+  
+  <!-- Основной контейнер с редакторами -->
+  <div class="dt-editors">
+    <!-- Левая колонка - Input Text -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Заголовок -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Input Text' : 'Input HEX' }}</h5>
+        </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
+
+        <!-- Textarea для серверного рендеринга -->
+        <textarea *ngIf="!isBrowser" 
+          [(ngModel)]="inputCode" 
+          (ngModelChange)="processText()"
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+        
+        <!-- Monaco editor для браузера -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="code" class="icon-sm"> </i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                  (click)="pasteFromClipboard()" severity="contrast">
+                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearText()" severity="danger"
+                  class=" p-button-sm">
+                  <i-tabler name="trash" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor
+            #inputMonacoEditor
+            [options]="inputEditorOptions" 
+            [(ngModel)]="inputCode" 
+            (ngModelChange)="processText()"
+            class="w-full h-full">
+          </ngx-monaco-editor>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Правая колонка - Output Text -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Заголовок -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h5>
+          <!-- Выпадающий список с форматами для режима кодирования текста в HEX -->
+          <div class="flex gap-2 items-center" *ngIf="activeTab == 1">
+            <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
+              (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}} ({{option.example}})</span>
+                </div>
+              </ng-template>
+            </p-select>
+          </div>
+        </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
+        
+        <!-- Textarea для серверного рендеринга -->
+        <textarea *ngIf="!isBrowser" 
+          [(ngModel)]="outputCode" 
+          readonly
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+        
+        <!-- Monaco editor для браузера -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                  [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                  <i-tabler name="copy" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
+                  [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                  <i-tabler name="download" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor
+            #outputMonacoEditor
+            [options]="outputEditorOptions" 
+            [(ngModel)]="outputCode" 
+            class="w-full h-full">
+          </ngx-monaco-editor>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Информационный раздел -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+    <h3 class="text-xl font-semibold mb-2">About HEX Encoding</h3>
+    <p class="mb-2 text-sm">
+      Hexadecimal (HEX) is a base-16 numeral system used to represent binary data in a human-readable format. Each hexadecimal digit represents 4 bits (half a byte), so a byte can be represented by two hexadecimal digits.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>When to use HEX encoding:</strong>
+      HEX encoding is commonly used in programming and computer science for various purposes, including:
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><span class="text-primary">Binary data representation:</span> For viewing and editing binary files in a readable format</li>
+      <li><span class="text-primary">Color codes:</span> In web development for defining colors (e.g., #FF5733)</li>
+      <li><span class="text-primary">Memory addresses:</span> For displaying memory addresses in debugging</li>
+      <li><span class="text-primary">Binary protocols:</span> For analyzing and documenting network and binary protocols</li>
+      <li><span class="text-primary">Cryptography:</span> For representing cryptographic values like hashes and keys</li>
+    </ul>
+    <p class="mb-2 text-sm">
+      <strong>Supported HEX formats for decoding:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
+      <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
+      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
+      <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
+      <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
+    </ul>
+  </div>
+  
+  <!-- Toast -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

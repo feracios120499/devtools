@@ -1,0 +1,140 @@
+<div class="flex flex-col w-full h-full">
+  <app-page-header>Convert hexadecimal data to downloadable files</app-page-header>
+
+  <div class="grid grid-cols-1 gap-4 flex-1">
+    <!-- HEX Input Section -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">HEX Input</h5>
+          <div class="flex gap-2">
+            <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
+              class="p-button-text p-button-sm"></button>
+            <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
+              class="p-button-text p-button-sm"></button>
+          </div>
+        </div>
+
+        <!-- HEX input -->
+        <div class="p-fluid w-full mt-3 flex-1">
+          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="displayHex" 
+            (ngModelChange)="onInputChange($event)" 
+            placeholder="Paste your hexadecimal data here (supports all HEX formats: plain, with dashes, with spaces, with colons, with 0x prefix)"></textarea>
+        </div>
+
+        <!-- Warning about hidden content -->
+        <div *ngIf="hiddenSymbolsCount > 0" class="bg-yellow-50 rounded-md p-2 mt-2 mb-3 border-1 border-yellow-300">
+          <div class="flex items-center">
+            <i class="pi pi-info-circle text-yellow-600 mr-2"></i>
+            <span class="text-yellow-800">
+              <strong>Content truncated for display only:</strong> {{hiddenSymbolsCount}} of {{originalHex.length}} characters are hidden. 
+              The complete data will be used when processing.
+            </span>
+          </div>
+        </div>
+
+        <!-- Error for invalid hex -->
+        <div *ngIf="invalidHex" class="bg-red-50 rounded-md p-2 mt-2 mb-3 border-1 border-red-300">
+          <div class="flex items-center">
+            <i class="pi pi-exclamation-triangle text-red-600 mr-2"></i>
+            <span class="text-red-800">
+              <strong>Invalid HEX format:</strong> The input does not appear to be a valid hexadecimal string. 
+              Please check your data and ensure it's correctly formatted.
+            </span>
+          </div>
+        </div>
+
+        <!-- File Name Input -->
+        <div class="mt-4">
+          <div class="field">
+            <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
+              <input pInputText id="file_name" [(ngModel)]="fileName"
+                autocomplete="off" class="h-full" />
+              <label for="file_name">File name</label>
+            </p-floatlabel>
+            
+            <!-- File Type Selector -->
+            <div class="mt-3">
+              <div *ngIf="typeOptions.length > 0">
+                <label class="block text-500 mb-1">File type:</label>
+                <p-select [options]="typeOptions" [(ngModel)]="selectedTypeOption" 
+                  optionLabel="description" [style]="{'width': '100%'}" appendTo="body"
+                  (onChange)="onFileTypeChange()">
+                  <ng-template pTemplate="selectedItem">
+                    <div class="flex align-items-center" *ngIf="selectedTypeOption">
+                      <span>{{selectedTypeOption.description}} (.{{selectedTypeOption.extension}})</span>
+                    </div>
+                  </ng-template>
+                  <ng-template let-option pTemplate="item">
+                    <div class="flex align-items-center">
+                      <span>{{option.description}} (.{{option.extension}})</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+                
+                <!-- MIME Type Information -->
+                <div *ngIf="mimeTypeInfo.length > 0" class="mt-2">
+                  <div class="flex align-items-center text-sm text-500">
+                    <strong>MIME Type:</strong> 
+                    <span class="ml-1">{{mimeTypeService.getMimeTypeByExtension(selectedTypeOption?.extension)}}</span>
+                  </div>
+                  <div *ngIf="mimeTypeInfo.length > 1" class="mt-1 text-xs text-400">
+                    <div>Alternative MIME types:</div>
+                    <ul class="pl-3 m-0 mt-1">
+                      <li *ngFor="let mime of mimeTypeInfo.slice(1)">
+                        {{mime.mimeType}} - {{mime.description}}
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Convert & Download Button -->
+        <div class="mt-4">
+          <button pButton type="button" label="Convert & Download" icon="pi pi-download" 
+            (click)="convertAndDownload()" 
+            [disabled]="!inputHex || !fileName" 
+            class="w-full"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+    <h3 class="text-xl font-semibold mb-2">About HEX to File Converter</h3>
+    <p class="mb-2 text-sm">
+      This tool allows you to convert hexadecimal (HEX) encoded data back into downloadable files. It automatically detects common file types from the data signature.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Supported HEX formats:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
+      <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
+      <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
+      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
+      <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
+      <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
+    </ul>
+    <p class="mb-2 text-sm">
+      <strong>Supported file types:</strong>
+    </p>
+    <p class="mb-2 text-sm">
+      Images (JPG, PNG, GIF, BMP, TIFF, WEBP), Documents (PDF, DOC, DOCX, RTF, XML, HTML, TXT), 
+      Archives (ZIP, RAR, GZ, BZ2, 7Z), Audio (MP3, AAC, OGG, FLAC, WAV), Video (MP4, MPG, MKV, AVI, WMV), 
+      and Font files (TTF, OTF, WOFF, WOFF2).
+    </p>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> If the file type cannot be detected, the file will be saved as a .bin file. You can also manually specify the file name with the desired extension.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

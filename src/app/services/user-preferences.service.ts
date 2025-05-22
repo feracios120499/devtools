@@ -18,6 +18,21 @@ export interface Base64ToHexSettings extends PageSettings {
 }
 
 /**
+ * Интерфейс для настроек компонента HEX
+ */
+export interface HexSettings extends PageSettings {
+  selectedFormatValue: string;
+  activeTab: number;
+}
+
+/**
+ * Интерфейс для настроек компонента HEX to Base64
+ */
+export interface HexToBase64Settings extends PageSettings {
+  selectedFormatValue: string;
+}
+
+/**
  * Интерфейс для настроек конвертера цветов
  */
 export interface ColorConverterSettings extends PageSettings {
