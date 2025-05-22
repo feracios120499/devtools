@@ -11,8 +11,8 @@
         <div class="flex justify-between items-center h-10">
           <h5 class="text-xl font-medium text-800 m-0">Input JSON</h5>
         </div>
-       <!-- Отступ для дропдауна -->
-       <div class="mb-1"></div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
         <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="formatJson()"
@@ -106,12 +106,41 @@
           <div class="dt-editors-editor-actions">
             <div class="flex justify-between p-2">
               <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()" class="p-button-sm" severity="contrast">
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                  class="p-button-sm" severity="contrast">
                   <i-tabler name="copy" class="icon-sm"></i-tabler>
                 </button>
-                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadJson()" class="p-button-sm" severity="contrast">
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadJson()"
+                  class="p-button-sm" severity="contrast">
                   <i-tabler name="download" class="icon-sm"></i-tabler>
                 </button>
+
+                <div class="relative">
+                  <!-- <p-splitButton [model]="useJsonInItems" severity="contrast" [outlined]="true">
+                    <ng-template #content>
+                      <i-tabler name="file-type-xml" class="icon-sm"></i-tabler>
+                      <span class="ml-2">Use in JSON to XML</span>
+                    </ng-template>
+                    <ng-template #dropdownicon>
+
+                    </ng-template>
+                  </p-splitButton> -->
+
+                  <button pButton type="button" [outlined]="true" label="Use Json in" (click)="menu.toggle($event)"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+                  </button>
+                  <!-- <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true"></p-tieredMenu>  -->
+                  <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true">
+                    <ng-template #item let-item>
+                      <a pRipple class="flex items-center p-tieredmenu-item-link" (click)="sendData(item.routerLink)">
+                        <i-tabler [name]="item.icon" class="icon-sm"></i-tabler>
+                        <span class="ml-2">{{ item.label }}</span>
+                      </a>
+                    </ng-template>
+                  </p-tieredMenu>
+                </div>
+
               </div>
               <div class="flex align-items-center">
                 <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"

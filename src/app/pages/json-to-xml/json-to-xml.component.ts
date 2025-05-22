@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
+import { Router, ActivatedRoute, Navigation } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -105,7 +106,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   isBrowser: boolean = false;
-  
+
   // Свойства для полноэкранного режима
   isInputFullscreen: boolean = false;
   isOutputFullscreen: boolean = false;
@@ -116,7 +117,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
@@ -130,11 +133,35 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Set page title
     this.pageTitleService.setTitle('JSON to XML Converter');
+
+    // Получаем данные из истории (history state)
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.inputCode = navigation.extras.state['data'] || '';
+      console.log('Data from navigation:', this.inputCode);
+    }
   }
 
-  ngOnInit() {
-    // Start with empty input
-    this.inputCode = '';
+  ngOnInit(): void {
+    if (this.isBrowser) {
+      // Альтернативный метод получения данных через history state
+      const state = history.state;
+      if (state?.data) {
+        this.inputCode = state.data;
+        console.log('Data from history state:', this.inputCode);
+        this.convertJsonToXml();
+      }
+    }
+
+    // Раскомментируйте если предпочитаете использовать подписку на параметры
+    // this.route.paramMap.subscribe(() => {
+    //   const state = window.history.state;
+    //   if (state?.data) {
+    //     this.inputCode = state.data;
+    //     console.log('Data from subscription:', this.inputCode);
+    //     this.convertJsonToXml();
+    //   }
+    // });
 
     // SEO setup
     this.setupSeo();
@@ -435,7 +462,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;
       this.isOutputFullscreen = false;
-      
+
       // Обновляем размер редакторов
       setTimeout(() => {
         if (this.inputMonacoEditor?.editor) {
@@ -454,23 +481,23 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (editorType === 'input') {
       this.isInputFullscreen = !this.isInputFullscreen;
-      
+
       if (this.isInputFullscreen) {
         // Если переключаем на полноэкранный режим для input, выключаем для output
         this.isOutputFullscreen = false;
       }
     } else {
       this.isOutputFullscreen = !this.isOutputFullscreen;
-      
+
       if (this.isOutputFullscreen) {
         // Если переключаем на полноэкранный режим для output, выключаем для input
         this.isInputFullscreen = false;
       }
     }
-    
+
     // Общий флаг полноэкранного режима
     this.isFullscreenMode = this.isInputFullscreen || this.isOutputFullscreen;
-    
+
     // Resize the editor after toggling fullscreen
     setTimeout(() => {
       if (editorType === 'input' && this.inputMonacoEditor?.editor) {

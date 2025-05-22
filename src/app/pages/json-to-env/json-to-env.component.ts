@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -54,8 +55,8 @@ export interface JsonToEnvSettings extends PageSettings {
   selector: 'app-json-to-env',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    CommonModule,
+    FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
@@ -69,21 +70,21 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
-  
+
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
   @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
   @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
-  
+
   editorTheme: string = 'vs-dark'; // Default theme
-  
+
   // Format options
   formatOptions: FormatOption[] = [
     { label: 'Docker', value: 'docker' },
     { label: 'YAML', value: 'yaml' }
   ];
   selectedFormat: FormatOption = this.formatOptions[0];
-  
+
   // YAML Subformat options (visible when YAML is selected)
   yamlSubformatOptions: YamlSubformatOption[] = [
     { label: 'Docker', value: 'docker' },
@@ -92,24 +93,24 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     { label: 'Azure App Settings (JSON)', value: 'azure' }
   ];
   selectedYamlSubformat: YamlSubformatOption = this.yamlSubformatOptions[0];
-  
+
   // Separator options
   separatorOptions: SeparatorOption[] = [
     { label: 'Colon (:)', value: ':' },
     { label: 'Underscores (__)', value: '__' }
   ];
   selectedSeparator: SeparatorOption = this.separatorOptions[0];
-  
+
   // Опции сохранения регистра
   casePreservationOptions: CasePreservationOption[] = [
     { label: 'Preserve original case', value: true },
     { label: 'Convert to uppercase', value: false }
   ];
   selectedCasePreservation: CasePreservationOption = this.casePreservationOptions[0];
-  
+
   // Для SSR и манипуляций с DOM
   private schemaScriptElement: HTMLElement | null = null;
-  
+
   inputEditorOptions = {
     theme: this.editorTheme,
     language: 'json',
@@ -132,7 +133,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     fixedOverflowWidgets: true
   };
-  
+
   outputEditorOptions = {
     theme: this.editorTheme,
     language: 'plaintext',
@@ -154,11 +155,11 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     },
     fixedOverflowWidgets: true
   };
-  
+
   isBrowser: boolean = false;
   isInputFullscreen: boolean = false;
   isOutputFullscreen: boolean = false;
-  
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     @Inject(DOCUMENT) private document: Document,
@@ -170,10 +171,12 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     private titleService: Title,
     private messageService: MessageService,
     private userPreferencesService: UserPreferencesService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
-    
+
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
       effect(() => {
@@ -181,26 +184,42 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         this.updateEditorTheme();
       });
     }
-    
+
     // Set page title
     this.pageTitleService.setTitle('JSON to ENV Converter');
+
+    // Получаем данные из истории (history state)
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.inputCode = navigation.extras.state['data'] || '';
+      console.log('Data from navigation:', this.inputCode);
+    }
   }
-  
+
   ngOnInit() {
     // Start with empty input
     this.inputCode = '';
-    
+    if (this.isBrowser) {
+      // Альтернативный метод получения данных через history state
+      const state = history.state;
+      if (state?.data) {
+        this.inputCode = state.data;
+        console.log('Data from history state:', this.inputCode);
+        this.convertJsonToEnv(); // Конвертируем данные сразу после получения
+      }
+    }
+
     // Загрузка сохраненных настроек
     this.loadSavedSettings();
-    
+
     // SEO setup
     this.setupSeo();
   }
-  
+
   ngAfterViewInit() {
     // No initialization needed
   }
-  
+
   ngOnDestroy() {
     // Очищаем SEO элементы при уничтожении компонента
     this.seoService.destroy();
@@ -215,33 +234,33 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
-  
+
   /**
    * Загружает сохраненные настройки из UserPreferencesService
    */
   private loadSavedSettings() {
     if (this.isBrowser) {
       const savedSettings = this.userPreferencesService.loadPageSettings<JsonToEnvSettings>('/json-to-env');
-      
+
       if (savedSettings) {
         // Определяем формат
         const formatOption = this.formatOptions.find(opt => opt.value === savedSettings.format);
         if (formatOption) {
           this.selectedFormat = formatOption;
         }
-        
+
         // Определяем YAML подформат
         const yamlSubformatOption = this.yamlSubformatOptions.find(opt => opt.value === savedSettings.yamlSubformat);
         if (yamlSubformatOption) {
           this.selectedYamlSubformat = yamlSubformatOption;
         }
-        
+
         // Определяем разделитель
         const separatorOption = this.separatorOptions.find(opt => opt.value === savedSettings.separator);
         if (separatorOption) {
           this.selectedSeparator = separatorOption;
         }
-        
+
         // Определяем сохранение регистра
         const preserveCaseOption = this.casePreservationOptions.find(opt => opt.value === savedSettings.preserveCase);
         if (preserveCaseOption) {
@@ -250,7 +269,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
   }
-  
+
   /**
    * Сохраняет текущие настройки в UserPreferencesService
    */
@@ -262,12 +281,12 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         separator: this.selectedSeparator.value,
         preserveCase: this.selectedCasePreservation.value
       };
-      
+
       this.userPreferencesService.savePageSettings('/json-to-env', settings);
     }
   }
-  
-  
+
+
   /**
    * When format changes
    */
@@ -277,7 +296,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     // Сохранить настройки
     this.saveSettings();
   }
-  
+
   /**
    * When YAML subformat changes
    */
@@ -289,7 +308,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     // Сохранить настройки
     this.saveSettings();
   }
-  
+
   /**
    * When separator changes
    */
@@ -299,7 +318,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     // Сохранить настройки
     this.saveSettings();
   }
-  
+
   /**
    * When case preservation option changes
    */
@@ -309,13 +328,13 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     // Сохранить настройки
     this.saveSettings();
   }
-  
+
   /**
    * Copy formatted ENV to clipboard
    */
   copyToClipboard() {
     if (!this.isBrowser || !this.outputCode) return;
-    
+
     navigator.clipboard.writeText(this.outputCode).then(() => {
       this.messageService.add({
         severity: 'success',
@@ -333,16 +352,16 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
   }
-  
+
   /**
    * Download output as file
    */
   downloadOutput() {
     if (!this.isBrowser || !this.outputCode) return;
-    
+
     let fileName = 'env-config';
     let mimeType = 'text/plain';
-    
+
     // Determine file name and type based on format
     if (this.selectedFormat.value === 'docker') {
       fileName = '.env';
@@ -350,29 +369,29 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       fileName = 'config.yaml';
       mimeType = 'application/yaml';
     }
-    
+
     const blob = new Blob([this.outputCode], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = fileName;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     // Clean up
     setTimeout(() => {
       URL.revokeObjectURL(url);
     }, 100);
   }
-  
+
   /**
    * Paste from clipboard
    */
   pasteFromClipboard() {
     if (!this.isBrowser) return;
-    
+
     navigator.clipboard.readText().then(text => {
       this.inputCode = text;
       try {
@@ -398,7 +417,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     });
   }
-  
+
   /**
    * Load sample JSON
    */
@@ -427,11 +446,11 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         "analyticsTrackingId": "UA-12345-6"
       }
     };
-    
+
     this.inputCode = JSON.stringify(sampleJson, null, 2);
     this.convertJsonToEnv();
   }
-  
+
   /**
    * Clear JSON
    */
@@ -439,7 +458,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputCode = '';
     this.outputCode = '';
   }
-  
+
   /**
    * Настройка SEO для страницы
    */
@@ -455,31 +474,31 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         url: 'https://onlinewebdevtools.com/json-to-env'
       }
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
-  
+
   /**
    * Update themes for Monaco editors
    */
   updateEditorTheme() {
     if (!this.isBrowser) return;
-    
+
     this.ngZone.runOutsideAngular(() => {
       this.inputEditorOptions = { ...this.inputEditorOptions, theme: this.editorTheme };
       this.outputEditorOptions = { ...this.outputEditorOptions, theme: this.editorTheme };
-      
+
       // Update editor instances if they exist
       if (this.inputMonacoEditor?.editor) {
         this.inputMonacoEditor.editor.updateOptions({ theme: this.editorTheme });
       }
-      
+
       if (this.outputMonacoEditor?.editor) {
         this.outputMonacoEditor.editor.updateOptions({ theme: this.editorTheme });
       }
     });
   }
-  
+
   /**
    * Format JSON in the input editor
    */
@@ -492,10 +511,10 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     try {
       // Parse JSON
       const parsedJson = JSON.parse(this.inputCode);
-      
+
       // Format JSON in input editor
       this.inputCode = JSON.stringify(parsedJson, null, 2);
-      
+
       // Convert to ENV
       this.convertJsonToEnv();
     } catch (e) {
@@ -508,7 +527,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-  
+
   /**
    * Convert JSON to ENV format
    */
@@ -517,11 +536,11 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       this.outputCode = '';
       return;
     }
-    
+
     try {
       // Parse JSON
       const parsedJson = JSON.parse(this.inputCode);
-      
+
       // Convert to the selected format
       if (this.selectedFormat.value === 'docker') {
         this.outputCode = this.jsonToDockerEnv(parsedJson);
@@ -538,7 +557,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
-  
+
   /**
    * Convert JSON to Docker .env format
    */
@@ -546,20 +565,20 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     const envLines: string[] = [];
     const separator = this.selectedSeparator.value;
     const preserveCase = this.selectedCasePreservation.value;
-    
+
     // Recursive function to flatten JSON
     const flatten = (obj: any, prefix: string = '') => {
       for (const key in obj) {
         const value = obj[key];
         const newKey = prefix ? `${prefix}${separator}${key}` : key;
-        
+
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
           // Recurse for nested objects
           flatten(value, newKey);
         } else {
           // Format value appropriately
           let formattedValue = value;
-          
+
           if (typeof value === 'string') {
             // Escape quotes in string
             formattedValue = `"${value.replace(/"/g, '\\"')}"`;
@@ -569,25 +588,25 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
           } else if (value === null) {
             formattedValue = '""';
           }
-          
+
           // Apply case transformation if needed
           const envKey = preserveCase ? newKey : newKey.toUpperCase();
           envLines.push(`${envKey}=${formattedValue}`);
         }
       }
     };
-    
+
     flatten(json);
     return envLines.join('\n');
   }
-  
+
   /**
    * Convert JSON to YAML format with selected subformat
    */
   private jsonToYaml(json: any): string {
     // Basic JSON to YAML conversion
     const yamlLines: string[] = [];
-    
+
     // Handle different YAML subformats
     switch (this.selectedYamlSubformat.value) {
       case 'docker':
@@ -602,7 +621,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         return this.jsonToDockerYaml(json);
     }
   }
-  
+
   /**
    * Convert JSON to Docker YAML format
    */
@@ -610,26 +629,26 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     const yamlLines: string[] = [];
     const separator = this.selectedSeparator.value;
     const preserveCase = this.selectedCasePreservation.value;
-    
+
     // Add docker-compose version
     yamlLines.push('version: "3"');
     yamlLines.push('services:');
     yamlLines.push('  app:');
     yamlLines.push('    environment:');
-    
+
     // Recursive function to flatten JSON
     const flatten = (obj: any, prefix: string = '') => {
       for (const key in obj) {
         const value = obj[key];
         const newKey = prefix ? `${prefix}${separator}${key}` : key;
-        
+
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
           // Recurse for nested objects
           flatten(value, newKey);
         } else {
           // Format value appropriately
           let formattedValue = value;
-          
+
           if (typeof value === 'string') {
             // Use quotes for strings with special characters
             if (/[:#{}[\],&*?|<>=!%@`]/.test(value)) {
@@ -641,64 +660,64 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
           } else if (value === null) {
             formattedValue = 'null';
           }
-          
+
           // Apply case transformation if needed
           const envKey = preserveCase ? newKey : newKey.toUpperCase();
           yamlLines.push(`      ${envKey}: ${formattedValue}`);
         }
       }
     };
-    
+
     flatten(json);
     return yamlLines.join('\n');
   }
-  
+
   /**
    * Convert JSON to Docker Compose YAML format
    */
   private jsonToComposeYaml(json: any): string {
     const yamlLines: string[] = [];
-    
+
     // Add compose file header
     yamlLines.push('version: "3"');
     yamlLines.push('services:');
     yamlLines.push('  app:');
     yamlLines.push('    image: your-app-image');
     yamlLines.push('    environment:');
-    
+
     // Add environment variables
     const envVars = this.flattenJson(json);
     for (const [key, value] of Object.entries(envVars)) {
       yamlLines.push(`      - ${key}=${this.formatYamlValue(value)}`);
     }
-    
+
     // Add some default configuration
     yamlLines.push('    ports:');
     yamlLines.push('      - "3000:3000"');
     yamlLines.push('    restart: unless-stopped');
-    
+
     return yamlLines.join('\n');
   }
-  
+
   /**
    * Convert JSON to Kubernetes YAML format
    */
   private jsonToKubernetesYaml(json: any): string {
     const yamlLines: string[] = [];
-    
+
     // Add Kubernetes ConfigMap
     yamlLines.push('apiVersion: v1');
     yamlLines.push('kind: ConfigMap');
     yamlLines.push('metadata:');
     yamlLines.push('  name: app-config');
     yamlLines.push('data:');
-    
+
     // Add config data
     const flatJson = this.flattenJson(json);
     for (const [key, value] of Object.entries(flatJson)) {
       yamlLines.push(`  ${key}: ${this.formatYamlValue(value)}`);
     }
-    
+
     // Add Kubernetes Deployment
     yamlLines.push('---');
     yamlLines.push('apiVersion: apps/v1');
@@ -721,10 +740,10 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     yamlLines.push('        envFrom:');
     yamlLines.push('        - configMapRef:');
     yamlLines.push('            name: app-config');
-    
+
     return yamlLines.join('\n');
   }
-  
+
   /**
    * Convert JSON to Azure App Settings (JSON) format
    */
@@ -737,7 +756,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     };
-    
+
     // Create app settings array from flattened JSON
     const flatJson = this.flattenJson(json);
     for (const [key, value] of Object.entries(flatJson)) {
@@ -746,10 +765,10 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         value: String(value)
       });
     }
-    
+
     return JSON.stringify(azureSettings, null, 2);
   }
-  
+
   /**
    * Helper to flatten nested JSON object with separator
    */
@@ -757,11 +776,11 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     const result: Record<string, any> = {};
     const separator = this.selectedSeparator.value;
     const preserveCase = this.selectedCasePreservation.value;
-    
+
     for (const key in json) {
       const value = json[key];
       const newKey = prefix ? `${prefix}${separator}${key}` : key;
-      
+
       if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
         // Recurse for nested objects
         const nestedKeys = this.flattenJson(value, newKey);
@@ -772,10 +791,10 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
         result[resultKey] = value;
       }
     }
-    
+
     return result;
   }
-  
+
   /**
    * Format a value for YAML output
    */
@@ -801,20 +820,20 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (editorType === 'input') {
       this.isInputFullscreen = !this.isInputFullscreen;
-      
+
       if (this.isInputFullscreen) {
         // Если переключаем на полноэкранный режим для input, выключаем для output
         this.isOutputFullscreen = false;
       }
     } else {
       this.isOutputFullscreen = !this.isOutputFullscreen;
-      
+
       if (this.isOutputFullscreen) {
         // Если переключаем на полноэкранный режим для output, выключаем для input
         this.isInputFullscreen = false;
       }
     }
-    
+
     // Resize the editor after toggling fullscreen
     setTimeout(() => {
       if (editorType === 'input' && this.inputMonacoEditor?.editor) {
@@ -832,7 +851,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;
       this.isOutputFullscreen = false;
-      
+
       // Обновляем размер редакторов
       setTimeout(() => {
         if (this.inputMonacoEditor?.editor) {

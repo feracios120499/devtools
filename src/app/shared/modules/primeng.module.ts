@@ -20,6 +20,10 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CheckboxModule } from 'primeng/checkbox';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -45,7 +49,10 @@ import { CheckboxModule } from 'primeng/checkbox';
     FileUploadModule,
     ProgressBarModule,
     MultiSelectModule,
-    CheckboxModule
+    CheckboxModule,
+    TieredMenuModule,
+    SplitButtonModule,
+    AutoCompleteModule
   ],
   exports: [
     InputTextModule,
@@ -67,7 +74,10 @@ import { CheckboxModule } from 'primeng/checkbox';
     FileUploadModule,
     ProgressBarModule,
     MultiSelectModule,
-    CheckboxModule
+    CheckboxModule,
+    TieredMenuModule,
+    SplitButtonModule,
+    AutoCompleteModule
   ],
   providers: [
     MessageService

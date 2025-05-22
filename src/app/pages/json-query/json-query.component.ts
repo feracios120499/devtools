@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Router, ActivatedRoute } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -11,12 +12,20 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
   editor: any;
   languages: any;
+}
+
+/**
+ * Интерфейс для сохранения настроек страницы JSON Query
+ */
+export interface JsonQuerySettings extends PageSettings {
+  recentQueries: string[];
 }
 
 @Component({
@@ -40,6 +49,10 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   inputJson: string = '';
   queryString: string = '';
   queryResult: string = '';
+  querySuggestions: string[] = [];
+
+  // Максимальное количество сохраняемых запросов
+  private readonly MAX_SAVED_QUERIES = 10;
 
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
@@ -110,10 +123,10 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private renderer: Renderer2,
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
-    private metaService: Meta,
-    private titleService: Title,
     private messageService: MessageService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private router: Router,
+    private userPreferencesService: UserPreferencesService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
@@ -127,12 +140,32 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Set page title
     this.pageTitleService.setTitle('JSON Query Explorer');
+
+    // Получаем данные из истории (history state)
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      this.inputJson = navigation.extras.state['data'] || '';
+      console.log('Data from navigation:', this.inputJson);
+    }
   }
 
   ngOnInit() {
     // Start with empty input
     this.inputJson = '';
     this.queryString = 'data';
+
+    if (this.isBrowser) {
+      // Загружаем сохраненные запросы
+      this.loadSavedQueries();
+
+      // Альтернативный метод получения данных через history state
+      const state = history?.state;
+      if (state?.data) {
+        this.inputJson = state.data;
+        console.log('Data from history state:', this.inputJson);
+        this.executeQuery(); // Выполняем запрос сразу после получения данных
+      }
+    }
 
     // SEO setup
     this.setupSeo();
@@ -145,6 +178,57 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy() {
     // Очищаем SEO элементы
     this.seoService.destroy();
+  }
+
+  /**
+   * Загружает сохраненные запросы из UserPreferencesService
+   */
+  private loadSavedQueries() {
+    if (this.isBrowser) {
+      const savedSettings = this.userPreferencesService.loadPageSettings<JsonQuerySettings>('/json-query');
+      console.log('Saved settings:', savedSettings);
+      if (savedSettings?.recentQueries?.length) {
+        // Загружаем сохраненные запросы в качестве подсказок
+        this.querySuggestions = savedSettings.recentQueries;
+        console.log('Loaded saved queries:', this.querySuggestions);
+      } else {
+        // Устанавливаем базовые подсказки, если нет сохраненных
+        this.querySuggestions = [
+          'data.users.filter(u => u.active)',
+          'data.users.filter(u => u.active).map(u => u.name)',
+          'data.users.filter(u => u.active).map(u => u.email)'
+        ];
+      }
+    }
+  }
+
+  /**
+   * Сохраняет текущий запрос в историю
+   */
+  private saveQueryToHistory(query: string) {
+    if (!this.isBrowser || !query || query === 'data') return;
+    
+    // Удаляем этот же запрос из истории, если он уже есть
+    const existingIndex = this.querySuggestions.indexOf(query);
+    if (existingIndex !== -1) {
+      this.querySuggestions.splice(existingIndex, 1);
+    }
+    
+    // Добавляем запрос в начало массива
+    this.querySuggestions.unshift(query);
+    
+    // Ограничиваем количество сохраненных запросов
+    if (this.querySuggestions.length > this.MAX_SAVED_QUERIES) {
+      this.querySuggestions = this.querySuggestions.slice(0, this.MAX_SAVED_QUERIES);
+    }
+    
+    // Сохраняем в UserPreferencesService
+    const settings: JsonQuerySettings = {
+      recentQueries: this.querySuggestions
+    };
+    
+    this.userPreferencesService.savePageSettings('/json-query', settings);
+    console.log('Saved queries:', this.querySuggestions);
   }
 
   /**
@@ -190,6 +274,35 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
         ...this.outputEditorOptions,
         theme: this.editorTheme
       };
+    }
+  }
+
+  search(event: any) {
+    if (event.query) {
+      // Фильтруем подсказки на основе введенного текста
+      const filteredSuggestions = this.querySuggestions.filter(
+        suggestion => suggestion.toLowerCase().includes(event.query.toLowerCase())
+      );
+
+      // Возвращаем отфильтрованные подсказки или все, если фильтр не дал результатов
+      this.querySuggestions = filteredSuggestions.length ? filteredSuggestions : this.querySuggestions;
+    }
+    this.querySuggestions = [...this.querySuggestions];
+  }
+
+  saveQueryString() {
+
+    if(this.queryString.trim() == 'data'){
+      return;
+    }
+    if(this.queryString.trim() == ''){
+      return;
+    }
+    if(this.queryString.trim() == 'data.orders.filter(order => order.price > 1000).map(order => ({ id: order.id, product: order.product }))'){
+      return;
+    }
+    if(this.queryResult){
+      this.saveQueryToHistory(this.queryString);
     }
   }
 
@@ -314,6 +427,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load sample query
     this.queryString = 'data.orders.filter(order => order.price > 1000).map(order => ({ id: order.id, product: order.product }))';
 
+
     // Execute query with sample data
     this.executeQuery();
   }
@@ -383,6 +497,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Format the result as JSON
       this.queryResult = JSON.stringify(result, null, 2);
+      
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : String(error);
       this.error = `Error executing query: ${errorMessage}`;

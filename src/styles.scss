@@ -198,3 +198,14 @@ p-radiobutton {
 .p-dialog-header {
   padding: 0 !important;
 }
+
+.p-tieredmenu{
+  top:40px !important;
+  left: 0 !important;
+}
+.p-autocomplete{
+  width: 100% !important;
+  & .p-inputtext{
+    width: 100% !important;
+  }
+}

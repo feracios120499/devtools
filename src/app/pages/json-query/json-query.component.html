@@ -6,13 +6,8 @@
 
   <!-- Query input -->
   <div class="p-3 query-input-container">
-    <p-iconfield iconPosition="left" class="w-full">
-      <p-inputicon>
-        <i class="pi pi-search"></i>
-      </p-inputicon>
-      <input type="text" pInputText class="w-full" placeholder="Enter query (e.g., data.users.filter(u => u.active))"
-        [(ngModel)]="queryString" (ngModelChange)="executeQuery()" (keydown.enter)="executeQuery()">
-    </p-iconfield>
+    <p-autocomplete class="w-full" [(ngModel)]="queryString" [dropdown]="querySuggestions.length != 0" [suggestions]="querySuggestions"
+      (completeMethod)="search($event)" (ngModelChange)="executeQuery()" (keydown.enter)="executeQuery()" (focusout)="saveQueryString()"/>
     <small class="block mt-1 text-400">
       Start with <code class="text-primary px-1 rounded">data</code> to refer to the JSON object. Use JavaScript
       expressions.
@@ -22,7 +17,7 @@
       <i class="pi pi-exclamation-triangle mr-2"></i>{{ error }}
     </div>
   </div>
-  
+
   <!-- Основной контейнер с редакторами -->
   <div class="dt-editors">
     <!-- Левая колонка - Input JSON -->
@@ -77,7 +72,8 @@
             </div>
             <hr>
           </div>
-          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputJson" class="w-full h-full">
+          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputJson"
+            class="w-full h-full">
           </ngx-monaco-editor>
         </div>
       </div>

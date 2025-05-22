@@ -2,7 +2,7 @@ import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewIni
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
 import { ThemeService } from '../../services/theme.service';
@@ -11,6 +11,7 @@ import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { Router } from '@angular/router';
 
 // Интерфейсы для типизации
 interface SpacingOption {
@@ -123,12 +124,31 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   isInputFullscreen: boolean = false;
   isOutputFullscreen: boolean = false;
 
+  useJsonInItems: MenuItem[] = [
+    {
+      label: 'JSON to XML',
+      icon: 'file-type-xml',
+      routerLink:'/json-to-xml'
+    },
+    {
+      label: 'JSON to ENV',
+      icon: 'brand-docker',
+      routerLink:'/json-to-env'
+    },
+    {
+      label: 'JSON Query',
+      icon: 'pencil-search',
+      routerLink:'/json-query'
+    }
+  ]
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private router: Router
   ) {
     // Set page title
     this.pageTitleService.setTitle('JSON Formatter and Validator');
@@ -174,6 +194,18 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   ngOnDestroy() {
     this.seoService.destroy();
+  }
+
+  /**
+   * Метод для отправки данных на другие страницы через router state
+   * @param routerLink путь к странице, на которую будет выполнен переход
+   */
+  sendData(routerLink: string) {
+    this.router.navigate([routerLink], {
+      state: {
+        data: this.outputCode
+      }
+    });
   }
 
   /**

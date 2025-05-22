@@ -37,6 +37,71 @@ if (fs.existsSync(finalBrowserDistFolder)) {
   console.log('Browser folder contents:', fs.readdirSync(finalBrowserDistFolder));
 }
 
+// Кеширование статических файлов
+interface CacheEntry {
+  content: Buffer;
+  contentType: string;
+  timestamp: number;
+  etag: string;
+}
+
+const staticCache: Record<string, CacheEntry> = {};
+const CACHE_MAX_AGE = 24 * 60 * 60 * 1000; // 24 часа в миллисекундах
+const CACHE_MAX_SIZE = 100; // Максимальное количество файлов в кеше
+
+// Версия кеша (соль), меняйте при выкатывании обновлений
+// Можно управлять через переменную окружения для удобства деплоя
+const CACHE_VERSION = process.env['CACHE_VERSION'] || '1.0.0';
+
+// Функция для создания ключа кеша с учетом версии приложения
+function createCacheKey(url: string): string {
+  return `${CACHE_VERSION}:${url}`;
+}
+
+// Функция для определения типа содержимого по расширению файла
+function getContentType(filePath: string): string {
+  const ext = filePath.split('.').pop()?.toLowerCase() || '';
+  const contentTypes: Record<string, string> = {
+    'js': 'application/javascript',
+    'mjs': 'application/javascript',
+    'css': 'text/css',
+    'html': 'text/html',
+    'json': 'application/json',
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'gif': 'image/gif',
+    'svg': 'image/svg+xml',
+    'woff': 'font/woff',
+    'woff2': 'font/woff2',
+    'ttf': 'font/ttf',
+    'eot': 'application/vnd.ms-fontobject',
+    'ico': 'image/x-icon',
+    'map': 'application/json'
+  };
+  
+  return contentTypes[ext] || 'application/octet-stream';
+}
+
+// Функция для очистки кеша при превышении максимального размера
+function cleanupCache(): void {
+  const cacheEntries = Object.entries(staticCache);
+  if (cacheEntries.length > CACHE_MAX_SIZE) {
+    // Сортируем по времени последнего доступа и удаляем старые записи
+    const sortedEntries = cacheEntries.sort(
+      (a, b) => a[1].timestamp - b[1].timestamp
+    );
+    
+    // Удаляем 20% самых старых записей
+    const entriesToRemove = Math.ceil(CACHE_MAX_SIZE * 0.2);
+    for (let i = 0; i < entriesToRemove && i < sortedEntries.length; i++) {
+      delete staticCache[sortedEntries[i][0]];
+    }
+    
+    console.log(`[${new Date().toISOString()}] Cache cleanup: removed ${entriesToRemove} entries`);
+  }
+}
+
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
@@ -87,7 +152,9 @@ app.get('/health', (req, res) => {
     env: process.env['NODE_ENV'] || 'development',
     port: process.env['PORT'] || '4000',
     serverPath: serverDistFolder,
-    browserPath: finalBrowserDistFolder
+    browserPath: finalBrowserDistFolder,
+    cacheSize: Object.keys(staticCache).length,
+    cacheVersion: CACHE_VERSION
   });
 });
 
@@ -105,13 +172,64 @@ app.get([
 ], (req, res, next) => {
   console.log(`[${new Date().toISOString()}] Static resource requested: ${req.url}`);
   
+  // Проверяем кеш
+  const cacheKey = createCacheKey(req.url);
+  const cachedEntry = staticCache[cacheKey];
+  
+  // Если есть в кеше и не устарел, возвращаем из кеша
+  if (cachedEntry) {
+    // Обновляем timestamp
+    cachedEntry.timestamp = Date.now();
+    
+    // Проверяем ETag для условных запросов
+    const ifNoneMatch = req.headers['if-none-match'];
+    if (ifNoneMatch === cachedEntry.etag) {
+      console.log(`[${new Date().toISOString()}] Cache hit (304): ${req.url}`);
+      return res.status(304).end();
+    }
+    
+    // Отдаем кешированный контент с правильными заголовками
+    console.log(`[${new Date().toISOString()}] Cache hit: ${req.url}`);
+    res.setHeader('Content-Type', cachedEntry.contentType);
+    res.setHeader('Cache-Control', `public, max-age=${CACHE_MAX_AGE / 1000}`);
+    res.setHeader('ETag', cachedEntry.etag);
+    return res.send(cachedEntry.content);
+  }
+  
   // Формируем абсолютный путь к файлу
   const filePath = join(finalBrowserDistFolder, req.url);
   
   // Проверяем существование файла
   if (fs.existsSync(filePath)) {
     console.log(`[${new Date().toISOString()}] Serving static file: ${filePath}`);
-    return res.sendFile(filePath);
+    
+    try {
+      // Читаем файл в память
+      const content = fs.readFileSync(filePath);
+      const contentType = getContentType(filePath);
+      const etag = `W/"${content.length.toString(16)}"`; // Простой ETag на основе размера файла
+      
+      // Кешируем контент
+      staticCache[cacheKey] = {
+        content,
+        contentType,
+        timestamp: Date.now(),
+        etag
+      };
+      
+      // Проверка и очистка кеша если нужно
+      cleanupCache();
+      
+      // Устанавливаем заголовки для кеширования
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Cache-Control', `public, max-age=${CACHE_MAX_AGE / 1000}`);
+      res.setHeader('ETag', etag);
+      
+      return res.send(content);
+    } catch (e) {
+      console.error(`[${new Date().toISOString()}] Error reading file ${filePath}:`, e);
+      return res.sendFile(filePath); // Запасной вариант
+    }
   }
   
   // Специальная обработка для Monaco ресурсов
@@ -159,7 +277,34 @@ app.get([
     for (const pathToCheck of pathsToCheck) {
       if (fs.existsSync(pathToCheck)) {
         console.log(`[${new Date().toISOString()}] Serving file from path: ${pathToCheck}`);
-        return res.sendFile(pathToCheck);
+        
+        try {
+          // Читаем файл в память
+          const content = fs.readFileSync(pathToCheck);
+          const contentType = getContentType(pathToCheck);
+          const etag = `W/"${content.length.toString(16)}"`; // Простой ETag на основе размера файла
+          
+          // Кешируем контент
+          staticCache[cacheKey] = {
+            content,
+            contentType,
+            timestamp: Date.now(),
+            etag
+          };
+          
+          // Проверка и очистка кеша если нужно
+          cleanupCache();
+          
+          // Устанавливаем заголовки для кеширования
+          res.setHeader('Content-Type', contentType);
+          res.setHeader('Cache-Control', `public, max-age=${CACHE_MAX_AGE / 1000}`);
+          res.setHeader('ETag', etag);
+          
+          return res.send(content);
+        } catch (e) {
+          console.error(`[${new Date().toISOString()}] Error reading file ${pathToCheck}:`, e);
+          return res.sendFile(pathToCheck); // Запасной вариант
+        }
       }
     }
     
