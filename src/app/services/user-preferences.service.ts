@@ -59,6 +59,14 @@ export interface JwtDecodeSettings extends PageSettings {
 }
 
 /**
+ * Интерфейс для настроек SQL Formatter
+ */
+export interface SqlFormatterSettings extends PageSettings {
+  selectedLanguage: string;
+  selectedIndentation: number;
+}
+
+/**
  * Сервис для сохранения и загрузки пользовательских настроек в localStorage.
  * Каждая страница идентифицируется своим URL путем.
  */

@@ -102,7 +102,12 @@
     <changefreq>weekly</changefreq>
     <priority>1</priority>
   </url>
-
+  <url>
+    <loc>https://onlinewebdevtools.com/sql-formatter</loc>
+    <lastmod>2025-05-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1</priority>
+  </url>
 
   <!-- Add more URLs as needed -->
 </urlset> 

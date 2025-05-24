@@ -1,0 +1,168 @@
+<div class="dt-container">
+  <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
+
+  <app-page-header>Tool for formatting, validating and improving SQL code readability</app-page-header>
+
+  <div class="dt-editors">
+    <!-- Левая колонка - Input SQL -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">Input SQL</h5>
+        </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="formatSql()"
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleSql()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="code" class="icon-sm"> </i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                  (click)="pasteFromClipboard()" severity="contrast">
+                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                </button>
+
+                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearSql()" severity="danger"
+                  class=" p-button-sm">
+                  <i-tabler name="trash" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+            (ngModelChange)="formatSql()" class="w-full h-full">
+          </ngx-monaco-editor>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Правая колонка - Formatted SQL -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Заголовок с фиксированной высотой -->
+        <div class="flex justify-between items-center h-10">
+          <h5 class="text-xl font-medium text-800 m-0">Formatted SQL</h5>
+          <div class="flex gap-2 items-center">
+
+            <p-select [options]="languageOptions" [(ngModel)]="selectedLanguage" optionLabel="label"
+              (onChange)="onLanguageChange()" styleClass="p-select-sm custom-select"
+              [panelStyleClass]="'same-width-panel'" appendTo="body" [style]="{'min-width': '120px'}">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>{{selectedLanguage.label}}</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}}</span>
+                </div>
+              </ng-template>
+            </p-select>
+
+            <p-select [options]="indentationOptions" [(ngModel)]="selectedIndentation" optionLabel="label"
+              (onChange)="onIndentationChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+            </p-select>
+          </div>
+        </div>
+
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Use in Input" (click)="inputCode = outputCode"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="arrow-left" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="copy" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadSql()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="download" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+            class="w-full h-full">
+          </ngx-monaco-editor>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+    <h3 class="text-xl font-semibold mb-2">About SQL Formatter</h3>
+    <p class="mb-2 text-sm">
+      This tool helps you format, validate, and beautify SQL queries for improved readability and debugging.
+      SQL (Structured Query Language) is used for managing and manipulating relational databases.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Features:</strong>
+    </p>
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><span class="text-primary">SQL formatting:</span> Automatically formats your SQL queries with proper indentation and line breaks</li>
+      <li><span class="text-primary">Multiple dialects:</span> Support for MySQL, PostgreSQL, SQLite, MariaDB, BigQuery and standard SQL</li>
+      <li><span class="text-primary">Customizable indentation:</span> Choose between 2 spaces, 4 spaces, or tabs for indentation</li>
+      <li><span class="text-primary">Keyword formatting:</span> Converts SQL keywords to uppercase for better readability</li>
+      <li><span class="text-primary">Advanced editor:</span> Syntax highlighting, error indicators, and code completion</li>
+      <li><span class="text-primary">Export options:</span> Copy the formatted SQL or download it as a .sql file</li>
+    </ul>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any server.
+    </p>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div> 

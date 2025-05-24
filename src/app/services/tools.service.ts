@@ -158,6 +158,14 @@ export class ToolsService {
       routerLink: '/jwt-decode',
       category: 'MISC TOOLS',
       description: 'Decode and verify JWT tokens'
+    },
+    {
+      id: 'sql-formatter',
+      label: 'SQL Formatter',
+      icon: 'database',
+      routerLink: '/sql-formatter',
+      category: 'MISC TOOLS',
+      description: 'Format and beautify SQL queries with syntax highlighting'
     }
   ]);
 

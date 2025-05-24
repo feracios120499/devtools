@@ -79,6 +79,11 @@ export const routes: Routes = [
     title: 'JWT Decoder and Verifier | DevTools' 
   },
   { 
+    path: 'sql-formatter', 
+    loadComponent: () => import('./pages/sql-formatter/sql-formatter.component').then(m => m.SqlFormatterComponent),
+    title: 'SQL Formatter and Beautifier | DevTools' 
+  },
+  { 
     path: 'svg-to-react-component', 
     loadComponent: () => import('./pages/svg-to-react-component/svg-to-react-component.component').then(m => m.SvgToReactComponentComponent),
     title: 'SVG to React Component | DevTools' 
