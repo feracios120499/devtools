@@ -1,5 +1,5 @@
 <div class="mb-2 p-3">
-  <h4 class="text-lg text-700 flex justify-between items-center">
+  <h2 class="text-lg text-700 flex justify-between items-center">
     <ng-content></ng-content>
 
     <button *ngIf="isFavorite" pButton type="button" [rounded]="true" [outlined]="false" (click)="toggleFavorite()" class="favorite-button">
@@ -8,5 +8,5 @@
     <button *ngIf="!isFavorite" pButton type="button" [rounded]="true" [outlined]="true" (click)="toggleFavorite()" class="favorite-button">
       <i-tabler *ngIf="!isFavorite" name="star" class="icon-sm"></i-tabler>
     </button>
-  </h4>
+  </h2>
 </div> 

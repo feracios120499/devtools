@@ -238,7 +238,7 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     const metaData: MetaData = {
       OgTitle: 'JSON Query Explorer | DevTools',
       OgDescription: 'Free online JSON Query tool. Explore and extract data from complex JSON structures using JSONPath queries. Test and visualize results in real-time.',
-      description: 'Free online JSON Query Explorer tool. Easily query, filter, and extract data from complex JSON structures using JSONPath expressions. Features live preview, sample data, and results highlighting. Perfect for developers working with JSON APIs or configurations.',
+      description: 'Free online JSON Query Explorer tool for querying and extracting data from JSON using JavaScript expressions. Features live preview, sample data, and syntax highlighting. Perfect for working with JSON APIs and data.',
       keywords: ['json query', 'jsonpath', 'json explorer', 'json query tool', 'jsonpath query', 'json search', 'query json online', 'json data extraction', 'json path expression', 'json filter online'],
       jsonLd: {
         name: 'JSON Query Explorer',

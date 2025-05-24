@@ -6,8 +6,9 @@
 
   <!-- Query input -->
   <div class="p-3 query-input-container">
-    <p-autocomplete class="w-full" [(ngModel)]="queryString" [dropdown]="querySuggestions.length != 0" [suggestions]="querySuggestions"
-      (completeMethod)="search($event)" (ngModelChange)="executeQuery()" (keydown.enter)="executeQuery()" (focusout)="saveQueryString()"/>
+    <p-autocomplete class="w-full" [(ngModel)]="queryString" [dropdown]="querySuggestions.length != 0"
+      [suggestions]="querySuggestions" (completeMethod)="search($event)" (ngModelChange)="executeQuery()"
+      (keydown.enter)="executeQuery()" (focusout)="saveQueryString()" />
     <small class="block mt-1 text-400">
       Start with <code class="text-primary px-1 rounded">data</code> to refer to the JSON object. Use JavaScript
       expressions.
@@ -25,7 +26,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">JSON Input</h5>
+          <h3 class="text-xl font-medium text-800 m-0">JSON Input</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -84,7 +85,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Query Result</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Query Result</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -133,7 +134,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About JSON Query Explorer</h3>
+    <h4 class="text-xl font-semibold mb-2">About JSON Query Explorer</h4>
     <p class="mb-2 text-sm">
       This tool allows you to query and extract data from JSON using standard JavaScript expressions. The JSON data is
       assigned to a variable called <code class="text-primary px-1 rounded">data</code>, which you can use in your
@@ -151,12 +152,56 @@
       <li><code class="text-primary px-1 rounded">Object.keys(data.settings)</code> - Get all keys from settings object
       </li>
     </ul>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> You can use all valid JavaScript expressions, including filter, map,
-      reduce, find, and standard object methods.
+    <p class="text-sm">
+      For more about JSON format and structure, visit 
+      <a href="https://www.json.org/json-en.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">JSON.org</a>.
     </p>
   </div>
 
+  <!-- Additional Information Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Supported JavaScript Features</h4>
+    <p class="mb-2 text-sm">
+      You can use all valid JavaScript expressions, including filter, map,
+      reduce, find, and standard object methods.
+    </p>
+    <ul class="list-disc pl-5 mb-3 text-sm space-y-1">
+      <li><code class="text-primary px-1 rounded">filter()</code>, <code
+          class="text-primary px-1 rounded">map()</code>, <code
+          class="text-primary px-1 rounded">reduce()</code>, <code
+          class="text-primary px-1 rounded">find()</code></li>
+      <li>Object/array destructuring</li>
+      <li>Optional chaining <code class="text-primary px-1 rounded">(?.)</code></li>
+    </ul>
+    <p class="text-sm">
+      Learn more about <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter" 
+      target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Array.filter()</a> 
+      and other JavaScript methods on MDN.
+    </p>
+  </div>
+
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h5 class="text-lg font-medium">FAQ</h5>
+    <div class="text-sm">
+      <div class="mb-2">
+        <h6 class="font-medium">Do I need to install anything?</h6>
+        <p class="ml-2">No — everything runs in the browser. No data is sent to any server.</p>
+      </div>
+
+      <div class="mb-2">
+        <h6 class="font-medium">Can I use nested properties?</h6>
+        <p class="ml-2">Yes, you can access deep properties using dot notation or optional chaining:
+          <code class="text-primary px-1 rounded">data.user?.profile?.email</code>
+        </p>
+      </div>
+
+      <div class="mb-2">
+        <h6 class="font-medium">Is it safe to use?</h6>
+        <p class="ml-2">Yes, all code is executed in a sandboxed environment in your browser. Nothing is stored or
+          shared.</p>
+      </div>
+    </div>
+  </div>
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
 </div>
