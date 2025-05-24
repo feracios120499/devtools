@@ -12,18 +12,20 @@
   
   <!-- Tool Cards Grid -->
   <div class="grid-container">
-    <div *ngFor="let card of featureCards" class="tool-card" (click)="navigateToFeature(card.route)">
-      <div class="card-content">
-        <div class="icon-container">
-          <i-tabler [name]="card.icon" class="icon-lg"></i-tabler>
+    <div *ngFor="let card of featureCards" class="tool-card">
+      <a [routerLink]="card.route" class="card-link">
+        <div class="card-content">
+          <div class="icon-container">
+            <i-tabler [name]="card.icon" class="icon-lg"></i-tabler>
+          </div>
+          <div class="tool-title">{{card.title}}</div>
+          <div class="tool-description">{{card.description}}</div>
         </div>
-        <div class="tool-title">{{card.title}}</div>
-        <div class="tool-description">{{card.description}}</div>
-      </div>
-      <div class="hover-overlay">
-        <span class="open-text">Open</span>
-        <i-tabler name="arrow-right" class="open-icon"></i-tabler>
-      </div>
+        <div class="hover-overlay">
+          <span class="open-text">Open</span>
+          <i-tabler name="arrow-right" class="open-icon"></i-tabler>
+        </div>
+      </a>
     </div>
   </div>
   

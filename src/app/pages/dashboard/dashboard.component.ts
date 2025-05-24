@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
@@ -29,6 +29,7 @@ interface FeatureCard {
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
     CardModule,
     ButtonModule,
     ImageModule,
@@ -44,7 +45,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   featureCards: FeatureCard[] = [];
   
   constructor(
-    private router: Router,
     private pageTitleService: PageTitleService,
     private toolsService: ToolsService,
     private seoService: SeoService
@@ -64,11 +64,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     // Clean up SEO elements
     this.seoService.destroy();
-  }
-  
-  // Navigate to selected feature
-  navigateToFeature(route: string) {
-    this.router.navigate([route]);
   }
 
   // Load feature cards from ToolsService
