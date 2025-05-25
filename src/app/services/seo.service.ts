@@ -24,7 +24,7 @@ export class SeoService {
     private isServer: boolean = false;
     private schemaScriptElement: HTMLElement | null = null;
     private canonicalLinkElement: HTMLElement | null = null;
-    
+
     constructor(
         @Inject(PLATFORM_ID) private platformId: Object,
         @Inject(DOCUMENT) private document: Document,
@@ -51,10 +51,13 @@ export class SeoService {
         this.metaService.updateTag({ property: 'og:description', content: metaData.OgDescription });
         this.metaService.updateTag({ property: 'og:type', content: 'website' });
         this.metaService.updateTag({ property: 'og:site_name', content: 'DevTools' });
-        
+        this.metaService.updateTag({ property: 'og:image', content: 'https://onlinewebdevtools.com/logo.png' });
+        this.metaService.updateTag({ property: 'og:locale', content: 'en_US' });
+        this.metaService.updateTag({ property: 'og:url', content: metaData.jsonLd.url });
+
         // Сначала удаляем старые элементы, чтобы избежать дублирования и ошибок
         this.clearExistingElements();
-        
+
         // Затем добавляем новые элементы
         this.addJsonLdToHead(metaData.jsonLd);
         this.setCanonicalLink(metaData.jsonLd.url);
@@ -72,7 +75,7 @@ export class SeoService {
         if (!this.isBrowser && !this.isServer) {
             return;
         }
-        
+
         const schema = {
             "@context": "https://schema.org",
             "@type": "WebApplication",
@@ -88,17 +91,17 @@ export class SeoService {
             const scriptElement = this.document.createElement('script');
             scriptElement.setAttribute('type', 'application/ld+json');
             scriptElement.textContent = JSON.stringify(schema);
-            
+
             // Добавляем в head
             this.document.head.appendChild(scriptElement);
-            
+
             // Сохраняем ссылку для последующего удаления
             this.schemaScriptElement = scriptElement;
         } catch (e) {
             console.error('Error adding JSON-LD script:', e);
         }
     }
-    
+
     /**
      * Устанавливает каноническую ссылку для страницы
      * @param url Полный URL страницы без параметров отслеживания
@@ -108,16 +111,16 @@ export class SeoService {
         if (!this.isBrowser && !this.isServer) {
             return;
         }
-        
+
         try {
             // Создаем новый элемент канонической ссылки
             const linkElement = this.document.createElement('link');
             linkElement.setAttribute('rel', 'canonical');
             linkElement.setAttribute('href', url);
-            
+
             // Добавляем в head
             this.document.head.appendChild(linkElement);
-            
+
             // Сохраняем ссылку для последующего удаления
             this.canonicalLinkElement = linkElement;
         } catch (e) {
@@ -151,7 +154,7 @@ export class SeoService {
                 console.error('Error removing JSON-LD script:', e);
             }
         }
-        else{
+        else {
             this.schemaScriptElement = this.document.head.querySelector('script[type="application/ld+json"]');
             try {
                 if (this.schemaScriptElement?.parentNode) {
@@ -162,7 +165,7 @@ export class SeoService {
                 console.error('Error removing JSON-LD script:', e);
             }
         }
-        
+
         // Удаляем существующую каноническую ссылку
         if (this.canonicalLinkElement) {
             try {
@@ -174,7 +177,7 @@ export class SeoService {
                 console.error('Error removing canonical link:', e);
             }
         }
-        
+
         // Удаляем другие существующие канонические ссылки в документе
         const existingLink = this.document.querySelector('link[rel="canonical"]');
         if (existingLink && existingLink.parentNode) {

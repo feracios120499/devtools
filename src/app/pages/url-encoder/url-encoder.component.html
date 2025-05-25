@@ -32,7 +32,7 @@
 
         <!-- Поле ввода с плавающей меткой -->
         <div class="p-fluid w-full mt-3">
-          <textarea class="w-full" id="on_label" rows="1" cols="30" pTextarea [autoResize]="true" placeholder="URL" [(ngModel)]="inputText" 
+          <textarea class="w-full" rows="1" cols="30" pTextarea [autoResize]="true" placeholder="URL" [(ngModel)]="inputText" 
           (ngModelChange)="processText()" ></textarea>
           <!-- <p-floatLabel variant="on">
             <input 
@@ -65,7 +65,7 @@
 
         <!-- Поле вывода с плавающей меткой -->
         <div class="p-fluid flex-1 output-container output-wrapper">
-          <textarea class="w-full" id="on_label" rows="1" cols="30" [readonly]="true" pTextarea [autoResize]="true" placeholder="{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}" [(ngModel)]="outputText" ></textarea>
+          <textarea class="w-full" rows="1" cols="30" [readonly]="true" pTextarea [autoResize]="true" placeholder="{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}" [(ngModel)]="outputText" ></textarea>
           <!-- <p-floatLabel variant="on">
             <input pInputText id="output_text" [(ngModel)]="outputText" readonly class="output-url" />
             <label for="output_text">{{ activeTab == 0 ? 'Encoded result' : 'Decoded result' }}</label>
@@ -79,6 +79,11 @@
   <div class="mt-4 mb-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
     <h3 class="text-xl font-medium text-800 mb-2">URL Components</h3>
     <p-table [value]="urlComponents" [tableStyle]="{'min-width': '50rem'}" [responsive]="true" styleClass="url-components-table">
+      <ng-template pTemplate="caption">
+        <div class="text-left">
+          <span class="font-medium text-sm text-600">URL structure breakdown showing protocol, domain, path, and query parameters</span>
+        </div>
+      </ng-template>
       <ng-template pTemplate="header">
         <tr>
           <th>Component</th>

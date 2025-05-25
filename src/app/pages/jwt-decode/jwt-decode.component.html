@@ -7,7 +7,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
         <!-- Header and actions -->
         <div class="flex justify-between items-center mb-2">
-          <h5 class="text-xl font-medium text-800 m-0">JWT Token</h5>
+          <h3 class="text-xl font-medium text-800 m-0">JWT Token</h3>
         </div>
         
         <!-- Control buttons -->
@@ -39,7 +39,7 @@
     <!-- Decoded Data and Verification Section -->
     <div class="lg:col-span-8">
       <div class="card p-3 surface-card shadow-sm h-full">
-        <h5 class="text-xl font-medium text-800 mb-3">Decoded Token</h5>
+        <h3 class="text-xl font-medium text-800 mb-3">Decoded Token</h3>
 
         <!-- Decoded Header -->
         <div class="mb-4">
@@ -83,7 +83,7 @@
     <!-- Verification Section -->
     <div class="lg:col-span-4">
       <div class="card p-3 surface-card shadow-sm h-full">
-        <h5 class="text-xl font-medium text-800 mb-3">Verification</h5>
+        <h3 class="text-xl font-medium text-800 mb-3">Verification</h3>
 
         <!-- Status Indicator -->
         <div class="mb-4 p-3 border-1 rounded flex items-center" [ngClass]="{
@@ -150,7 +150,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About JWT Decoder and Verifier</h3>
+    <h4 class="text-xl font-semibold mb-2">About JWT Decoder and Verifier</h4>
     <p class="mb-2 text-sm">
       JWT (JSON Web Token) is a compact, URL-safe means of representing claims to be transferred between two parties.
       This tool allows you to decode JWT tokens to inspect their header and payload data, and verify their signatures.
@@ -175,6 +175,189 @@
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> This tool performs all operations in your browser - no data is sent to any
       server.
+    </p>
+  </div>
+
+  <!-- Security and Authentication Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Security & Authentication Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Web Application Security & Authentication</h5>
+        <p class="mb-2 text-sm">
+          Essential for security engineers, authentication specialists, and backend developers 
+          implementing secure user authentication and authorization systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Authentication Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>User login and session management</li>
+          <li>Single Sign-On (SSO) implementation</li>
+          <li>OAuth 2.0 and OpenID Connect flows</li>
+          <li>Multi-factor authentication (MFA) integration</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">API Security & Access Control</h5>
+        <p class="mb-2 text-sm">
+          Critical for API developers, cybersecurity specialists, and DevSecOps engineers 
+          securing API endpoints and implementing fine-grained access control mechanisms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">API Security Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RESTful API authentication and authorization</li>
+          <li>Microservices inter-service communication</li>
+          <li>GraphQL query authorization</li>
+          <li>Rate limiting and API gateway integration</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Enterprise Security & Identity Management</h5>
+      <p class="text-sm mb-2">
+        This JWT decoder supports enterprise security teams, identity architects, 
+        and compliance specialists working with large-scale authentication systems.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Enterprise Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Identity providers</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">LDAP integration</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">SAML federation</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Role-based access</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Audit logging</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Compliance monitoring</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- API Development and Microservices Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">API Development & Microservices Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Services Development</h5>
+        <p class="mb-2 text-sm">
+          Essential for API developers, backend engineers, and integration specialists 
+          building secure, scalable web services with stateless authentication mechanisms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">API Development Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RESTful API endpoint protection</li>
+          <li>Bearer token authentication implementation</li>
+          <li>API versioning and deprecation management</li>
+          <li>Third-party API integration and testing</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Microservices Architecture & Cloud Native</h5>
+        <p class="mb-2 text-sm">
+          Critical for microservices architects, cloud engineers, and distributed systems specialists 
+          implementing secure service-to-service communication and cloud-native authentication.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Microservices Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Service mesh authentication (Istio, Linkerd)</li>
+          <li>Container-based authentication strategies</li>
+          <li>Kubernetes RBAC and service accounts</li>
+          <li>Event-driven architecture security</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">DevOps & CI/CD Integration</h5>
+      <p class="text-sm mb-2">
+        This decoder facilitates DevOps engineers, automation specialists, 
+        and platform teams integrating JWT authentication into deployment pipelines.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">CI/CD pipeline auth</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Deployment tokens</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Infrastructure as Code</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Secret management</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Monitoring integration</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Health check endpoints</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and JWT Implementation -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & JWT Implementation</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">RFC Standards & JWT Specifications</h5>
+        <p class="mb-2 text-sm">
+          Following IETF standards and industry specifications ensures JWT compatibility, 
+          security, and interoperability across different platforms and implementations.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Technical Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RFC 7519 JSON Web Token (JWT) specification</li>
+          <li>RFC 7515 JSON Web Signature (JWS) compliance</li>
+          <li>RFC 7516 JSON Web Encryption (JWE) support</li>
+          <li>RFC 7517 JSON Web Key (JWK) management</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Cryptographic Algorithms & Security</h5>
+        <p class="mb-2 text-sm">
+          Understanding cryptographic algorithms, key management, 
+          and security best practices ensures robust JWT implementation and vulnerability prevention.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Cryptographic Implementation:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>HMAC-SHA256 (HS256) symmetric signing</li>
+          <li>RSA with SHA-256 (RS256) asymmetric signing</li>
+          <li>ECDSA with P-256 and SHA-256 (ES256)</li>
+          <li>Key rotation and management strategies</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Security Best Practices & Vulnerability Prevention</h5>
+      <p class="text-sm mb-2">
+        Proper JWT implementation requires understanding of security vulnerabilities, 
+        attack vectors, and mitigation strategies to prevent common authentication bypasses.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Security Considerations:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Algorithm confusion</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Token expiration</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Signature verification</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Secret management</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Replay attacks</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">CSRF protection</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Security Warning:</strong> Always validate JWT signatures, verify expiration times, 
+        and use secure key management practices to prevent authentication bypasses and token manipulation.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For JWT technical specifications, visit 
+      <a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 7519 JWT Standard</a>
+      and for security best practices, see 
+      <a href="https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">JWT Security Best Practices</a>.
     </p>
   </div>
 
