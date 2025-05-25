@@ -180,28 +180,64 @@
     </p>
   </div>
 
+  <!-- SEO Keywords and Use Cases Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h5 class="text-lg font-medium">FAQ</h5>
-    <div class="text-sm">
-      <div class="mb-2">
-        <h6 class="font-medium">Do I need to install anything?</h6>
-        <p class="ml-2">No — everything runs in the browser. No data is sent to any server.</p>
-      </div>
-
-      <div class="mb-2">
-        <h6 class="font-medium">Can I use nested properties?</h6>
-        <p class="ml-2">Yes, you can access deep properties using dot notation or optional chaining:
-          <code class="text-primary px-1 rounded">data.user?.profile?.email</code>
+    <h4 class="text-xl font-semibold mb-3">JSON Data Extraction & Analysis Use Cases</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">API Response Processing</h5>
+        <p class="mb-2 text-sm">
+          Perfect for analyzing REST API responses, extracting specific fields from complex JSON structures, 
+          and transforming API data for frontend applications.
         </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Common API Tasks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Extract user profiles from authentication APIs</li>
+          <li>Filter product catalogs by category or price</li>
+          <li>Parse nested configuration objects</li>
+          <li>Aggregate metrics from analytics APIs</li>
+        </ul>
       </div>
-
-      <div class="mb-2">
-        <h6 class="font-medium">Is it safe to use?</h6>
-        <p class="ml-2">Yes, all code is executed in a sandboxed environment in your browser. Nothing is stored or
-          shared.</p>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Database Query Results</h5>
+        <p class="mb-2 text-sm">
+          Analyze NoSQL database outputs, MongoDB query results, and JSON exports from various database systems.
+          Perfect for data scientists and backend developers.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Database Operations:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Filter MongoDB collection results</li>
+          <li>Transform CouchDB document arrays</li>
+          <li>Process Elasticsearch aggregation data</li>
+          <li>Extract fields from Firebase snapshots</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">JSON Path Alternative & JQ Online Tool</h5>
+      <p class="text-sm mb-2">
+        This JSON query explorer serves as an alternative to JSONPath expressions and JQ command-line tool, 
+        providing a browser-based solution for JSON data manipulation without installation requirements.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Key Features:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">JSON Path queries</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">JavaScript expressions</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Array filtering</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Object transformation</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data aggregation</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Real-time preview</span>
       </div>
     </div>
   </div>
+
+  
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
 </div>

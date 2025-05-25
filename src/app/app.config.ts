@@ -14,6 +14,7 @@ export const appConfig: ApplicationConfig = {
     provideRouter(
       routes,
       withPreloading(PreloadAllModules)
+      // withDebugTracing() // Временно отключено для чистоты логов
     ),
     provideAnimationsAsync(),
     provideMonacoEditor(),

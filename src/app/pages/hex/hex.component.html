@@ -19,7 +19,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Input Text' : 'Input HEX' }}</h5>
+          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Input Text' : 'Input HEX' }}</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -80,7 +80,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h5>
+          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h3>
           <!-- Выпадающий список с форматами для режима кодирования текста в HEX -->
           <div class="flex gap-2 items-center" *ngIf="activeTab == 1">
             <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
@@ -151,7 +151,7 @@
   
   <!-- Информационный раздел -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About HEX Encoding</h3>
+    <h4 class="text-xl font-semibold mb-2">About HEX Encoding</h4>
     <p class="mb-2 text-sm">
       Hexadecimal (HEX) is a base-16 numeral system used to represent binary data in a human-readable format. Each hexadecimal digit represents 4 bits (half a byte), so a byte can be represented by two hexadecimal digits.
     </p>
@@ -176,6 +176,134 @@
       <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
       <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
     </ul>
+    <p class="text-sm">
+      Learn more about hexadecimal encoding at 
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+      and character encoding at 
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN TextEncoder</a>.
+    </p>
+    <p class="text-sm text-500">
+      <i class="pi pi-info-circle mr-1"></i> All encoding and decoding is performed locally in your browser - your data never leaves your device.
+    </p>
+  </div>
+  
+  <!-- Development and System Administration Use Cases -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Development & System Administration Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">System Programming & Debugging</h5>
+        <p class="mb-2 text-sm">
+          Essential for low-level programming, system debugging, and analyzing binary data structures 
+          in operating systems and embedded systems development.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">System Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Analyze memory dumps and core files</li>
+          <li>Debug binary file formats and protocols</li>
+          <li>Examine hardware register values</li>
+          <li>Process firmware and BIOS data</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Network & Security Analysis</h5>
+        <p class="mb-2 text-sm">
+          Critical for network protocol analysis, cybersecurity investigations, and forensic data examination 
+          where binary data needs to be inspected in readable format.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Security Tasks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Network packet payload analysis</li>
+          <li>Malware binary examination</li>
+          <li>Digital forensics evidence processing</li>
+          <li>Cryptographic hash verification</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Web Development & Data Processing</h5>
+      <p class="text-sm mb-2">
+        This HEX encoder/decoder is valuable for web developers working with binary data, 
+        character encoding issues, and data format conversions in modern web applications.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Web Development Scenarios:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Color code conversion</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file analysis</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Unicode debugging</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Protocol development</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data validation</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Encoding conversion</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and Programming Languages -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Programming Languages & Technical Standards</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
+        <p class="mb-2 text-sm">
+          Hexadecimal encoding is universally supported across programming languages 
+          with built-in functions and libraries for conversion operations.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>JavaScript: parseInt(), toString(16), Buffer.from()</li>
+          <li>Python: hex(), bytes.fromhex(), codecs.encode()</li>
+          <li>Java: Integer.toHexString(), Hex.encodeHexString()</li>
+          <li>C/C++: sprintf(), sscanf(), std::hex</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Industry Standards & Formats</h5>
+        <p class="mb-2 text-sm">
+          Hexadecimal representation follows established industry standards for 
+          data interchange, file formats, and protocol specifications.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Standard Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>ASCII/Unicode character codes (U+0041)</li>
+          <li>RGB color values in CSS (#FF5733)</li>
+          <li>MAC addresses (00:1B:44:11:3A:B7)</li>
+          <li>Binary file signatures and magic numbers</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Hex Dump Analysis & Binary Tools</h5>
+      <p class="text-sm mb-2">
+        This tool complements traditional hex dump utilities like hexdump, xxd, and od, 
+        providing a browser-based solution for hexadecimal data analysis and conversion.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Related Tools & Commands:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">hexdump -C</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">xxd -p</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">od -x</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">objdump</span>
+      </div>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For comprehensive hexadecimal documentation, visit 
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+      and for character encoding standards, refer to 
+      <a href="https://www.unicode.org/standard/standard.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Unicode Standard</a>.
+    </p>
   </div>
   
   <!-- Toast -->

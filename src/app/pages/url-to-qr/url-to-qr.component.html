@@ -7,7 +7,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input URL</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input URL</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
               class="p-button-text p-button-sm"></button>
@@ -69,7 +69,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">QR Code Result</h5>
+          <h3 class="text-xl font-medium text-800 m-0">QR Code Result</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadQrCode()"
               [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
@@ -103,7 +103,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <h3 class="text-xl font-semibold mb-2">About QR Codes</h3>
+    <h4 class="text-xl font-semibold mb-2">About QR Codes</h4>
     <p class="mb-2 text-sm">
       QR (Quick Response) codes are two-dimensional barcodes that can be scanned by smartphone cameras to quickly access URLs, contact information, or other data.
     </p>
@@ -118,6 +118,189 @@
     </ul>
     <p class="text-sm">
       Higher error correction levels make the QR code more resilient but also more complex (more dense).
+    </p>
+  </div>
+
+  <!-- Marketing and Digital Campaign Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Marketing & Digital Campaign Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Digital Marketing & Advertising Campaigns</h5>
+        <p class="mb-2 text-sm">
+          Essential for digital marketers, campaign managers, and advertising specialists 
+          creating omnichannel experiences that bridge physical and digital touchpoints.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Campaign Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Print-to-digital campaign integration</li>
+          <li>Event marketing and registration links</li>
+          <li>Product packaging direct-to-landing page</li>
+          <li>Interactive outdoor advertising campaigns</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Social Media & Content Marketing</h5>
+        <p class="mb-2 text-sm">
+          Critical for social media managers, content creators, and influencer marketing specialists 
+          maximizing engagement and seamless cross-platform user experiences.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Social Media Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Instagram Story and post engagement</li>
+          <li>YouTube video description quick links</li>
+          <li>Podcast show notes and resource access</li>
+          <li>LinkedIn networking and portfolio sharing</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">E-commerce & Retail Integration</h5>
+      <p class="text-sm mb-2">
+        This QR generator facilitates e-commerce managers, retail marketing teams, 
+        and customer experience specialists creating seamless shopping journeys.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Retail Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Product information</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Mobile checkout</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Review collection</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Loyalty programs</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Store locators</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Digital catalogs</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Business and Contact Management Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Business & Contact Management Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Professional Networking & Business Cards</h5>
+        <p class="mb-2 text-sm">
+          Essential for business professionals, sales teams, and networking specialists 
+          modernizing contact sharing and professional relationship building.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Networking Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Digital business card sharing</li>
+          <li>Conference and trade show networking</li>
+          <li>LinkedIn profile quick access</li>
+          <li>Portfolio and resume distribution</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Event Management & Hospitality</h5>
+        <p class="mb-2 text-sm">
+          Critical for event planners, venue managers, and hospitality professionals 
+          streamlining guest experiences and operational efficiency.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Event Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Event check-in and registration</li>
+          <li>Digital menu and ordering systems</li>
+          <li>Guest WiFi access automation</li>
+          <li>Feedback and survey collection</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Educational & Training Applications</h5>
+      <p class="text-sm mb-2">
+        This generator supports educators, training coordinators, 
+        and instructional designers creating interactive learning experiences.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Educational Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Course materials</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Assignment submission</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Virtual classrooms</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Resource libraries</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Student portfolios</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Interactive assessments</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and QR Code Implementation -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & QR Code Implementation</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">ISO/IEC Standards & QR Code Specifications</h5>
+        <p class="mb-2 text-sm">
+          Following international standards ensures QR code compatibility, 
+          reliability, and optimal scanning performance across different devices and applications.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Technical Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>ISO/IEC 18004:2015 QR Code specification</li>
+          <li>Reed-Solomon error correction algorithms</li>
+          <li>Structured append for large data encoding</li>
+          <li>Finder pattern and timing pattern compliance</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Mobile Device & Scanner Compatibility</h5>
+        <p class="mb-2 text-sm">
+          Understanding device capabilities, scanning app variations, 
+          and cross-platform compatibility ensures optimal user experience across all mobile platforms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Compatibility Considerations:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>iOS Camera app native QR scanning</li>
+          <li>Android built-in scanner integration</li>
+          <li>Third-party QR scanner app support</li>
+          <li>Low-light and distance scanning optimization</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Print Quality & Display Optimization</h5>
+      <p class="text-sm mb-2">
+        Optimal QR code implementation requires understanding of print specifications, 
+        size constraints, and display medium considerations for reliable scanning performance.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Implementation Guidelines:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Print resolution (300+ DPI)</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Minimum size standards</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Contrast ratios</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Quiet zone margins</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Vector vs raster formats</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Display scaling</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Best Practice:</strong> Always test QR codes at their intended final size 
+        and display medium before mass production to ensure reliable scanning performance.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For QR code technical specifications, visit 
+      <a href="https://www.iso.org/standard/62021.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">ISO/IEC 18004:2015 Standard</a>
+      and for implementation guidelines, see 
+      <a href="https://www.qr-code-generator.com/qr-code-marketing/qr-codes-basics/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">QR Code Implementation Guide</a>.
     </p>
   </div>
 

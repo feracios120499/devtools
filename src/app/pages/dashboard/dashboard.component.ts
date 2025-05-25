@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
@@ -44,11 +44,11 @@ export class DashboardComponent implements OnInit, OnDestroy {
   // Feature cards list - now populated from ToolsService
   featureCards: FeatureCard[] = [];
   
-  constructor(
-    private pageTitleService: PageTitleService,
-    private toolsService: ToolsService,
-    private seoService: SeoService
-  ) { }
+  private pageTitleService = inject(PageTitleService);
+  private toolsService = inject(ToolsService);
+  private seoService = inject(SeoService);
+  private router = inject(Router);
+  private activatedRoute = inject(ActivatedRoute);
   
   ngOnInit() {
     // Set page title

@@ -87,5 +87,15 @@ export const routes: Routes = [
     path: 'svg-to-react-component', 
     loadComponent: () => import('./pages/svg-to-react-component/svg-to-react-component.component').then(m => m.SvgToReactComponentComponent),
     title: 'SVG to React Component | DevTools' 
+  },
+  { 
+    path: '404', 
+    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent),
+    title: 'Page Not Found - 404 | DevTools' 
+  },
+  { 
+    path: '**', 
+    loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent),
+    title: 'Page Not Found - 404 | DevTools' 
   }
 ];

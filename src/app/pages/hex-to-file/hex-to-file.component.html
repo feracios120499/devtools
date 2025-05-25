@@ -7,7 +7,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
         <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">HEX Input</h5>
+          <h3 class="text-xl font-medium text-800 m-0">HEX Input</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
               class="p-button-text p-button-sm"></button>
@@ -107,10 +107,14 @@
   </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <h3 class="text-xl font-semibold mb-2">About HEX to File Converter</h3>
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+    <h4 class="text-xl font-semibold mb-2">About HEX to File Converter</h4>
     <p class="mb-2 text-sm">
-      This tool allows you to convert hexadecimal (HEX) encoded data back into downloadable files. It automatically detects common file types from the data signature.
+      This tool allows you to convert hexadecimal (HEX) encoded data back into downloadable files. It automatically detects common file types from the data signature and supports multiple HEX input formats for maximum compatibility.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>How it works:</strong>
+      The converter parses hexadecimal data in various formats, converts it back to binary form, then uses magic number detection to identify file types and generate downloadable files with appropriate extensions.
     </p>
     <p class="mb-2 text-sm">
       <strong>Supported HEX formats:</strong>
@@ -125,13 +129,148 @@
     <p class="mb-2 text-sm">
       <strong>Supported file types:</strong>
     </p>
-    <p class="mb-2 text-sm">
-      Images (JPG, PNG, GIF, BMP, TIFF, WEBP), Documents (PDF, DOC, DOCX, RTF, XML, HTML, TXT), 
-      Archives (ZIP, RAR, GZ, BZ2, 7Z), Audio (MP3, AAC, OGG, FLAC, WAV), Video (MP4, MPG, MKV, AVI, WMV), 
-      and Font files (TTF, OTF, WOFF, WOFF2).
+    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+      <li><span class="text-primary">Images:</span> JPG, PNG, GIF, BMP, TIFF, WEBP, SVG, ICO</li>
+      <li><span class="text-primary">Documents:</span> PDF, DOC, DOCX, RTF, XML, HTML, TXT, CSV</li>
+      <li><span class="text-primary">Archives:</span> ZIP, RAR, GZ, BZ2, 7Z, TAR</li>
+      <li><span class="text-primary">Audio:</span> MP3, AAC, OGG, FLAC, WAV, M4A</li>
+      <li><span class="text-primary">Video:</span> MP4, MPG, MKV, AVI, WMV, MOV</li>
+      <li><span class="text-primary">Fonts:</span> TTF, OTF, WOFF, WOFF2, EOT</li>
+    </ul>
+    <p class="text-sm">
+      Learn more about hexadecimal encoding at 
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+      and file signatures at 
+      <a href="https://en.wikipedia.org/wiki/List_of_file_signatures" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia File Signatures</a>.
     </p>
     <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> If the file type cannot be detected, the file will be saved as a .bin file. You can also manually specify the file name with the desired extension.
+      <i class="pi pi-info-circle mr-1"></i> If the file type cannot be detected, the file will be saved as a .bin file. You can also manually specify the file name with the desired extension. All conversion is performed locally in your browser.
+    </p>
+  </div>
+
+  <!-- System Administration and Digital Forensics Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">System Administration & Digital Forensics Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Digital Forensics & Security Analysis</h5>
+        <p class="mb-2 text-sm">
+          Essential for cybersecurity professionals, forensic investigators, and security analysts 
+          who need to reconstruct files from hexadecimal dumps, memory captures, and network traffic.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Forensics Use Cases:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Memory dump file reconstruction</li>
+          <li>Network packet payload extraction</li>
+          <li>Malware sample recovery and analysis</li>
+          <li>Digital evidence file restoration</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">System Administration & Recovery</h5>
+        <p class="mb-2 text-sm">
+          Critical for system administrators, IT support professionals, and data recovery specialists 
+          who work with low-level system data, backup files, and corrupted storage recovery.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Administrative Tasks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>System backup file reconstruction</li>
+          <li>Corrupted file recovery operations</li>
+          <li>Boot sector and partition analysis</li>
+          <li>Hardware diagnostic data processing</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Development & Reverse Engineering</h5>
+      <p class="text-sm mb-2">
+        This HEX to file converter is valuable for software developers, reverse engineers, 
+        and researchers working with binary data analysis and file format research.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Development Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Firmware analysis</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file research</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Protocol reverse engineering</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Embedded system debugging</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Game asset extraction</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">File format development</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Implementation and Data Recovery Details -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Implementation & Data Recovery Capabilities</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Magic Number Detection & File Type Recognition</h5>
+        <p class="mb-2 text-sm">
+          Advanced file type detection using magic numbers (file signatures) enables automatic 
+          identification of file formats without relying on filename extensions or metadata.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Detection Examples:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>PNG: 89 50 4E 47 0D 0A 1A 0A (8-byte signature)</li>
+          <li>JPEG: FF D8 FF (starts with these bytes)</li>
+          <li>PDF: 25 50 44 46 (%PDF in hex)</li>
+          <li>ZIP: 50 4B 03 04 (PK file signature)</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Hexadecimal Format Parsing & Validation</h5>
+        <p class="mb-2 text-sm">
+          Robust parsing engine handles various hexadecimal representations and formatting 
+          conventions used by different tools, systems, and documentation standards.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Format Support:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Memory dump formats (space-separated)</li>
+          <li>Network protocol analysis (colon-separated)</li>
+          <li>Programming literals (0x prefixed)</li>
+          <li>Documentation formats (dash-separated)</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Data Integrity & Error Handling</h5>
+      <p class="text-sm mb-2">
+        Comprehensive error detection and correction capabilities ensure reliable file reconstruction 
+        even from partially corrupted or incomplete hexadecimal data sources.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Reliability Features:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Input validation</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Format normalization</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Error detection</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Partial recovery</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Checksum verification</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Integrity checking</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Security Note:</strong> Always verify the integrity and safety of reconstructed files, 
+        especially when working with data from untrusted sources or forensic investigations.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For comprehensive file format documentation, visit 
+      <a href="https://www.fileformat.info/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">FileFormat.Info</a>
+      and for hexadecimal fundamentals, see 
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN parseInt Hexadecimal</a>.
     </p>
   </div>
 

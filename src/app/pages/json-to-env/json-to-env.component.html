@@ -86,7 +86,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">JSON Input</h5>
+          <h3 class="text-xl font-medium text-800 m-0">JSON Input</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -146,9 +146,9 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">
+          <h3 class="text-xl font-medium text-800 m-0">
             {{ selectedFormat.value === 'docker' ? 'ENV Output' : 'YAML Output' }}
-          </h5>
+          </h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -197,11 +197,15 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About JSON to ENV Converter</h3>
+    <h4 class="text-xl font-semibold mb-2">About JSON to ENV Converter</h4>
     <p class="mb-2 text-sm">
       This tool allows you to convert JSON data into environment variables, Docker .env files, or YAML configurations.
       Perfect for setting up configuration for Docker containers, Kubernetes deployments, or any application that uses
       environment variables.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>How it works:</strong>
+      The converter parses JSON objects and arrays, flattens hierarchical structures using customizable separators, then transforms them into environment variable format or YAML configurations following platform-specific conventions and naming standards.
     </p>
     <p class="mb-2 text-sm">
       <strong>Features:</strong>
@@ -214,9 +218,198 @@
       <li><strong>Automatic nesting:</strong> Hierarchical JSON objects are automatically flattened with the selected
         separator</li>
     </ul>
+    <p class="text-sm">
+      Learn more about environment variables at 
+      <a href="https://en.wikipedia.org/wiki/Environment_variable" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Environment Variables</a>
+      and configuration management at 
+      <a href="https://12factor.net/config" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">The Twelve-Factor App Config</a>.
+    </p>
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> JSON values will be automatically escaped according to the selected output
-      format conventions.
+      format conventions. All conversion is performed locally in your browser.
+    </p>
+  </div>
+
+  <!-- DevOps and Container Management Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">DevOps & Container Management Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Docker & Containerization</h5>
+        <p class="mb-2 text-sm">
+          Essential for DevOps engineers, container specialists, and cloud architects 
+          who need to manage application configurations across different container environments.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Container Use Cases:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Docker .env file generation for containers</li>
+          <li>Docker Compose environment configuration</li>
+          <li>Multi-stage build environment setup</li>
+          <li>Container registry configuration management</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Kubernetes & Cloud Orchestration</h5>
+        <p class="mb-2 text-sm">
+          Critical for Kubernetes administrators, cloud engineers, and platform teams 
+          working with ConfigMaps, Secrets, and cloud-native application deployments.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Orchestration Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Kubernetes ConfigMap and Secret creation</li>
+          <li>Helm chart values configuration</li>
+          <li>Cloud provider environment setup</li>
+          <li>Service mesh configuration management</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">CI/CD Pipeline Integration</h5>
+      <p class="text-sm mb-2">
+        This JSON to ENV converter streamlines CI/CD workflows for build engineers, 
+        release managers, and automation specialists working with deployment pipelines.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Pipeline Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">GitHub Actions</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">GitLab CI/CD</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Jenkins pipelines</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Azure DevOps</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">CircleCI workflows</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">AWS CodePipeline</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Software Development and Configuration Management -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Software Development & Configuration Management</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Application Development & Runtime</h5>
+        <p class="mb-2 text-sm">
+          Essential for application developers, backend engineers, and full-stack developers 
+          working with environment-based configuration in modern application frameworks.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Development Frameworks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Node.js process.env configuration</li>
+          <li>React/Vue.js environment variables</li>
+          <li>Python dotenv file management</li>
+          <li>Spring Boot application.properties</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Infrastructure as Code & Automation</h5>
+        <p class="mb-2 text-sm">
+          Critical for infrastructure engineers, platform architects, and automation specialists 
+          working with Terraform, Ansible, and other infrastructure automation tools.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">IaC Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Terraform variable file generation</li>
+          <li>Ansible playbook variable management</li>
+          <li>CloudFormation parameter configuration</li>
+          <li>Pulumi stack configuration setup</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Environment Management & Deployment</h5>
+      <p class="text-sm mb-2">
+        This converter supports deployment engineers, system administrators, 
+        and release teams in managing multi-environment configuration workflows.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Deployment Scenarios:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Development env</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Staging deployment</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Production config</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Testing environments</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Feature branches</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Blue-green deployments</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and Best Practices -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & Configuration Best Practices</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Environment Variable Standards & Conventions</h5>
+        <p class="mb-2 text-sm">
+          Following established conventions for environment variable naming and structure 
+          ensures consistency, maintainability, and compatibility across different platforms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Naming Conventions:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>SCREAMING_SNAKE_CASE for variable names</li>
+          <li>Hierarchical prefixes for organization (APP_DB_HOST)</li>
+          <li>Standardized suffixes for data types</li>
+          <li>Platform-specific variable name patterns</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">YAML Format Specifications & Compliance</h5>
+        <p class="mb-2 text-sm">
+          YAML configuration files must adhere to specification standards 
+          and platform-specific schemas for optimal compatibility and validation.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Format Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>YAML 1.2 specification compliance</li>
+          <li>Docker Compose schema validation</li>
+          <li>Kubernetes resource specifications</li>
+          <li>Azure ARM template compatibility</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Security & Configuration Management</h5>
+      <p class="text-sm mb-2">
+        Proper configuration management requires understanding of security implications, 
+        secret handling, and environment isolation to prevent configuration drift and vulnerabilities.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Security Considerations:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Secret management</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Environment isolation</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Access control</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Audit logging</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Configuration drift</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Encryption at rest</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Security Warning:</strong> Never store sensitive data like passwords, API keys, 
+        or certificates in plain text environment files. Use dedicated secret management solutions.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For configuration security guidelines, visit 
+      <a href="https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">OWASP Secrets Management</a>
+      and for YAML specifications, see 
+      <a href="https://yaml.org/spec/1.2/spec.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">YAML 1.2 Specification</a>.
     </p>
   </div>
 

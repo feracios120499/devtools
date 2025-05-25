@@ -8,7 +8,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input HEX</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input HEX</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -63,7 +63,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Base64 Output</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Base64 Output</h3>
           <div class="flex gap-2 items-center">
             <p-select [options]="base64FormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
               (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
@@ -128,7 +128,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About HEX to Base64 Converter</h3>
+    <h4 class="text-xl font-semibold mb-2">About HEX to Base64 Converter</h4>
     <p class="mb-2 text-sm">
       This tool allows you to convert hexadecimal (HEX) data to Base64 encoded format with various display options. HEX is a common way to represent binary data in a text format using the characters 0-9 and A-F.
     </p>
@@ -150,8 +150,118 @@
       <li><code class="text-primary px-1 rounded">URL Safe</code> - URL-friendly Base64 where '+' is replaced with '-' and '/' with '_'</li>
       <li><code class="text-primary px-1 rounded">With Line Breaks</code> - Base64 with line breaks every 76 characters for better readability</li>
     </ul>
+    <p class="text-sm">
+      Learn more about Base64 encoding at 
+      <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Base64</a>
+      and hexadecimal format at 
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN parseInt()</a>.
+    </p>
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> This conversion is performed locally in your browser - no data is sent to any server.
+    </p>
+  </div>
+
+  <!-- Programming and Development Use Cases -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Programming & Development Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Cryptography & Security</h5>
+        <p class="mb-2 text-sm">
+          Essential for handling cryptographic data, security tokens, and encrypted content in web applications 
+          and security systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Security Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Convert encrypted hex data for API transmission</li>
+          <li>Process cryptographic keys and certificates</li>
+          <li>Handle JWT token payloads and signatures</li>
+          <li>Transform hash values for storage systems</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Data Storage & Transmission</h5>
+        <p class="mb-2 text-sm">
+          Critical for encoding binary data in text-based systems, databases, and network protocols 
+          where binary data needs to be safely transmitted.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Storage Solutions:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Encode binary files for database storage</li>
+          <li>Convert hex dumps to Base64 for logging</li>
+          <li>Process embedded images in HTML/CSS</li>
+          <li>Handle binary data in JSON APIs</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Web Development & API Integration</h5>
+      <p class="text-sm mb-2">
+        This HEX to Base64 converter is essential for web developers working with binary data, 
+        file uploads, image processing, and API integrations that require data format transformations.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Development Scenarios:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">File upload processing</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Image data conversion</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Binary API responses</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Embedded resources</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data URLs creation</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Hex dump analysis</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Specifications and Standards -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & Format Details</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Hexadecimal Format Standards</h5>
+        <p class="mb-2 text-sm">
+          Hexadecimal encoding follows established standards for representing binary data 
+          in human-readable format using base-16 numeral system.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">HEX Specifications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>IEEE 754 floating-point hex representation</li>
+          <li>MAC address format (xx:xx:xx:xx:xx:xx)</li>
+          <li>Color codes in CSS and graphics (#RRGGBB)</li>
+          <li>Memory addresses and debugging output</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Base64 Encoding Standards</h5>
+        <p class="mb-2 text-sm">
+          Base64 encoding follows RFC 4648 standards, providing reliable method for 
+          encoding binary data in ASCII string format for safe transmission.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Base64 Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RFC 4648 - Standard Base64 alphabet</li>
+          <li>RFC 4648 - URL and filename safe Base64</li>
+          <li>MIME Base64 with line length limits</li>
+          <li>Data URI scheme compatibility</li>
+        </ul>
+      </div>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For detailed technical specifications, refer to 
+      <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>
+      for Base64 encoding standards and 
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Hexadecimal Wikipedia</a>
+      for comprehensive hex format documentation.
     </p>
   </div>
 

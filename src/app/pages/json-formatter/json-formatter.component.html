@@ -9,7 +9,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input JSON</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input JSON</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -66,7 +66,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Formatted JSON</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Formatted JSON</h3>
           <div class="flex gap-2 items-center">
 
             <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
@@ -169,11 +169,15 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About JSON Formatter</h3>
+    <h4 class="text-xl font-semibold mb-2">About JSON Formatter</h4>
     <p class="mb-2 text-sm">
       This tool helps you format, validate, and beautify JSON data for improved readability and debugging.
       JSON (JavaScript Object Notation) is a lightweight data interchange format widely used for APIs and configuration
       files.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>How it works:</strong>
+      The formatter parses JSON data, validates syntax according to RFC 7159 standards, then applies customizable formatting rules including indentation, key case transformation, and structural beautification for enhanced code readability.
     </p>
     <p class="mb-2 text-sm">
       <strong>Features:</strong>
@@ -192,9 +196,198 @@
       </li>
       <li><span class="text-primary">Export options:</span> Copy the formatted JSON or download it as a file</li>
     </ul>
+    <p class="text-sm">
+      Learn more about JSON specification at 
+      <a href="https://tools.ietf.org/html/rfc7159" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 7159 JSON Standard</a>
+      and best practices at 
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN JSON Documentation</a>.
+    </p>
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any
       server.
+    </p>
+  </div>
+
+  <!-- API Development and Web Services Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">API Development & Web Services Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">REST API Development & Testing</h5>
+        <p class="mb-2 text-sm">
+          Essential for backend developers, API designers, and QA engineers who work with 
+          RESTful services, microservices architectures, and need to validate JSON payloads.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">API Development Tasks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>API response formatting and validation</li>
+          <li>Request payload structure verification</li>
+          <li>OpenAPI/Swagger documentation preparation</li>
+          <li>Microservices data contract validation</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Frontend Development & Data Handling</h5>
+        <p class="mb-2 text-sm">
+          Critical for frontend developers, JavaScript engineers, and full-stack developers 
+          working with AJAX requests, state management, and client-server communication.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Frontend Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>AJAX response data inspection</li>
+          <li>Redux/Vuex state structure formatting</li>
+          <li>Local storage data management</li>
+          <li>Component props and configuration setup</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Configuration Management & DevOps</h5>
+      <p class="text-sm mb-2">
+        This JSON formatter is valuable for DevOps engineers, system administrators, 
+        and configuration managers working with application settings and deployment configurations.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Docker configurations</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Kubernetes manifests</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">CI/CD pipeline configs</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Application settings</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Environment variables</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Deployment scripts</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Integration and Enterprise Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Data Integration & Enterprise Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Enterprise Integration & ETL Processes</h5>
+        <p class="mb-2 text-sm">
+          Essential for data engineers, system integrators, and enterprise architects 
+          working with data transformation, API integration, and cross-system communication.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Integration Use Cases:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>ETL pipeline data transformation</li>
+          <li>Enterprise service bus message formatting</li>
+          <li>Third-party API integration testing</li>
+          <li>Data warehouse JSON import preparation</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Database Management & NoSQL Operations</h5>
+        <p class="mb-2 text-sm">
+          Critical for database administrators, MongoDB developers, and NoSQL specialists 
+          who work with document-based databases and JSON-native storage systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Database Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>MongoDB document structure validation</li>
+          <li>CouchDB/PouchDB data formatting</li>
+          <li>Elasticsearch mapping configurations</li>
+          <li>Firebase/Firestore data structure design</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Testing & Quality Assurance</h5>
+      <p class="text-sm mb-2">
+        This JSON formatter supports QA engineers, automation testers, and API testing specialists 
+        in test data preparation, response validation, and test case documentation.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Testing Workflows:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">API response validation</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Test data generation</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Mock data creation</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Schema validation</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Automated testing</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Performance testing</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and Code Quality -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & Code Quality Guidelines</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">JSON Standards & Specification Compliance</h5>
+        <p class="mb-2 text-sm">
+          JSON formatting must adhere to established standards and specifications 
+          to ensure cross-platform compatibility and interoperability between systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Standard Compliance:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RFC 7159 - The JavaScript Object Notation (JSON) Data Interchange Format</li>
+          <li>ECMA-404 - The JSON Data Interchange Syntax</li>
+          <li>ISO/IEC 21778 - Information technology JSON format</li>
+          <li>WHATWG JSON specification for web compatibility</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Code Style & Formatting Conventions</h5>
+        <p class="mb-2 text-sm">
+          Consistent JSON formatting improves code maintainability, team collaboration, 
+          and reduces integration errors in development and production environments.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Style Guidelines:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Google JSON Style Guide recommendations</li>
+          <li>Airbnb JavaScript JSON formatting rules</li>
+          <li>ESLint JSON formatting configurations</li>
+          <li>Prettier automatic JSON code formatting</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Performance & Security Considerations</h5>
+      <p class="text-sm mb-2">
+        Proper JSON formatting and validation contributes to application performance, 
+        security, and helps prevent common vulnerabilities and parsing errors.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Best Practices:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Schema validation</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Minification strategies</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Security sanitization</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Error handling</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Memory optimization</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Parsing performance</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Security Tip:</strong> Always validate JSON data from external sources 
+        and implement proper schema validation to prevent injection attacks and data corruption.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For JSON security guidelines, visit 
+      <a href="https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">OWASP REST Security</a>
+      and for performance optimization, see 
+      <a href="https://developer.mozilla.org/en-US/docs/Web/API/JSON/parse" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN JSON.parse Performance</a>.
     </p>
   </div>
 

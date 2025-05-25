@@ -7,7 +7,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input JSON</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input JSON</h3>
         </div>
         <!-- Отступ для выравнивания -->
         <div class="mb-1"></div>
@@ -63,7 +63,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">XML Output</h5>
+          <h3 class="text-xl font-medium text-800 m-0">XML Output</h3>
           <div class="flex gap-2 items-center">
             <div class="flex items-center gap-2" style="height: 35px;">
               <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
@@ -136,7 +136,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About JSON to XML Converter</h3>
+    <h4 class="text-xl font-semibold mb-2">About JSON to XML Converter</h4>
     <p class="mb-2 text-sm">
       This tool allows you to convert JSON data to XML format with proper structure and formatting.
       It's useful for transforming data between these common interchange formats for various applications.
@@ -154,6 +154,189 @@
     </ul>
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any server.
+    </p>
+  </div>
+
+  <!-- API Development and Web Services Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">API Development & Web Services Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Service Integration</h5>
+        <p class="mb-2 text-sm">
+          Essential for API developers, integration engineers, and backend developers 
+          working with legacy systems that require XML format while modern applications use JSON.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">API Integration Scenarios:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Legacy SOAP service integration</li>
+          <li>Enterprise system data exchange</li>
+          <li>Third-party XML API consumption</li>
+          <li>Payment gateway XML request formatting</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Enterprise Application Integration</h5>
+        <p class="mb-2 text-sm">
+          Critical for enterprise architects, system integrators, and middleware developers 
+          bridging modern JSON-based applications with XML-based enterprise systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Enterprise Use Cases:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>ERP system data transformation</li>
+          <li>SAP interface configuration</li>
+          <li>Banking and financial system integration</li>
+          <li>Healthcare HL7 message formatting</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Web Service Standards & Protocols</h5>
+      <p class="text-sm mb-2">
+        This JSON to XML converter supports web service developers, API architects, 
+        and protocol specialists working with different messaging standards and formats.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Protocol Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">SOAP Web Services</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">REST-XML APIs</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">XML-RPC protocols</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">RSS/Atom feeds</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">WSDL definitions</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Configuration files</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Integration and Enterprise Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Data Integration & Enterprise Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">ETL & Data Pipeline Processing</h5>
+        <p class="mb-2 text-sm">
+          Essential for data engineers, ETL developers, and data integration specialists 
+          working with heterogeneous data sources and transformation workflows.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Data Processing Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Data warehouse ETL transformations</li>
+          <li>Real-time data streaming conversion</li>
+          <li>Business intelligence data preparation</li>
+          <li>Master data management workflows</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Document Management & Content Systems</h5>
+        <p class="mb-2 text-sm">
+          Critical for content managers, document architects, and enterprise content specialists 
+          working with structured document formats and content management systems.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Content Management Scenarios:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>CMS content structure conversion</li>
+          <li>Document template generation</li>
+          <li>Publishing workflow automation</li>
+          <li>Digital asset metadata transformation</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Business System Integration</h5>
+      <p class="text-sm mb-2">
+        This converter facilitates integration architects, business analysts, 
+        and system administrators working with cross-platform data exchange and business processes.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Business Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">CRM integration</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">E-commerce platforms</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Supply chain systems</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Financial reporting</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Workflow automation</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Data synchronization</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and XML Implementation Details -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & XML Implementation Details</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">XML Standards & Validation Compliance</h5>
+        <p class="mb-2 text-sm">
+          Following W3C XML standards and industry specifications ensures compatibility, 
+          interoperability, and validation compliance across different systems and platforms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">XML Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>W3C XML 1.0/1.1 specification compliance</li>
+          <li>XML Schema Definition (XSD) validation</li>
+          <li>XML Namespace specification support</li>
+          <li>Well-formed XML document structure</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">JSON to XML Mapping & Transformation</h5>
+        <p class="mb-2 text-sm">
+          Understanding data type mapping, element naming conventions, 
+          and structural transformation rules is essential for accurate JSON-to-XML conversion.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Transformation Rules:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>JSON object to XML element mapping</li>
+          <li>Array handling and repetition strategies</li>
+          <li>Data type preservation and conversion</li>
+          <li>Special character escaping and encoding</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">XML Processing & Performance Considerations</h5>
+      <p class="text-sm mb-2">
+        Efficient XML processing requires understanding of parsing strategies, 
+        memory usage patterns, and performance optimization techniques for large-scale data transformation.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Implementation Considerations:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">DOM vs SAX parsing</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Memory optimization</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Streaming processing</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Character encoding</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Error handling</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Validation strategies</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Performance Note:</strong> Large JSON datasets may require chunked processing 
+        or streaming transformation techniques for optimal memory usage and response times.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For XML standards and specifications, visit 
+      <a href="https://www.w3.org/XML/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C XML Standards</a>
+      and for JSON specification details, see 
+      <a href="https://tools.ietf.org/html/rfc7159" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 7159 JSON Specification</a>.
     </p>
   </div>
 

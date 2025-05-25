@@ -9,7 +9,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input SQL</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input SQL</h3>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
@@ -66,7 +66,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Formatted SQL</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Formatted SQL</h3>
           <div class="flex gap-2 items-center">
 
             <p-select [options]="languageOptions" [(ngModel)]="selectedLanguage" optionLabel="label"
@@ -142,7 +142,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h3 class="text-xl font-semibold mb-2">About SQL Formatter</h3>
+    <h4 class="text-xl font-semibold mb-2">About SQL Formatter</h4>
     <p class="mb-2 text-sm">
       This tool helps you format, validate, and beautify SQL queries for improved readability and debugging.
       SQL (Structured Query Language) is used for managing and manipulating relational databases.
@@ -158,8 +158,139 @@
       <li><span class="text-primary">Advanced editor:</span> Syntax highlighting, error indicators, and code completion</li>
       <li><span class="text-primary">Export options:</span> Copy the formatted SQL or download it as a .sql file</li>
     </ul>
+    <p class="text-sm">
+      Learn more about SQL standards at 
+      <a href="https://www.iso.org/standard/63555.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">ISO SQL Standard</a>
+      and SQL syntax at 
+      <a href="https://developer.mozilla.org/en-US/docs/Glossary/SQL" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN SQL</a>.
+    </p>
     <p class="text-sm text-500">
       <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any server.
+    </p>
+  </div>
+
+  <!-- Database Development and Administration Use Cases -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Database Development & Administration Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Database Development & Optimization</h5>
+        <p class="mb-2 text-sm">
+          Essential for database developers working on query optimization, schema design, and complex SQL 
+          statement development across different database platforms.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Development Tasks:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Format complex JOIN queries and subqueries</li>
+          <li>Beautify stored procedures and functions</li>
+          <li>Organize CTE (Common Table Expressions)</li>
+          <li>Structure window functions and analytics</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Data Analysis & Reporting</h5>
+        <p class="mb-2 text-sm">
+          Critical for data analysts and business intelligence professionals who need to create 
+          readable, maintainable SQL queries for reports and data analysis workflows.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Analytics Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Format ETL and data pipeline queries</li>
+          <li>Structure business intelligence reports</li>
+          <li>Organize data warehouse queries</li>
+          <li>Clean up ad-hoc analysis scripts</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Code Review & Team Collaboration</h5>
+      <p class="text-sm mb-2">
+        This SQL formatter enhances team collaboration by standardizing code formatting, 
+        making code reviews more efficient, and ensuring consistent SQL style across projects.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Collaboration Benefits:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Code standardization</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Version control friendly</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Improved readability</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Error detection</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Documentation ready</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Performance analysis</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Database Systems and SQL Dialects -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Supported Database Systems & SQL Standards</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Popular Database Systems</h5>
+        <p class="mb-2 text-sm">
+          Our SQL formatter supports syntax and formatting for major database management systems, 
+          ensuring compatibility with your preferred database platform.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Supported Databases:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>MySQL - World's most popular open-source database</li>
+          <li>PostgreSQL - Advanced open-source object-relational database</li>
+          <li>SQLite - Lightweight embedded database engine</li>
+          <li>MariaDB - MySQL-compatible database server</li>
+          <li>Google BigQuery - Cloud-native data warehouse</li>
+          <li>Microsoft SQL Server - Enterprise database platform</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">SQL Standards & Compliance</h5>
+        <p class="mb-2 text-sm">
+          The formatter follows SQL standards and recognizes dialect-specific syntax extensions, 
+          ensuring proper formatting for both standard and vendor-specific SQL features.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">SQL Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>ANSI SQL (SQL-92, SQL:1999, SQL:2003)</li>
+          <li>ISO/IEC 9075 SQL standard compliance</li>
+          <li>Vendor-specific extensions and functions</li>
+          <li>Modern SQL features (CTEs, window functions)</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">SQL Query Types & Formatting Features</h5>
+      <p class="text-sm mb-2">
+        This formatter handles all types of SQL statements from simple SELECT queries to complex 
+        multi-table operations, stored procedures, and modern analytical SQL constructs.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Supported SQL Features:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">SELECT queries</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">JOIN operations</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Subqueries</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">CTEs</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Window functions</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Stored procedures</span>
+        <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Triggers</span>
+        <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Views</span>
+      </div>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For detailed SQL documentation, visit 
+      <a href="https://www.w3schools.com/sql/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3Schools SQL Tutorial</a>
+      and for advanced SQL concepts, refer to 
+      <a href="https://modern-sql.com/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Modern SQL</a>.
     </p>
   </div>
 

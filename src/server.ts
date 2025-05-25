@@ -51,7 +51,7 @@ const CACHE_MAX_SIZE = 100; // Максимальное количество ф�
 
 // Версия кеша (соль), меняйте при выкатывании обновлений
 // Можно управлять через переменную окружения для удобства деплоя
-const CACHE_VERSION = process.env['CACHE_VERSION'] || '1.0.3';
+const CACHE_VERSION = process.env['CACHE_VERSION'] || '1.0.5';
 
 // Функция для создания ключа кеша с учетом версии приложения
 function createCacheKey(url: string): string {
@@ -104,6 +104,70 @@ function cleanupCache(): void {
 
 const app = express();
 const angularApp = new AngularNodeAppEngine();
+
+// Security headers middleware - должен быть первым
+app.use((req, res, next) => {
+  // HTTP Strict Transport Security (HSTS)
+  // max-age=31536000 = 1 год в секундах
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  
+  // Дополнительные заголовки безопасности
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  
+  // Content Security Policy - разрешаем Google сервисы
+  res.setHeader('Content-Security-Policy', 
+    "default-src 'self'; " +
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' " +
+      "https://www.googletagmanager.com " +
+      "https://www.google-analytics.com " +
+      "https://ssl.google-analytics.com " +
+      "https://pagead2.googlesyndication.com " +
+      "https://partner.googleadservices.com " +
+      "https://tpc.googlesyndication.com " +
+      "https://googleads.g.doubleclick.net " +
+      "https://ep2.adtrafficquality.google " +
+      "https://cdnjs.cloudflare.com; " +
+    "style-src 'self' 'unsafe-inline' " +
+      "https://fonts.googleapis.com " +
+      "https://pagead2.googlesyndication.com " +
+      "https://cdnjs.cloudflare.com; " +
+    "img-src 'self' data: https: " +
+      "https://www.google-analytics.com " +
+      "https://ssl.google-analytics.com " +
+      "https://www.googletagmanager.com " +
+      "https://pagead2.googlesyndication.com " +
+      "https://googleads.g.doubleclick.net " +
+      "https://stats.g.doubleclick.net " +
+      "https://ep2.adtrafficquality.google; " +
+    "font-src 'self' data: " +
+      "https://fonts.gstatic.com " +
+      "https://cdnjs.cloudflare.com; " +
+    "connect-src 'self' https: " +
+      "https://www.google-analytics.com " +
+      "https://region1.google-analytics.com " +
+      "https://stats.g.doubleclick.net " +
+      "https://pagead2.googlesyndication.com " +
+      "https://ep2.adtrafficquality.google; " +
+    "frame-src 'self' " +
+      "https://googleads.g.doubleclick.net " +
+      "https://tpc.googlesyndication.com " +
+      "https://pagead2.googlesyndication.com " +
+      "https://ep2.adtrafficquality.google " +
+      "https://www.google.com; " +
+    "fenced-frame-src *; " +
+    "media-src 'self'; " +
+    "object-src 'none'; " +
+    "child-src 'self'; " +
+    "frame-ancestors 'none'; " +
+    "form-action 'self'; " +
+    "base-uri 'self';"
+  );
+  
+  next();
+});
 
 // Добавляем базовую диагностику запросов
 app.use((req, res, next) => {
@@ -356,39 +420,140 @@ app.get('/Ads.txt', (req, res) => {
 });
 
 // Обработчик для Angular SSR
-app.use('/**', (req, res, next) => {
+app.use('/**', async (req, res, next) => {
   // Статические ресурсы должны быть уже обработаны предыдущими маршрутами
   console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.url}`);
+  console.log(`[${new Date().toISOString()}] req.url: ${req.url}`);
   
-  angularApp
-    .handle(req)
-    .then((response) => {
-      if (response) {
-        console.log(`[${new Date().toISOString()}] Rendering SSR response for ${req.url}`);
-        return writeResponseToNodeResponse(response, res);
-      } else {
-        console.log(`[${new Date().toISOString()}] No SSR response for ${req.url}, falling back to index.html`);
+  // Список известных маршрутов приложения
+  const knownRoutes = [
+    '/',
+    '/json-formatter',
+    '/json-to-xml',
+    '/json-to-env',
+    '/json-query',
+    '/csv-viewer',
+    '/url-encoder',
+    '/url-to-qr',
+    '/base64',
+    '/base64-to-file',
+    '/base64-to-hex',
+    '/hex',
+    '/hex-to-file',
+    '/hex-to-base64',
+    '/color-converter',
+    '/jwt-decode',
+    '/sql-formatter',
+    '/svg-to-react-component',
+    '/404'
+  ];
+  
+  // Проверяем, является ли маршрут известным
+  const isKnownRoute = knownRoutes.includes(req.url);
+  const isNotFoundRoute = req.url === '/404';
+  
+  // Если это неизвестный маршрут, то это должна быть 404 страница
+  const shouldBe404 = !isKnownRoute || isNotFoundRoute;
+  
+  console.log(`[${new Date().toISOString()}] Route analysis: isKnown=${isKnownRoute}, is404=${isNotFoundRoute}, shouldBe404=${shouldBe404}`);
+  
+  try {
+    const response = await angularApp.handle(req);
+    
+    if (response) {
+      console.log(`[${new Date().toISOString()}] Rendering SSR response for ${req.url}`);
+      
+      // Проверяем содержимое ответа на наличие 404 признаков
+      let responseBody = '';
+      if (response.body) {
+        const reader = response.body.getReader();
+        const chunks: Uint8Array[] = [];
+        let done = false;
         
-        // Если SSR не отработал, возвращаем index.html
-        if (fs.existsSync(join(finalBrowserDistFolder, 'index.html'))) {
-          return res.sendFile(join(finalBrowserDistFolder, 'index.html'));
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          done = readerDone;
+          if (value) {
+            chunks.push(value);
+          }
         }
         
-        next();
-        return; // Явно указываем return для удовлетворения линтера
+        // Вычисляем общую длину
+        const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+        
+        // Создаем новый Uint8Array нужного размера
+        const mergedArray = new Uint8Array(totalLength);
+        let offset = 0;
+        
+        // Копируем все chunks
+        for (const chunk of chunks) {
+          mergedArray.set(chunk, offset);
+          offset += chunk.length;
+        }
+        
+        // Декодируем в string
+        responseBody = new TextDecoder().decode(mergedArray);
       }
-    })
-    .catch((error) => {
-      console.error(`[${new Date().toISOString()}] Error handling request:`, error);
       
-      // В случае ошибки, возвращаем index.html как fallback
+      // Проверяем признаки 404 страницы в содержимом
+      const isNotFoundPage = responseBody.includes('app-not-found') || 
+                            responseBody.includes('Page Not Found') ||
+                            responseBody.includes('<title>Page Not Found') ||
+                            shouldBe404;
+      
+      // Определяем правильный статус
+      let finalStatus = response.status;
+      if (isNotFoundPage) {
+        finalStatus = 404;
+        console.log(`[${new Date().toISOString()}] Setting 404 status for route: ${req.url} (reason: ${!isKnownRoute ? 'unknown route' : 'not found content detected'})`);
+      }
+      
+      // Проверяем, если статус 304 (Not Modified), возвращаем оригинальный ответ
+      if (response.status === 304) {
+        console.log(`[${new Date().toISOString()}] Returning 304 Not Modified response as-is for ${req.url}`);
+        return writeResponseToNodeResponse(response, res);
+      }
+      
+      // Создаем новый Response с правильным статусом
+      const newResponse = new Response(responseBody, {
+        status: finalStatus,
+        statusText: finalStatus === 404 ? 'Not Found' : response.statusText,
+        headers: response.headers
+      });
+      
+      return writeResponseToNodeResponse(newResponse, res);
+    } else {
+      console.log(`[${new Date().toISOString()}] No SSR response for ${req.url}, falling back to index.html`);
+      
+      // Если SSR не отработал, возвращаем 404
+      if (!res.headersSent) {
+        res.status(404);
+      }
+      
+      // Если SSR не отработал, возвращаем index.html
       if (fs.existsSync(join(finalBrowserDistFolder, 'index.html'))) {
         return res.sendFile(join(finalBrowserDistFolder, 'index.html'));
       }
       
-      next(error);
+      next();
       return; // Явно указываем return для удовлетворения линтера
-    });
+    }
+  } catch (error) {
+    console.error(`[${new Date().toISOString()}] Error handling request:`, error);
+    
+    // В случае ошибки, возвращаем 404
+    if (!res.headersSent) {
+      res.status(404);
+    }
+    
+    // В случае ошибки, возвращаем index.html как fallback
+    if (fs.existsSync(join(finalBrowserDistFolder, 'index.html'))) {
+      return res.sendFile(join(finalBrowserDistFolder, 'index.html'));
+    }
+    
+    next(error);
+    return; // Явно указываем return для удовлетворения линтера
+  }
 });
 
 /**

@@ -19,7 +19,7 @@
 
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">Input URL</h5>
+          <h3 class="text-xl font-medium text-800 m-0">Input URL</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
               class="p-button-text p-button-sm"></button>
@@ -53,7 +53,7 @@
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
         <!-- Заголовок с фиксированной высотой -->
         <div class="flex justify-between items-center h-10">
-          <h5 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}</h5>
+          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Copy" icon="pi pi-copy" (click)="copyToClipboard()"
               [disabled]="!outputText" class="p-button-text p-button-sm"></button>
@@ -77,7 +77,7 @@
 
   <!-- URL Components Table -->
   <div class="mt-4 mb-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <h5 class="text-xl font-medium text-800 mb-2">URL Components</h5>
+    <h3 class="text-xl font-medium text-800 mb-2">URL Components</h3>
     <p-table [value]="urlComponents" [tableStyle]="{'min-width': '50rem'}" [responsive]="true" styleClass="url-components-table">
       <ng-template pTemplate="header">
         <tr>
@@ -117,7 +117,7 @@
 
   <!-- Information Section -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <h3 class="text-xl font-semibold mb-2">About URL Encoding</h3>
+    <h4 class="text-xl font-semibold mb-2">About URL Encoding</h4>
     <p class="mb-2 text-sm">
       URL encoding converts characters that are not allowed in URLs to character-entity references.
       Spaces are converted to plus signs (+) or %20, and reserved characters like ?, &, #, etc. are
@@ -127,6 +127,189 @@
       <strong>When to use URL encoding:</strong>
       When you need to send data in a URL (like form submissions, API calls) or when creating links
       with special characters in the parameters.
+    </p>
+  </div>
+
+  <!-- Web Development and API Integration Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Web Development & API Integration Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Frontend & Full-Stack Development</h5>
+        <p class="mb-2 text-sm">
+          Essential for web developers, frontend engineers, and full-stack developers 
+          working with dynamic URLs, form submissions, and client-server data transmission.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Frontend Development Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Form data URL parameter encoding</li>
+          <li>Dynamic route generation with special characters</li>
+          <li>Search query parameter handling</li>
+          <li>Social media sharing URL generation</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Service Integration</h5>
+        <p class="mb-2 text-sm">
+          Critical for backend developers, API engineers, and integration specialists 
+          ensuring proper data encoding for HTTP requests and API endpoint consumption.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">API Integration Scenarios:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>REST API query parameter encoding</li>
+          <li>OAuth redirect URI formatting</li>
+          <li>Webhook URL parameter handling</li>
+          <li>Third-party API data transmission</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Web Framework & CMS Integration</h5>
+      <p class="text-sm mb-2">
+        This URL encoder supports framework developers, CMS specialists, 
+        and web platform engineers working with various web technologies and content management systems.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Framework Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">React Router URLs</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Angular routing</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Vue.js navigation</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">WordPress permalinks</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Django URL patterns</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Express.js routes</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Data Transmission and Security Applications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Data Transmission & Security Applications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Secure Data Transmission & Encoding</h5>
+        <p class="mb-2 text-sm">
+          Essential for security engineers, backend developers, and cybersecurity specialists 
+          ensuring secure and compliant data transmission over HTTP/HTTPS protocols.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Security Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Secure token transmission in URLs</li>
+          <li>Authentication parameter encoding</li>
+          <li>CSRF protection token handling</li>
+          <li>API key secure transmission</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">E-commerce & Payment Processing</h5>
+        <p class="mb-2 text-sm">
+          Critical for e-commerce developers, payment gateway integrators, and fintech engineers 
+          working with payment redirects, transaction parameters, and financial data transmission.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">E-commerce Applications:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>Payment gateway redirect URLs</li>
+          <li>Shopping cart parameter encoding</li>
+          <li>Product catalog URL generation</li>
+          <li>Order confirmation data transmission</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Analytics & Tracking Systems</h5>
+      <p class="text-sm mb-2">
+        This encoder facilitates digital marketing specialists, analytics engineers, 
+        and data tracking professionals working with campaign URLs and user behavior tracking.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Tracking Applications:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Google Analytics UTM</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Campaign tracking</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Referral parameters</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">A/B testing URLs</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Conversion tracking</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Attribution modeling</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Standards and URL Encoding Specifications -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+    <h4 class="text-xl font-semibold mb-3">Technical Standards & URL Encoding Specifications</h4>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">HTTP & URI Standards Compliance</h5>
+        <p class="mb-2 text-sm">
+          Following RFC specifications and international standards ensures cross-browser compatibility, 
+          server compatibility, and adherence to web protocol specifications.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Protocol Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>RFC 3986 URI Generic Syntax compliance</li>
+          <li>RFC 1738 URL specification adherence</li>
+          <li>Percent-encoding (RFC 3986) implementation</li>
+          <li>HTTP/1.1 and HTTP/2 protocol compatibility</li>
+        </ul>
+      </div>
+      
+      <div>
+        <h5 class="text-lg font-medium text-700 mb-2">Character Encoding & Internationalization</h5>
+        <p class="mb-2 text-sm">
+          Understanding character encoding standards, Unicode handling, 
+          and internationalization requirements for global web application development.
+        </p>
+        
+        <h6 class="text-base font-medium text-600 mb-1">Encoding Standards:</h6>
+        <ul class="list-disc pl-5 text-sm space-y-1">
+          <li>UTF-8 character encoding for URLs</li>
+          <li>ASCII safe character handling</li>
+          <li>Unicode normalization for international domains</li>
+          <li>Punycode encoding for IDN (Internationalized Domain Names)</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="mt-4">
+      <h5 class="text-lg font-medium text-700 mb-2">Browser Compatibility & Implementation</h5>
+      <p class="text-sm mb-2">
+        Cross-browser URL encoding implementation requires understanding of browser-specific behaviors, 
+        encoding differences, and compatibility considerations for legacy and modern web environments.
+      </p>
+      
+      <h6 class="text-base font-medium text-600 mb-1">Implementation Considerations:</h6>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Cross-browser support</span>
+        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Legacy compatibility</span>
+        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Mobile browser handling</span>
+        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Server-side validation</span>
+        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Performance optimization</span>
+        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Error handling</span>
+      </div>
+      
+      <p class="text-sm mt-3 text-600">
+        <strong>Compatibility Note:</strong> Different browsers may handle certain edge cases 
+        in URL encoding differently. Always test encoding behavior across target browsers.
+      </p>
+    </div>
+    
+    <p class="text-sm mt-3">
+      For URL encoding standards and specifications, visit 
+      <a href="https://tools.ietf.org/html/rfc3986" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 3986 URI Generic Syntax</a>
+      and for character encoding details, see 
+      <a href="https://www.w3.org/International/articles/http-charset/index" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C Character Encoding</a>.
     </p>
   </div>
 
