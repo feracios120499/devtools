@@ -1,0 +1,81 @@
+// Стили аналогично другим страницам в проекте 
+
+// Подсветка целых строк с изменениями
+::ng-deep .line-inserted {
+  background-color: rgba(76, 175, 80, 0.15) !important; // Светло-зеленый фон для всей строки
+}
+
+::ng-deep .line-deleted {
+  background-color: rgba(244, 67, 54, 0.15) !important; // Светло-красный фон для всей строки
+}
+
+// Подсветка конкретных изменений (более насыщенная)
+::ng-deep .inline-insert {
+  background-color: rgba(76, 175, 80, 0.4) !important; // Более насыщенный зеленый
+  font-weight: 500;
+}
+
+::ng-deep .inline-delete {
+  background-color: rgba(244, 67, 54, 0.4) !important; // Более насыщенный красный
+  font-weight: 500;
+}
+
+// Адаптивные стили для результатов сравнения
+.status-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid;
+  background-color: var(--p-green-50);
+  border-color: var(--p-green-200);
+  color: var(--p-green-800);
+
+  .pi {
+    color: var(--p-green-600);
+  }
+}
+
+.status-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid;
+  background-color: var(--p-orange-50);
+  border-color: var(--p-orange-200);
+  color: var(--p-orange-800);
+
+  .pi {
+    color: var(--p-orange-600);
+  }
+}
+
+
+
+// Темная тема
+.my-app-dark {
+  .status-success {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-color: rgba(76, 175, 80, 0.3);
+    color: #81c784;
+
+    .pi {
+      color: #4caf50;
+    }
+  }
+
+  .status-warning {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-color: rgba(255, 152, 0, 0.3);
+    color: #ffb74d;
+
+    .pi {
+      color: #ff9800;
+    }
+  }
+
+
+}

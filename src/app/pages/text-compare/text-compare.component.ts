@@ -1,0 +1,415 @@
+import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MessageService } from 'primeng/api';
+
+import { ThemeService } from '../../services/theme.service';
+import { PageTitleService } from '../../services/page-title.service';
+import { SeoService, MetaData } from '../../services/seo.service';
+import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { PageHeaderComponent } from '../../components/page-header/page-header.component';
+import { IconsModule } from '../../shared/modules/icons.module';
+import { diff_match_patch, DIFF_EQUAL, DIFF_DELETE, DIFF_INSERT } from 'diff-match-patch';
+
+@Component({
+  selector: 'app-text-compare',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MonacoEditorModule,
+    PrimeNgModule,
+    PageHeaderComponent,
+    IconsModule
+  ],
+  providers: [MessageService],
+  templateUrl: './text-compare.component.html',
+  styleUrl: './text-compare.component.scss'
+})
+export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
+
+  @HostBinding('class') class = 'dt-page';
+  originalText: string = '';
+  modifiedText: string = '';
+
+  @ViewChild('originalMonacoEditor') originalMonacoEditor: any;
+  @ViewChild('modifiedMonacoEditor') modifiedMonacoEditor: any;
+  @ViewChild('originalEditorContainer') originalEditorContainer!: ElementRef;
+  @ViewChild('modifiedEditorContainer') modifiedEditorContainer!: ElementRef;
+
+
+  editorTheme: string = 'vs-dark';
+
+  originalEditorOptions = {
+    theme: this.editorTheme,
+    language: 'plaintext',
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    minimap: { enabled: false },
+    lineNumbers: 'on',
+    renderLineHighlight: 'all',
+    scrollbar: {
+      useShadows: false,
+      verticalHasArrows: false,
+      horizontalHasArrows: false,
+      vertical: 'visible',
+      horizontal: 'visible',
+      verticalScrollbarSize: 10,
+      horizontalScrollbarSize: 10
+    },
+    fixedOverflowWidgets: true
+  };
+
+  modifiedEditorOptions = {
+    theme: this.editorTheme,
+    language: 'plaintext',
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+    minimap: { enabled: false },
+    lineNumbers: 'on',
+    renderLineHighlight: 'all',
+    scrollbar: {
+      useShadows: false,
+      verticalHasArrows: false,
+      horizontalHasArrows: false,
+      vertical: 'visible',
+      horizontal: 'visible',
+      verticalScrollbarSize: 10,
+      horizontalScrollbarSize: 10
+    },
+    fixedOverflowWidgets: true
+  };
+
+  isBrowser: boolean = false;
+  monaco: any;
+
+  isOriginalFullscreen: boolean = false;
+  isModifiedFullscreen: boolean = false;
+
+
+
+  constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
+    private themeService: ThemeService,
+    private pageTitleService: PageTitleService,
+    private seoService: SeoService,
+    private messageService: MessageService
+  ) {
+    this.pageTitleService.setTitle('Text Diff Checker');
+    this.isBrowser = isPlatformBrowser(this.platformId);
+
+    if (this.isBrowser) {
+      // Динамическая загрузка Monaco только в браузере
+      import('monaco-editor').then(monaco => {
+        this.monaco = monaco;
+      });
+
+      effect(() => {
+        this.editorTheme = this.themeService.getMonacoTheme();
+        this.updateEditorTheme();
+      });
+    }
+  }
+
+  ngOnInit() {
+    this.setupSeo();
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  handleEscapeKey(event: KeyboardEvent) {
+    if (this.isOriginalFullscreen || this.isModifiedFullscreen) {
+      this.isOriginalFullscreen = false;
+      this.isModifiedFullscreen = false;
+      
+      setTimeout(() => {
+        if (this.originalMonacoEditor?.editor) {
+          this.originalMonacoEditor.editor.layout();
+        }
+        if (this.modifiedMonacoEditor?.editor) {
+          this.modifiedMonacoEditor.editor.layout();
+        }
+      }, 100);
+    }
+  }
+
+  private decorationsOrig: string[] = [];
+  private decorationsMod: string[] = [];
+
+  // Результаты сравнения
+  comparisonResult: {
+    hasChanges: boolean;
+    totalChanges: number;
+  } = {
+    hasChanges: false,
+    totalChanges: 0
+  };
+
+  ngAfterViewInit(): void {
+    //setTimeout(() => this.applyInlineDiffs(), 500);
+  }
+
+  applyInlineDiffs(): void {
+    // Сброс результатов
+    this.comparisonResult = {
+      hasChanges: false,
+      totalChanges: 0
+    };
+
+    // Проверяем, что мы в браузере и Monaco загружен
+    if (!this.isBrowser || !this.monaco) {
+      this.generateComparisonResult();
+      return;
+    }
+
+    const originalEditor = this.originalMonacoEditor._editor;
+    const modifiedEditor = this.modifiedMonacoEditor._editor;
+
+    const originalModel = originalEditor.getModel();
+    const modifiedModel = modifiedEditor.getModel();
+
+    if (!originalModel || !modifiedModel) {
+      this.generateComparisonResult();
+      return;
+    }
+
+    const dmp = new diff_match_patch();
+    const decorationsOrig: any[] = [];
+    const decorationsMod: any[] = [];
+
+    const originalLines = originalModel.getLinesContent();
+    const modifiedLines = modifiedModel.getLinesContent();
+
+    const maxLines = Math.max(originalLines.length, modifiedLines.length);
+
+    for (let i = 0; i < maxLines; i++) {
+      const origLine = originalLines[i] || '';
+      const modLine = modifiedLines[i] || '';
+      
+      const diffs = dmp.diff_main(origLine, modLine);
+      dmp.diff_cleanupSemantic(diffs);
+
+      let hasChanges = false;
+      let hasInsertions = false;
+      let hasDeletions = false;
+
+      // Проверяем, есть ли изменения в строке
+      for (const [op] of diffs) {
+        if (op === DIFF_DELETE) {
+          hasChanges = true;
+          hasDeletions = true;
+        } else if (op === DIFF_INSERT) {
+          hasChanges = true;
+          hasInsertions = true;
+        }
+      }
+
+      // Анализируем изменения для отчета
+      if (hasChanges) {
+        this.addChangeToResult();
+      }
+
+      // Добавляем подсветку всей строки, если есть изменения
+      if (hasChanges && hasDeletions && origLine) {
+        decorationsOrig.push({
+          range: new this.monaco.Range(i + 1, 1, i + 1, 1),
+          options: { 
+            isWholeLine: true,
+            className: 'line-deleted'
+          }
+        });
+      }
+
+      if (hasChanges && hasInsertions && modLine) {
+        decorationsMod.push({
+          range: new this.monaco.Range(i + 1, 1, i + 1, 1),
+          options: { 
+            isWholeLine: true,
+            className: 'line-inserted'
+          }
+        });
+      }
+
+      // Добавляем подсветку конкретных изменений
+      let origCol = 1;
+      let modCol = 1;
+
+      for (const [op, data] of diffs) {
+        const len = data.length;
+
+        if (op === DIFF_DELETE) {
+          decorationsOrig.push({
+            range: new this.monaco.Range(i + 1, origCol, i + 1, origCol + len),
+            options: { inlineClassName: 'inline-delete' }
+          });
+          origCol += len;
+        } else if (op === DIFF_INSERT) {
+          decorationsMod.push({
+            range: new this.monaco.Range(i + 1, modCol, i + 1, modCol + len),
+            options: { inlineClassName: 'inline-insert' }
+          });
+          modCol += len;
+        } else {
+          origCol += len;
+          modCol += len;
+        }
+      }
+    }
+
+    this.decorationsOrig = originalEditor.deltaDecorations(this.decorationsOrig, decorationsOrig);
+    this.decorationsMod = modifiedEditor.deltaDecorations(this.decorationsMod, decorationsMod);
+
+    // Финализируем результат сравнения
+    this.comparisonResult.hasChanges = this.comparisonResult.totalChanges > 0;
+  }
+
+  private generateComparisonResult(): void {
+    // Простое сравнение для случаев без Monaco
+    const originalText = this.originalText.trim();
+    const modifiedText = this.modifiedText.trim();
+    
+    if (originalText !== modifiedText) {
+      this.comparisonResult = {
+        hasChanges: true,
+        totalChanges: 1
+      };
+    }
+  }
+
+  private addChangeToResult(): void {
+    // Простое инкрементирование количества изменений
+    this.comparisonResult.totalChanges++;
+  }
+
+  ngOnDestroy() {
+    this.seoService.destroy();
+  }
+
+  private setupSeo() {
+    const metaData: MetaData = {
+      OgTitle: 'Text Diff Checker - Online Text Compare Tool | DevTools',
+      OgDescription: 'Free online text diff checker tool. Compare two text files side by side with highlighted differences and detailed diff view.',
+      description: 'Text diff checker and compare tool online. Highlight differences between two texts, view side-by-side comparison, and analyze changes with detailed diff visualization. Free text compare utility.',
+      keywords: ['text diff checker', 'text compare', 'text diff', 'file comparison', 'text difference', 'side by side comparison', 'text analysis', 'diff tool'],
+      jsonLd: {
+        name: 'Text Diff Checker - Online Text Compare Tool',
+        description: 'Online text diff checker to compare and diff text files with highlighted differences',
+        url: 'https://onlinewebdevtools.com/text-diff-checker'
+      }
+    };
+    
+    this.seoService.setupSeo(metaData);
+  }
+
+
+  copyOriginalToClipboard() {
+    if (this.isBrowser && navigator.clipboard) {
+      navigator.clipboard.writeText(this.originalText).then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Original text copied to clipboard'
+        });
+      });
+    }
+  }
+
+  copyModifiedToClipboard() {
+    if (this.isBrowser && navigator.clipboard) {
+      navigator.clipboard.writeText(this.modifiedText).then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Modified text copied to clipboard'
+        });
+      });
+    }
+  }
+
+  pasteToOriginal() {
+    if (this.isBrowser && navigator.clipboard) {
+      navigator.clipboard.readText().then(text => {
+        this.originalText = text;
+        this.applyInlineDiffs();
+      });
+    }
+  }
+
+  pasteToModified() {
+    if (this.isBrowser && navigator.clipboard) {
+      navigator.clipboard.readText().then(text => {
+        this.modifiedText = text;
+        this.applyInlineDiffs();
+      });
+    }
+  }
+
+  loadSampleText() {
+    this.originalText = `function calculateSum(a, b) {
+  return a + b;
+}
+
+const result = calculateSum(5, 3);
+console.log(result);
+//TODO fix that`;
+
+    this.modifiedText = `function calculateSum(a, b, c = 0) {
+  return a + b + c;
+}
+
+const result = calculateSum(5, 3, 2);
+console.log('Result:', result);`;
+
+    this.applyInlineDiffs();
+  }
+
+  clearTexts() {
+    this.originalText = '';
+    this.modifiedText = '';
+    this.comparisonResult = {
+      hasChanges: false,
+      totalChanges: 0
+    };
+    if (this.isBrowser && this.monaco) {
+      this.applyInlineDiffs();
+    }
+  }
+
+  updateEditorTheme() {
+    if (this.isBrowser) {
+      this.originalEditorOptions = { ...this.originalEditorOptions, theme: this.editorTheme };
+      this.modifiedEditorOptions = { ...this.modifiedEditorOptions, theme: this.editorTheme };
+    }
+  }
+
+  onTextChange() {
+    this.applyInlineDiffs();
+    // this.updateDiffEditor();
+  }
+
+
+  toggleFullscreen(editorType: 'original' | 'modified' | 'diff') {
+    if (!this.isBrowser) return;
+
+    if (editorType === 'original') {
+      this.isOriginalFullscreen = !this.isOriginalFullscreen;
+      if (this.isOriginalFullscreen) {
+        this.isModifiedFullscreen = false;
+      }
+    } else if (editorType === 'modified') {
+      this.isModifiedFullscreen = !this.isModifiedFullscreen;
+      if (this.isModifiedFullscreen) {
+        this.isOriginalFullscreen = false;
+      }
+    }
+
+    
+    setTimeout(() => {
+      if (editorType === 'original' && this.originalMonacoEditor?.editor) {
+        this.originalMonacoEditor.editor.layout();
+      } else if (editorType === 'modified' && this.modifiedMonacoEditor?.editor) {
+        this.modifiedMonacoEditor.editor.layout();
+      }
+    }, 100);
+  }
+} 

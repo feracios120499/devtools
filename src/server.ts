@@ -419,6 +419,11 @@ app.get('/Ads.txt', (req, res) => {
   res.sendFile(resolve(finalBrowserDistFolder, 'assets/Ads.txt'));
 });
 
+app.get('/logo.png', (req, res) => {
+  res.sendFile(resolve(finalBrowserDistFolder, 'assets/logo.png'));
+});
+
+
 // Обработчик для Angular SSR
 app.use('/**', async (req, res, next) => {
   // Статические ресурсы должны быть уже обработаны предыдущими маршрутами

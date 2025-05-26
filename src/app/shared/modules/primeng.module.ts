@@ -23,7 +23,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-
+import { BadgeModule } from 'primeng/badge';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -52,7 +52,8 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
     CheckboxModule,
     TieredMenuModule,
     SplitButtonModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    BadgeModule
   ],
   exports: [
     InputTextModule,
@@ -77,7 +78,8 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
     CheckboxModule,
     TieredMenuModule,
     SplitButtonModule,
-    AutoCompleteModule
+    AutoCompleteModule,
+    BadgeModule
   ],
   providers: [
     MessageService

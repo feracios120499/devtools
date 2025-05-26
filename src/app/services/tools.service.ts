@@ -21,7 +21,7 @@ export interface ToolCategory {
 })
 export class ToolsService {
   private favoritesService = inject(FavoritesService);
-  
+
   // Сигнал со всеми инструментами
   private _allTools = signal<Tool[]>([
     // JSON TOOLS
@@ -56,6 +56,15 @@ export class ToolsService {
       routerLink: '/json-query',
       category: 'JSON TOOLS',
       description: 'Query and explore complex JSON structures'
+    },
+    // TEXT TOOLS
+    {
+      id: 'text-diff-checker',
+      label: 'Text Diff Checker',
+      icon: 'file-diff',
+      routerLink: '/text-diff-checker',
+      category: 'TEXT TOOLS',
+      description: 'Compare and diff text files side by side'
     },
     // CSV TOOLS
     {
@@ -166,7 +175,7 @@ export class ToolsService {
       routerLink: '/sql-formatter',
       category: 'MISC TOOLS',
       description: 'Format and beautify SQL queries with syntax highlighting'
-    }
+    },
   ]);
 
   // Вычисляемый сигнал с инструментами, включая статус избранного
@@ -181,19 +190,19 @@ export class ToolsService {
   toolsByCategory = computed(() => {
     const tools = this.allTools();
     const categories: ToolCategory[] = [];
-    
+
     // Группировка инструментов по категориям
     tools.forEach(tool => {
       let category = categories.find(c => c.name === tool.category);
-      
+
       if (!category) {
         category = { name: tool.category, tools: [] };
         categories.push(category);
       }
-      
+
       category.tools.push(tool);
     });
-    
+
     return categories;
   });
 
@@ -202,7 +211,7 @@ export class ToolsService {
     return this.allTools().filter(tool => tool.isFavorite);
   });
 
-  constructor() {}
+  constructor() { }
 
   /**
    * Проверяет, является ли инструмент избранным

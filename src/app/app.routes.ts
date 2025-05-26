@@ -89,6 +89,11 @@ export const routes: Routes = [
     title: 'SVG to React Component | DevTools' 
   },
   { 
+    path: 'text-diff-checker', 
+    loadComponent: () => import('./pages/text-compare/text-compare.component').then(m => m.TextCompareComponent),
+    title: 'Text Diff Checker | DevTools' 
+  },
+  { 
     path: '404', 
     loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Page Not Found - 404 | DevTools' 
