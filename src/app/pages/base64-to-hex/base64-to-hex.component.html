@@ -1,6 +1,11 @@
 <div class="dt-container">
-  <app-page-header>Tool for converting Base64 data to hexadecimal format with various formatting options</app-page-header>
-
+  <app-page-header>Tool for converting Base64 data to hexadecimal format with various formatting
+    options</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online Base64 to HEX converter</strong> supports multiple formatting options such as colon-separated
+      and 0x-prefixed output.</p>
+    <p>Quickly <strong>convert Base64 to hexadecimal</strong> in your browser with no server upload.</p>
+  </div>
   <!-- Основной контейнер с редакторами -->
   <div class="dt-editors">
     <!-- Левая колонка - Input Base64 -->
@@ -130,11 +135,14 @@
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
     <h4 class="text-xl font-semibold mb-2">About Base64 to HEX Converter</h4>
     <p class="mb-2 text-sm">
-      This tool allows you to convert Base64 encoded data to hexadecimal (HEX) format with various display options. Base64 is a binary-to-text encoding scheme commonly used to represent binary data in a format that is not affected by text processing systems.
+      This tool allows you to convert Base64 encoded data to hexadecimal (HEX) format with various display options.
+      Base64 is a binary-to-text encoding scheme commonly used to represent binary data in a format that is not affected
+      by text processing systems.
     </p>
     <p class="mb-2 text-sm">
       <strong>How it works:</strong>
-      The converter first decodes the Base64 data back to its original binary form, then represents each byte as a two-digit hexadecimal value. This provides a direct view of the underlying binary data in a human-readable format.
+      The converter first decodes the Base64 data back to its original binary form, then represents each byte as a
+      two-digit hexadecimal value. This provides a direct view of the underlying binary data in a human-readable format.
     </p>
     <p class="mb-2 text-sm">
       <strong>Available HEX output formats:</strong>
@@ -142,34 +150,38 @@
     <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
       <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase hex characters (DEADBEEF)</li>
       <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
-      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
+      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)
+      </li>
       <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
       <li><code class="text-primary px-1 rounded">Lowercase</code> - Simple lowercase hex characters (deadbeef)</li>
       <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
     </ul>
     <p class="text-sm">
-      Learn more about hexadecimal notation at 
-      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-      and Base64 encoding at 
-      <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>.
+      Learn more about hexadecimal notation at
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer"
+        class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+      and Base64 encoding at
+      <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer"
+        class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>.
     </p>
     <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> This conversion is performed locally in your browser - no data is sent to any server.
+      <i class="pi pi-info-circle mr-1"></i> This conversion is performed locally in your browser - no data is sent to
+      any server.
     </p>
   </div>
 
   <!-- Development and System Administration Applications -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">Development & System Administration Applications</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Software Development & Debugging</h5>
         <p class="mb-2 text-sm">
-          Essential for developers working with binary data, cryptographic functions, 
+          Essential for developers working with binary data, cryptographic functions,
           and low-level programming where direct byte inspection is required.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Development Use Cases:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Binary data analysis and debugging</li>
@@ -178,14 +190,14 @@
           <li>File format analysis and inspection</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Security & Network Analysis</h5>
         <p class="mb-2 text-sm">
-          Critical for security professionals, network administrators, and penetration testers 
+          Critical for security professionals, network administrators, and penetration testers
           who need to analyze encoded data and network traffic for security assessment.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Security Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Malware signature analysis</li>
@@ -195,14 +207,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Data Integration & API Development</h5>
       <p class="text-sm mb-2">
-        This Base64 to HEX converter is valuable for API developers, data engineers, 
+        This Base64 to HEX converter is valuable for API developers, data engineers,
         and system integrators working with mixed encoding formats and legacy systems.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Integration Scenarios:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Legacy system integration</span>
@@ -218,15 +230,15 @@
   <!-- Technical Standards and Programming Implementation -->
   <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">Technical Standards & Programming Implementation</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Hexadecimal Representation Standards</h5>
         <p class="mb-2 text-sm">
-          Different industries and programming contexts use various hexadecimal formatting 
+          Different industries and programming contexts use various hexadecimal formatting
           conventions, each optimized for specific use cases and readability requirements.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Format Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>MAC addresses: colon-separated (AA:BB:CC:DD:EE:FF)</li>
@@ -235,14 +247,14 @@
           <li>Checksums: plain uppercase format</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
         <p class="mb-2 text-sm">
-          Base64 to HEX conversion is supported across all major programming languages 
+          Base64 to HEX conversion is supported across all major programming languages
           with built-in functions and libraries for efficient data transformation.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>JavaScript: Buffer.from().toString('hex')</li>
@@ -252,14 +264,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Data Representation & Efficiency</h5>
       <p class="text-sm mb-2">
-        Understanding the characteristics of different encoding formats helps in choosing 
+        Understanding the characteristics of different encoding formats helps in choosing
         the optimal representation for storage, transmission, and processing requirements.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Format Characteristics:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Direct byte mapping</span>
@@ -269,21 +281,24 @@
         <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Easy validation</span>
         <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Universal support</span>
       </div>
-      
+
       <p class="text-sm mt-3 text-600">
-        <strong>Performance Note:</strong> Hexadecimal representation provides a more compact 
+        <strong>Performance Note:</strong> Hexadecimal representation provides a more compact
         alternative to Base64 for human-readable binary data display, especially in debugging contexts.
       </p>
     </div>
-    
+
     <p class="text-sm mt-3">
-      For comprehensive hexadecimal documentation, visit 
-      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-      and for binary data handling, refer to 
-      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN ArrayBuffer</a>.
+      For comprehensive hexadecimal documentation, visit
+      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer"
+        class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+      and for binary data handling, refer to
+      <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/ArrayBuffer"
+        target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN
+        ArrayBuffer</a>.
     </p>
   </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-</div> 
+</div>
