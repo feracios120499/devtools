@@ -82,7 +82,6 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   isBrowser: boolean = false;
-  monaco: any;
 
   isOriginalFullscreen: boolean = false;
   isModifiedFullscreen: boolean = false;
@@ -100,11 +99,6 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
-      // Динамическая загрузка Monaco только в браузере
-      import('monaco-editor').then(monaco => {
-        this.monaco = monaco;
-      });
-
       effect(() => {
         this.editorTheme = this.themeService.getMonacoTheme();
         this.updateEditorTheme();
@@ -156,14 +150,19 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
       totalChanges: 0
     };
 
-    // Проверяем, что мы в браузере и Monaco загружен
-    if (!this.isBrowser || !this.monaco) {
+    // Проверяем, что мы в браузере и редакторы загружены
+    if (!this.isBrowser || !this.originalMonacoEditor || !this.modifiedMonacoEditor) {
       this.generateComparisonResult();
       return;
     }
 
     const originalEditor = this.originalMonacoEditor._editor;
     const modifiedEditor = this.modifiedMonacoEditor._editor;
+
+    if (!originalEditor || !modifiedEditor) {
+      this.generateComparisonResult();
+      return;
+    }
 
     const originalModel = originalEditor.getModel();
     const modifiedModel = modifiedEditor.getModel();
@@ -209,10 +208,14 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
         this.addChangeToResult();
       }
 
+      // Получаем monaco из глобального объекта (ngx-monaco-editor загружает его глобально)
+      const monaco = (window as any).monaco;
+      if (!monaco) continue;
+
       // Добавляем подсветку всей строки, если есть изменения
       if (hasChanges && hasDeletions && origLine) {
         decorationsOrig.push({
-          range: new this.monaco.Range(i + 1, 1, i + 1, 1),
+          range: new monaco.Range(i + 1, 1, i + 1, 1),
           options: { 
             isWholeLine: true,
             className: 'line-deleted'
@@ -222,7 +225,7 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (hasChanges && hasInsertions && modLine) {
         decorationsMod.push({
-          range: new this.monaco.Range(i + 1, 1, i + 1, 1),
+          range: new monaco.Range(i + 1, 1, i + 1, 1),
           options: { 
             isWholeLine: true,
             className: 'line-inserted'
@@ -239,13 +242,13 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (op === DIFF_DELETE) {
           decorationsOrig.push({
-            range: new this.monaco.Range(i + 1, origCol, i + 1, origCol + len),
+            range: new monaco.Range(i + 1, origCol, i + 1, origCol + len),
             options: { inlineClassName: 'inline-delete' }
           });
           origCol += len;
         } else if (op === DIFF_INSERT) {
           decorationsMod.push({
-            range: new this.monaco.Range(i + 1, modCol, i + 1, modCol + len),
+            range: new monaco.Range(i + 1, modCol, i + 1, modCol + len),
             options: { inlineClassName: 'inline-insert' }
           });
           modCol += len;
@@ -370,7 +373,7 @@ console.log('Result:', result);`;
       hasChanges: false,
       totalChanges: 0
     };
-    if (this.isBrowser && this.monaco) {
+    if (this.isBrowser) {
       this.applyInlineDiffs();
     }
   }
