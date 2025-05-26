@@ -174,7 +174,7 @@ export class TopbarComponent implements AfterViewInit {
   onKeyDown(event: KeyboardEvent): void {
     // Проверяем комбинацию Ctrl+K или Cmd+K для открытия поиска
     if ((this.isMacOS && event.metaKey && (event.key.toLowerCase() === 'k' || event.key.toLowerCase() === 'л')) || 
-        (!this.isMacOS && event.ctrlKey && event.key.toLowerCase() === 'k' || event.key.toLowerCase() === 'л')) {
+        (!this.isMacOS && event.ctrlKey && (event.key.toLowerCase() === 'k' || event.key.toLowerCase() === 'л'))) {
       event.preventDefault();
       this.showSearchModal();
       return;
