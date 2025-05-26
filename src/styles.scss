@@ -119,6 +119,7 @@ p-radiobutton {
       min-height: 850px;
       max-height: 900px;
       position: relative;
+      overflow: hidden;
 
       @media (max-width: 768px) {
         min-height: 400px;

@@ -66,6 +66,14 @@ export class ToolsService {
       category: 'TEXT TOOLS',
       description: 'Compare and diff text files side by side'
     },
+    {
+      id: 'word-counter',
+      label: 'Word Counter',
+      icon: 'letter-case',
+      routerLink: '/word-counter',
+      category: 'TEXT TOOLS',
+      description: 'Count words, characters and analyze text statistics'
+    },
     // CSV TOOLS
     {
       id: 'csv-viewer',

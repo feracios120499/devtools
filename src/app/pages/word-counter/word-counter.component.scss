@@ -1,0 +1,55 @@
+// Word highlighting styles
+::ng-deep {
+  .word-highlight {
+    background-color: var(--p-primary-500) !important;
+    border: 1px solid var(--p-primary-600) !important;
+    border-radius: 3px !important;
+  }
+  
+  .word-highlight-inline {
+    background-color: var(--p-primary-500) !important;
+    color: var(--p-primary-contrast) !important;
+    font-weight: 600 !important;
+  }
+}
+
+// Dark theme adaptations for Monaco editor
+.my-app-dark {
+  ::ng-deep {
+    .word-highlight {
+      background-color: var(--p-primary-400) !important;
+      border: 1px solid var(--p-primary-500) !important;
+    }
+    
+    .word-highlight-inline {
+      background-color: var(--p-primary-400) !important;
+      color: var(--p-primary-contrast) !important;
+      font-weight: 600 !important;
+    }
+  }
+}
+
+.wordDistribution{
+  max-height: calc(100% - 76px);
+}
+
+// Word distribution styles
+.wordDistribution {
+  max-height: 400px;
+  height: 400px;
+}
+
+// Word distribution hover effects
+.word-item:hover {
+  .word-text {
+    color: var(--p-primary-500) !important;
+  }
+  
+  ::ng-deep .word-badge {
+    background-color: var(--p-primary-500) !important;
+    color: var(--p-primary-contrast) !important;
+  }
+}
+
+// Word distribution hover effects (already handled by Tailwind classes in template)
+// Additional custom styles can go here if needed 
