@@ -100,7 +100,7 @@ p-radiobutton {
     height: 100%;
   }
 
-  &-about{
+  &-about {
     max-width: 800px;
   }
 
@@ -133,6 +133,7 @@ p-radiobutton {
         background-color: var(--vscode-editor-background);
         height: 60px;
         border-radius: 8px 8px 0 0;
+
         & hr {
           height: 1px;
           border: none;
@@ -156,12 +157,13 @@ p-radiobutton {
   padding: 1rem;
   border-radius: 0 !important;
   max-height: calc(100vh - 50px) !important;
+
   ::ng-deep {
     .monaco-editor {
       width: 100% !important;
       height: 100% !important;
     }
-    
+
     .overflow-guard {
       width: 100% !important;
       height: 100% !important;
@@ -200,13 +202,23 @@ p-radiobutton {
   padding: 0 !important;
 }
 
-.p-tieredmenu{
-  top:40px !important;
+.p-tieredmenu {
+  top: 40px !important;
   left: 0 !important;
 }
-.p-autocomplete{
+
+.p-autocomplete {
   width: 100% !important;
-  & .p-inputtext{
+
+  & .p-inputtext {
     width: 100% !important;
+  }
+}
+
+.p-menu-submenu-label {
+  border-radius: 6px;
+
+  &:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.1) !important;
   }
 }

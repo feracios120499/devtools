@@ -104,6 +104,11 @@ export const routes: Routes = [
     title: 'Lorem Ipsum Generator - Placeholder Text Tool | DevTools' 
   },
   { 
+    path: 'markdown-preview', 
+    loadComponent: () => import('./pages/markdown-preview/markdown-preview.component').then(m => m.MarkdownPreviewComponent),
+    title: 'Markdown Preview - Real-time Markdown Renderer | DevTools' 
+  },
+  { 
     path: '404', 
     loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Page Not Found - 404 | DevTools' 

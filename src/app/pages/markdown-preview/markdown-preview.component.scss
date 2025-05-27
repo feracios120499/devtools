@@ -1,0 +1,190 @@
+.markdown-preview {
+    font-family: system-ui, sans-serif;
+    line-height: 1.6;
+    color: #24292f;
+    padding: 1.5rem;
+    background-color: #fff;
+    border-radius: 6px;
+    border: 1px solid #e1e4e8;
+    max-width: 100%;
+    height: calc(100% - 16px) !important;
+    overflow-y: auto;
+}
+
+::ng-deep {
+
+    /* Заголовки */
+    .markdown-preview h1,
+    .markdown-preview h2,
+    .markdown-preview h3,
+    .markdown-preview h4 {
+        font-weight: 600;
+        margin-top: 1.5em;
+        margin-bottom: 0.75em;
+    }
+
+    .markdown-preview h1 {
+        font-size: 1.8rem;
+        border-bottom: 1px solid #d0d7de;
+        padding-bottom: 0.3em;
+    }
+
+    .markdown-preview h2 {
+        font-size: 1.5rem;
+        border-bottom: 1px solid #d0d7de;
+        padding-bottom: 0.3em;
+    }
+
+    .markdown-preview h3 {
+        font-size: 1.2rem;
+    }
+
+    /* Общие списки */
+    .markdown-preview ul,
+    .markdown-preview ol {
+        padding-left: 2rem;
+        margin-top: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    /* Маркеры для ul */
+    .markdown-preview ul {
+        list-style-type: disc;
+    }
+
+    .markdown-preview ul ul {
+        list-style-type: circle;
+    }
+
+    .markdown-preview ul ul ul {
+        list-style-type: square;
+    }
+
+    /* Нумерация для ol */
+    .markdown-preview ol {
+        list-style-type: decimal;
+    }
+
+    .markdown-preview ol ol {
+        list-style-type: lower-alpha;
+    }
+
+    .markdown-preview ol ol ol {
+        list-style-type: lower-roman;
+    }
+
+    /* Вложенные списки — отступы */
+    .markdown-preview ul li,
+    .markdown-preview ol li {
+        margin-bottom: 0.3em;
+    }
+
+    .markdown-preview li>ul,
+    .markdown-preview li>ol {
+        margin-top: 0.3em;
+        margin-bottom: 0.3em;
+    }
+
+    /* Выравнивание маркеров */
+    .markdown-preview li {
+        position: relative;
+        padding-left: 0.4rem;
+    }
+
+    .markdown-preview li::marker {
+        color: #57606a;
+        /* GitHub-style gray */
+        font-weight: bold;
+    }
+
+    /* Code */
+    .markdown-preview code {
+        background-color: #f6f8fa;
+        padding: 0.2em 0.4em;
+        border-radius: 6px;
+        font-size: 85%;
+        font-family: Consolas, 'Courier New', monospace;
+    }
+
+    .markdown-preview pre {
+        background-color: #f6f8fa;
+        padding: 1em;
+        overflow-x: auto;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        line-height: 1.45;
+        border: 1px solid #d0d7de;
+    }
+
+    .markdown-preview pre code {
+        padding: 0;
+        background: none;
+        font-size: inherit;
+    }
+
+    /* Blockquote */
+    .markdown-preview blockquote {
+        padding: 0.5em 1em;
+        color: #6a737d;
+        border-left: 0.25em solid #dfe2e5;
+        background-color: #f6f8fa;
+        margin: 1em 0;
+    }
+
+    /* Tables */
+    .markdown-preview table {
+        border-collapse: collapse;
+        border-spacing: 0;
+        width: 100%;
+        margin: 1em 0;
+    }
+
+    .markdown-preview table th,
+    .markdown-preview table td {
+        border: 1px solid #d0d7de;
+        padding: 0.6em 1em;
+        text-align: left;
+    }
+
+    .markdown-preview table th {
+        background-color: #f6f8fa;
+    }
+
+    /* Ссылки */
+    .markdown-preview a {
+        color: #0969da;
+        text-decoration: none;
+    }
+
+    .markdown-preview a:hover {
+        text-decoration: underline;
+    }
+
+    /* Horizontal Rule */
+    .markdown-preview hr {
+        border: 0;
+        border-top: 1px solid #d0d7de;
+        margin: 2em 0;
+    }
+}
+
+// Sticky exit fullscreen button for preview
+.preview-exit-fullscreen {
+    position: fixed;
+    top: 40px;
+    right: 50px;
+    z-index: 1000;
+    color: black;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.cheatsheet-section {
+    border: 1px solid var(--p-dialog-border-color);
+    padding: 1rem;
+    border-radius: 8px;
+}

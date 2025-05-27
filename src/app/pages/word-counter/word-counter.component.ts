@@ -1,4 +1,4 @@
-import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding } from '@angular/core';
+import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, HostListener } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
@@ -250,5 +250,13 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
   trackByWord(index: number, item: WordCount): string {
     return item.word;
+  }
+
+  @HostListener('document:keydown.escape', ['$event'])
+  onEscapeKey(event: KeyboardEvent): void {
+    if (this.isFullscreen) {
+      this.toggleFullscreen();
+      event.preventDefault();
+    }
   }
 } 

@@ -82,6 +82,14 @@ export class ToolsService {
       category: 'TEXT TOOLS',
       description: 'Generate placeholder text in paragraphs, sentences or words'
     },
+    {
+      id: 'markdown-preview',
+      label: 'Markdown Preview',
+      icon: 'markdown',
+      routerLink: '/markdown-preview',
+      category: 'TEXT TOOLS',
+      description: 'Preview Markdown with real-time HTML rendering'
+    },
     // CSV TOOLS
     {
       id: 'csv-viewer',

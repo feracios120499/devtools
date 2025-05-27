@@ -1,7 +1,15 @@
-<div class="leftbar-menu">
+<div class="leftbar-menu" #menuContainer>
   <p-menu [model]="items" styleClass="w-full">
     <ng-template #submenuheader let-item>
+      <div *ngIf="item.label" class="flex items-center justify-between py-2 px-3 cursor-pointer transition-colors" 
+           (click)="item.command && item.command()">
         <span class="text-primary font-bold">{{ item.label }}</span>
+        <i-tabler 
+          *ngIf="getSectionById(item.label)" 
+          [name]="getSectionById(item.label)?.isCollapsed ? 'chevron-right' : 'chevron-down'" 
+          class="icon-sm text-primary">
+        </i-tabler>
+      </div>
     </ng-template>
     <ng-template #item let-item>
         <a pRipple class="flex items-center p-menu-item-link" [routerLink]="item.routerLink" routerLinkActive="active-menuitem" [routerLinkActiveOptions]="{exact: item.routerLink === '/'}">
