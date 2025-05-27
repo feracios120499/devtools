@@ -215,7 +215,7 @@ p-radiobutton {
   }
 }
 
-.p-menu-submenu-label {
+.p-menu-submenu-label:has(:not(:empty)) {
   border-radius: 6px;
 
   &:hover {
