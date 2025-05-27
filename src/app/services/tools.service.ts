@@ -74,6 +74,14 @@ export class ToolsService {
       category: 'TEXT TOOLS',
       description: 'Count words, characters and analyze text statistics'
     },
+    {
+      id: 'lorem-ipsum-generator',
+      label: 'Lorem Ipsum Generator',
+      icon: 'text-recognition',
+      routerLink: '/lorem-ipsum-generator',
+      category: 'TEXT TOOLS',
+      description: 'Generate placeholder text in paragraphs, sentences or words'
+    },
     // CSV TOOLS
     {
       id: 'csv-viewer',

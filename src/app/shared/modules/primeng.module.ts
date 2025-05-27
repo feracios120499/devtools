@@ -24,6 +24,7 @@ import { TieredMenuModule } from 'primeng/tieredmenu';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BadgeModule } from 'primeng/badge';
+import { InputNumberModule } from 'primeng/inputnumber';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -53,7 +54,8 @@ import { BadgeModule } from 'primeng/badge';
     TieredMenuModule,
     SplitButtonModule,
     AutoCompleteModule,
-    BadgeModule
+    BadgeModule,
+    InputNumberModule
   ],
   exports: [
     InputTextModule,
@@ -79,7 +81,8 @@ import { BadgeModule } from 'primeng/badge';
     TieredMenuModule,
     SplitButtonModule,
     AutoCompleteModule,
-    BadgeModule
+    BadgeModule,
+    InputNumberModule
   ],
   providers: [
     MessageService

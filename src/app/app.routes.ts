@@ -99,6 +99,11 @@ export const routes: Routes = [
     title: 'Word Counter - Text Analysis Tool | DevTools' 
   },
   { 
+    path: 'lorem-ipsum-generator', 
+    loadComponent: () => import('./pages/lorem-ipsum-generator/lorem-ipsum-generator.component').then(m => m.LoremIpsumGeneratorComponent),
+    title: 'Lorem Ipsum Generator - Placeholder Text Tool | DevTools' 
+  },
+  { 
     path: '404', 
     loadComponent: () => import('./pages/not-found/not-found.component').then(m => m.NotFoundComponent),
     title: 'Page Not Found - 404 | DevTools' 
