@@ -7,9 +7,11 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 
 interface WordCount {
   word: string;
@@ -25,7 +27,8 @@ interface WordCount {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './word-counter.component.html',
@@ -41,26 +44,7 @@ export class WordCounterComponent implements OnInit, AfterViewInit, OnDestroy {
   
   editorTheme: string = 'vs-dark';
   
-  editorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    wordWrap: 'on',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  editorOptions: any;
 
   isBrowser: boolean = false;
   isFullscreen: boolean = false;
@@ -77,10 +61,15 @@ export class WordCounterComponent implements OnInit, AfterViewInit, OnDestroy {
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private monacoConfigService: MonacoConfigService
   ) {
     this.pageTitleService.setTitle('Word Counter');
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.editorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
+    this.editorOptions.wordWrap = 'on'; // Add word wrap for text analysis
 
     if (this.isBrowser) {
       effect(() => {
@@ -232,7 +221,8 @@ Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium dolor
 
   updateEditorTheme(): void {
     if (this.isBrowser) {
-      this.editorOptions = { ...this.editorOptions, theme: this.editorTheme };
+      this.editorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
+      this.editorOptions.wordWrap = 'on'; // Add word wrap for text analysis
     }
   }
 

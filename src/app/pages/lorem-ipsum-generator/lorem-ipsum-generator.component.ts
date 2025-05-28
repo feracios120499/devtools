@@ -5,9 +5,11 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 
@@ -22,7 +24,8 @@ type LoremType = 'paragraphs' | 'sentences' | 'words';
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './lorem-ipsum-generator.component.html',
@@ -93,12 +96,16 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private themeService: ThemeService,
+    private monacoConfigService: MonacoConfigService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
     private messageService: MessageService
   ) {
     this.pageTitleService.setTitle('Lorem Ipsum Generator');
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.initializeEditorOptions();
 
     if (this.isBrowser) {
       effect(() => {
@@ -114,7 +121,7 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.generateLorem(), 500);
+    //setTimeout(() => this.generateLorem(), 500);
   }
 
   ngOnDestroy() {
@@ -191,7 +198,7 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
       }
       paragraphs.push(sentences.join(' '));
     }
-    return paragraphs.join('\n\n');
+    return paragraphs.join('\n');
   }
 
   private getRandomWord(): string {
@@ -256,6 +263,12 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
   }
 
   updateEditorTheme(): void {
+    this.editorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
+    
     if (this.isBrowser && this.monacoEditor?._editor) {
       const monaco = (window as any).monaco;
       if (monaco) {
@@ -279,5 +292,16 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
       this.toggleFullscreen();
       event.preventDefault();
     }
+  }
+
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions(): void {
+    this.editorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
   }
 } 

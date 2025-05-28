@@ -7,9 +7,11 @@ import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 import { Router, ActivatedRoute, Navigation } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 
@@ -29,7 +31,8 @@ interface KeyCaseOption {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './json-to-xml.component.html',
@@ -115,6 +118,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private themeService: ThemeService,
+    private monacoConfigService: MonacoConfigService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
     private messageService: MessageService,
@@ -122,6 +126,9 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.initializeEditorOptions();
 
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
@@ -310,17 +317,18 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
     this.seoService.setupSeo(metaData);
   }
 
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'xml');
+  }
+
   // Update editor settings when theme changes
   updateEditorTheme() {
-    this.inputEditorOptions = {
-      ...this.inputEditorOptions,
-      theme: this.editorTheme
-    };
-
-    this.outputEditorOptions = {
-      ...this.outputEditorOptions,
-      theme: this.editorTheme
-    };
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'xml');
   }
 
   /**

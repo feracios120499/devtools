@@ -8,9 +8,11 @@ import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { Router } from '@angular/router';
 
 // Интерфейсы для типизации
@@ -34,7 +36,8 @@ interface KeyCaseOption {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
@@ -74,50 +77,8 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   // Default key case selection
   selectedKeyCase: KeyCaseOption = this.keyCaseOptions[0];
 
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'json',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    formatOnPaste: true,
-    formatOnType: true,
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
-
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'json',
-    readOnly: true,
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  inputEditorOptions: any;
+  outputEditorOptions: any;
 
   isBrowser: boolean = false;
 
@@ -148,11 +109,16 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
     private messageService: MessageService,
-    private router: Router
+    private router: Router,
+    private monacoConfigService: MonacoConfigService
   ) {
     // Set page title
     this.pageTitleService.setTitle('JSON Formatter and Validator');
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
 
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
@@ -189,7 +155,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   ngAfterViewInit() {
-    // No initialization needed
+    // Wheel event handling is now managed by MonacoScrollFixDirective
   }
 
   ngOnDestroy() {
@@ -337,15 +303,8 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // Update editor settings when theme changes
   updateEditorTheme() {
-    this.inputEditorOptions = {
-      ...this.inputEditorOptions,
-      theme: this.editorTheme
-    };
-
-    this.outputEditorOptions = {
-      ...this.outputEditorOptions,
-      theme: this.editorTheme
-    };
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
   }
 
   /**

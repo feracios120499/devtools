@@ -7,8 +7,10 @@ import { MessageService } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
@@ -37,7 +39,8 @@ export interface JsonQuerySettings extends PageSettings {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './json-query.component.html',
@@ -67,50 +70,9 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   // For SSR and DOM manipulations
   private schemaScriptElement: HTMLElement | null = null;
 
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'json',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    formatOnPaste: true,
-    formatOnType: true,
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  inputEditorOptions: any;
 
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'json',
-    readOnly: true,
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  outputEditorOptions: any;
 
   isBrowser: boolean = false;
   isInputFullscreen: boolean = false;
@@ -126,8 +88,13 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
     private messageService: MessageService,
     private seoService: SeoService,
     private router: Router,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private monacoConfigService: MonacoConfigService
   ) {
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     // React to theme changes in the application, only in browser
@@ -265,16 +232,17 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
       });
 
       // Update editor options objects to reflect current theme
-      this.inputEditorOptions = {
-        ...this.inputEditorOptions,
-        theme: this.editorTheme
-      };
-
-      this.outputEditorOptions = {
-        ...this.outputEditorOptions,
-        theme: this.editorTheme
-      };
+      this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+      this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
     }
+  }
+
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
   }
 
   search(event: any) {

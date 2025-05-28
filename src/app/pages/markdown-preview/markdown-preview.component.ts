@@ -7,9 +7,11 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { marked } from 'marked';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 
@@ -22,7 +24,8 @@ import { IconsModule } from '../../shared/modules/icons.module';
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './markdown-preview.component.html',
@@ -70,9 +73,14 @@ export class MarkdownPreviewComponent implements OnInit, AfterViewInit, OnDestro
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
     private messageService: MessageService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private monacoConfigService: MonacoConfigService
   ) {
     this.pageTitleService.setTitle('Markdown Preview');
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
@@ -241,6 +249,13 @@ console.log(greet('World'));
       summary: 'Cleared',
       detail: 'Editor content cleared'
     });
+  }
+
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.editorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'markdown');
   }
 
   updateEditorTheme(): void {

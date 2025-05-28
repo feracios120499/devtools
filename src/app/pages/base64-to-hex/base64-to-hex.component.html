@@ -57,7 +57,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-            (ngModelChange)="convertBase64ToHex()" class="w-full h-full">
+            (ngModelChange)="convertBase64ToHex()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>
@@ -124,7 +124,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-            class="w-full h-full">
+            class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

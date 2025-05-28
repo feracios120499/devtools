@@ -90,7 +90,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #inputMonacoEditor [(ngModel)]="svgCode" [options]="svgEditorOptions" 
-            (ngModelChange)="onSvgCodeChange()" class="w-full h-full">
+            (ngModelChange)="onSvgCodeChange()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>
@@ -142,7 +142,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #outputMonacoEditor [(ngModel)]="reactCode" [options]="reactEditorOptions" 
-            class="w-full h-full">
+            class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

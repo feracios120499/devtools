@@ -58,7 +58,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-            (ngModelChange)="formatSql()" class="w-full h-full">
+            (ngModelChange)="formatSql()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
 
         </div>
@@ -137,7 +137,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-            class="w-full h-full">
+            class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

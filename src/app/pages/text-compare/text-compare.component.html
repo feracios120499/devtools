@@ -53,7 +53,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #originalMonacoEditor [options]="originalEditorOptions" [(ngModel)]="originalText"
-            (ngModelChange)="onTextChange()" class="w-full h-full">
+            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>
@@ -106,7 +106,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #modifiedMonacoEditor [options]="modifiedEditorOptions" [(ngModel)]="modifiedText"
-            (ngModelChange)="onTextChange()" class="w-full h-full">
+            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

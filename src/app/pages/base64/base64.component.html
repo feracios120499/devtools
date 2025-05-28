@@ -73,7 +73,7 @@
             [options]="inputEditorOptions" 
             [(ngModel)]="inputCode" 
             (ngModelChange)="processText()"
-            class="w-full h-full">
+            class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>
@@ -129,7 +129,7 @@
             #outputMonacoEditor
             [options]="outputEditorOptions" 
             [(ngModel)]="outputCode" 
-            class="w-full h-full">
+            class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

@@ -7,8 +7,10 @@ import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { UserPreferencesService, HexToBase64Settings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
@@ -38,7 +40,8 @@ interface Base64FormatOption {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './hex-to-base64.component.html',
@@ -94,44 +97,9 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
   selectedFormat: Base64FormatOption = this.base64FormatOptions[0];
   
   // Настройки для редакторов
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false,
-    lineNumbers: 'on',
-    wordWrap: 'on',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    }
-  };
+  inputEditorOptions: any;
   
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false,
-    lineNumbers: 'on',
-    readOnly: true,
-    wordWrap: 'on',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    }
-  };
+  outputEditorOptions: any;
   
   isBrowser: boolean = false;
   
@@ -151,8 +119,13 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
     private messageService: MessageService,
     private router: Router,
     private userPreferencesService: UserPreferencesService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private monacoConfigService: MonacoConfigService
   ) {
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
     
     // React to theme changes in the application, only in browser
@@ -356,13 +329,14 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
    */
   updateEditorTheme() {
     this.inputEditorOptions = {
-      ...this.inputEditorOptions,
-      theme: this.editorTheme
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
     };
-    
     this.outputEditorOptions = {
-      ...this.outputEditorOptions,
-      theme: this.editorTheme
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
     };
     
     // Update editors if they exist
@@ -373,6 +347,22 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
     if (this.outputMonacoEditor?._editor) {
       this.outputMonacoEditor._editor.updateOptions({ theme: this.editorTheme });
     }
+  }
+  
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.inputEditorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
+    this.outputEditorOptions = {
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
   }
   
   /**

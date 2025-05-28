@@ -5,10 +5,12 @@ import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService } from '../../services/user-preferences.service';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { SeoService, MetaData } from '../../services/seo.service';
@@ -30,7 +32,8 @@ export interface SvgToReactSettings {
     PrimeNgModule,
     MonacoEditorModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './svg-to-react-component.component.html',
@@ -59,7 +62,8 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
     theme: this.editorTheme,
     language: 'xml',
     automaticLayout: true,
-    minimap: { enabled: false }
+    minimap: { enabled: false },
+    wordWrap: 'on'
   };
 
   reactEditorOptions = {
@@ -86,6 +90,7 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
     @Inject(DOCUMENT) private document: Document,
     private renderer: Renderer2,
     private themeService: ThemeService,
+    private monacoConfigService: MonacoConfigService,
     private pageTitleService: PageTitleService,
     private metaService: Meta,
     private titleService: Title,
@@ -94,6 +99,9 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
     private seoService: SeoService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
     
     // Реагируем на изменения темы в приложении, только в браузере
     if (this.isBrowser) {
@@ -127,18 +135,20 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
   }
   
   /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.svgEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'xml');
+    this.svgEditorOptions.wordWrap = 'on'; // Add word wrap for text analysis
+    this.reactEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'typescript');
+  }
+  
+  /**
    * Обновляет настройки редакторов при изменении темы
    */
   updateEditorTheme() {
-    this.svgEditorOptions = {
-      ...this.svgEditorOptions,
-      theme: this.editorTheme
-    };
-    
-    this.reactEditorOptions = {
-      ...this.reactEditorOptions,
-      theme: this.editorTheme
-    };
+    this.svgEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'xml');
+    this.reactEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'typescript');
   }
 
   /**

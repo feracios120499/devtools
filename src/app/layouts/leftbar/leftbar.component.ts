@@ -211,15 +211,19 @@ export class LeftbarComponent implements OnInit, OnDestroy, AfterViewInit {
     // Даем время для рендеринга меню
     setTimeout(() => {
       // Ищем активный элемент по class active-menuitem
-      const activeItem = this.elementRef.nativeElement.querySelector('.active-menuitem');
+      const activeItems = this.elementRef.nativeElement.querySelectorAll('.active-menuitem');
       
-      if (activeItem) {
-        activeItem.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center',
-          inline: 'nearest'
-        });
+      if(activeItems.length > 0) {
+        const activeItem = activeItems[activeItems.length - 1];
+        if (activeItem) {
+          activeItem.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'center',
+            inline: 'nearest'
+          });
+        }
       }
+      
     }, 150);
   }
 }

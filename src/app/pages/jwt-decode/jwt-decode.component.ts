@@ -7,8 +7,10 @@ import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { UserPreferencesService, JwtDecodeSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
@@ -36,7 +38,8 @@ interface SignatureAlgorithm {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './jwt-decode.component.html',
@@ -119,8 +122,13 @@ export class JwtDecodeComponent implements OnInit, AfterViewInit, OnDestroy {
     private messageService: MessageService,
     private router: Router,
     private userPreferencesService: UserPreferencesService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private monacoConfigService: MonacoConfigService
   ) {
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
     
     // React to theme changes in the application, only in browser
@@ -565,6 +573,13 @@ export class JwtDecodeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.seoService.setupSeo(metaData);
   }
   
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    // Editor options are already defined in the class, no need to modify
+  }
+
   /**
    * Updates Monaco editor theme
    */

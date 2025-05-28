@@ -15,6 +15,7 @@ import { SelectModule } from 'primeng/select';
 
 // Services
 import { PageTitleService } from '../../services/page-title.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { ThemeService } from '../../services/theme.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { UserPreferencesService, HexSettings } from '../../services/user-preferences.service';
@@ -23,6 +24,7 @@ import { UserPreferencesService, HexSettings } from '../../services/user-prefere
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 
 @Component({
   selector: 'app-hex',
@@ -40,7 +42,8 @@ import { IconsModule } from '../../shared/modules/icons.module';
     SelectModule,
     MonacoEditorModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './hex.component.html',
@@ -61,45 +64,9 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
   inputEditorPlaceholder: string = 'Enter text to encode to HEX...';
   
   // Настройки для редакторов
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false,
-    lineNumbers: 'on',
-    wordWrap: 'on',
-    placeholder: this.inputEditorPlaceholder,
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    }
-  };
+  inputEditorOptions: any;
   
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    minimap: { enabled: false },
-    scrollBeyondLastLine: false,
-    lineNumbers: 'on',
-    readOnly: true,
-    wordWrap: 'on',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    }
-  };
+  outputEditorOptions: any;
   
   // Входные и выходные тексты
   inputCode: string = '';
@@ -141,8 +108,13 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
     private metaService: Meta,
     private messageService: MessageService,
     private seoService: SeoService,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private monacoConfigService: MonacoConfigService
   ) {
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
     
     // React to theme changes in the application, only in browser
@@ -317,13 +289,14 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   updateEditorTheme() {
     this.inputEditorOptions = {
-      ...this.inputEditorOptions,
-      theme: this.editorTheme
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
     };
-    
     this.outputEditorOptions = {
-      ...this.outputEditorOptions,
-      theme: this.editorTheme
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
     };
     
     // Если редакторы уже созданы, обновляем их напрямую
@@ -334,6 +307,22 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.outputMonacoEditor?.editor) {
       this.outputMonacoEditor.editor.updateOptions({ theme: this.editorTheme });
     }
+  }
+  
+  /**
+   * Инициализация настроек редакторов
+   */
+  private initializeEditorOptions() {
+    this.inputEditorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
+    this.outputEditorOptions = {
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      wordWrap: 'on',
+      wordWrapColumn: 80
+    };
   }
   
   /**
@@ -386,10 +375,7 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     
     // Обновляем плейсхолдер в настройках компонента
-    this.inputEditorOptions = {
-      ...this.inputEditorOptions,
-      placeholder: this.inputEditorPlaceholder
-    };
+    this.inputEditorOptions.placeholder = this.inputEditorPlaceholder;
     
     // Если редактор уже создан, обновляем его напрямую
     if (this.inputMonacoEditor?._editor) {

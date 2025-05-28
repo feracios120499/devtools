@@ -54,7 +54,7 @@
           </div>
           <div *ngIf="isBrowser" class="border-1 surface-border rounded">
             <ngx-monaco-editor #headerEditor [options]="editorOptions" [(ngModel)]="formattedHeader"
-              class="h-32 w-full"></ngx-monaco-editor>
+              class="h-32 w-full" monacoScrollFix></ngx-monaco-editor>
           </div>
         </div>
 
@@ -67,7 +67,7 @@
           </div>
           <div *ngIf="isBrowser" class="border-1 surface-border rounded">
             <ngx-monaco-editor #payloadEditor [options]="editorOptions" [(ngModel)]="formattedPayload"
-              class="h-64 w-full"></ngx-monaco-editor>
+              class="h-64 w-full" monacoScrollFix></ngx-monaco-editor>
           </div>
         </div>
 

@@ -8,11 +8,13 @@ import { Router, ActivatedRoute } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -60,7 +62,8 @@ export interface JsonToEnvSettings extends PageSettings {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './json-to-env.component.html',
@@ -111,50 +114,8 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   // Для SSR и манипуляций с DOM
   private schemaScriptElement: HTMLElement | null = null;
 
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'json',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    formatOnPaste: true,
-    formatOnType: true,
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
-
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    readOnly: true,
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  inputEditorOptions: any;
+  outputEditorOptions: any;
 
   isBrowser: boolean = false;
   isInputFullscreen: boolean = false;
@@ -173,9 +134,14 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     private userPreferencesService: UserPreferencesService,
     private seoService: SeoService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private monacoConfigService: MonacoConfigService
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext');
 
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
@@ -485,8 +451,8 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.isBrowser) return;
 
     this.ngZone.runOutsideAngular(() => {
-      this.inputEditorOptions = { ...this.inputEditorOptions, theme: this.editorTheme };
-      this.outputEditorOptions = { ...this.outputEditorOptions, theme: this.editorTheme };
+      this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
+      this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext');
 
       // Update editor instances if they exist
       if (this.inputMonacoEditor?.editor) {

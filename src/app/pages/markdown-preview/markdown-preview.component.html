@@ -63,7 +63,7 @@
             <hr>
           </div>
           <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
-            (ngModelChange)="onTextChange()" class="w-full h-full">
+            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
           </ngx-monaco-editor>
         </div>
       </div>

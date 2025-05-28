@@ -9,9 +9,11 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { UserPreferencesService, SqlFormatterSettings } from '../../services/user-preferences.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 
 // Interfaces for typing
 interface IndentationOption {
@@ -33,7 +35,8 @@ interface LanguageOption {
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './sql-formatter.component.html',
@@ -77,50 +80,8 @@ export class SqlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private readonly PAGE_URL = '/sql-formatter';
 
-  inputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'sql',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    formatOnPaste: true,
-    formatOnType: true,
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
-
-  outputEditorOptions = {
-    theme: this.editorTheme,
-    language: 'sql',
-    readOnly: true,
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    folding: true,
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  inputEditorOptions: any;
+  outputEditorOptions: any;
 
   isBrowser: boolean = false;
   isInputFullscreen: boolean = false;
@@ -132,11 +93,16 @@ export class SqlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
     private messageService: MessageService,
-    private userPreferencesService: UserPreferencesService
+    private userPreferencesService: UserPreferencesService,
+    private monacoConfigService: MonacoConfigService
   ) {
     // Set page title
     this.pageTitleService.setTitle('SQL Formatter and Beautifier');
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Initialize editor options
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'sql');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'sql');
 
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
@@ -345,10 +311,8 @@ export class SqlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   updateEditorTheme() {
-    if (this.isBrowser) {
-      this.inputEditorOptions = { ...this.inputEditorOptions, theme: this.editorTheme };
-      this.outputEditorOptions = { ...this.outputEditorOptions, theme: this.editorTheme };
-    }
+    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'sql');
+    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'sql');
   }
 
   formatSql() {

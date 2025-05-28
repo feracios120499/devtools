@@ -5,9 +5,11 @@ import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
+import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { diff_match_patch, DIFF_EQUAL, DIFF_DELETE, DIFF_INSERT } from 'diff-match-patch';
@@ -21,7 +23,8 @@ import { diff_match_patch, DIFF_EQUAL, DIFF_DELETE, DIFF_INSERT } from 'diff-mat
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    MonacoScrollFixDirective
   ],
   providers: [MessageService],
   templateUrl: './text-compare.component.html',
@@ -41,45 +44,9 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
 
   editorTheme: string = 'vs-dark';
 
-  originalEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  originalEditorOptions: any;
 
-  modifiedEditorOptions = {
-    theme: this.editorTheme,
-    language: 'plaintext',
-    automaticLayout: true,
-    scrollBeyondLastLine: false,
-    minimap: { enabled: false },
-    lineNumbers: 'on',
-    renderLineHighlight: 'all',
-    scrollbar: {
-      useShadows: false,
-      verticalHasArrows: false,
-      horizontalHasArrows: false,
-      vertical: 'visible',
-      horizontal: 'visible',
-      verticalScrollbarSize: 10,
-      horizontalScrollbarSize: 10
-    },
-    fixedOverflowWidgets: true
-  };
+  modifiedEditorOptions: any;
 
   isBrowser: boolean = false;
 
@@ -93,9 +60,14 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private monacoConfigService: MonacoConfigService
   ) {
     this.pageTitleService.setTitle('Text Diff Checker');
+    
+    // Initialize editor options
+    this.initializeEditorOptions();
+
     this.isBrowser = isPlatformBrowser(this.platformId);
 
     if (this.isBrowser) {
@@ -379,10 +351,16 @@ console.log('Result:', result);`;
   }
 
   updateEditorTheme() {
-    if (this.isBrowser) {
-      this.originalEditorOptions = { ...this.originalEditorOptions, theme: this.editorTheme };
-      this.modifiedEditorOptions = { ...this.modifiedEditorOptions, theme: this.editorTheme };
-    }
+    this.originalEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
+    this.modifiedEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
+  }
+
+  /**
+   * Initialize editor options
+   */
+  private initializeEditorOptions() {
+    this.originalEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
+    this.modifiedEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext');
   }
 
   onTextChange() {
