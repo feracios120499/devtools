@@ -51,7 +51,7 @@ const CACHE_MAX_SIZE = 100; // Максимальное количество ф�
 
 // Версия кеша (соль), меняйте при выкатывании обновлений
 // Можно управлять через переменную окружения для удобства деплоя
-const CACHE_VERSION = process.env['CACHE_VERSION'] || '1.0.9';
+const CACHE_VERSION = process.env['CACHE_VERSION'] || '1.0.10';
 
 // Функция для создания ключа кеша с учетом версии приложения
 function createCacheKey(url: string): string {
@@ -421,6 +421,10 @@ app.get('/Ads.txt', (req, res) => {
 
 app.get('/logo.png', (req, res) => {
   res.sendFile(resolve(finalBrowserDistFolder, 'assets/logo.png'));
+});
+
+app.get('/llms.txt', (req, res) => {
+  res.sendFile(resolve(finalBrowserDistFolder, 'assets/llms.txt'));
 });
 
 

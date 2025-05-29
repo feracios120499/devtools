@@ -93,7 +93,9 @@ export class MarkdownPreviewComponent implements OnInit, AfterViewInit, OnDestro
 
   ngOnInit() {
     this.setupSeo();
-    this.loadSampleMarkdown();
+    if(this.isBrowser) {
+      this.loadSampleMarkdown();
+    }
   }
 
   ngAfterViewInit(): void {
