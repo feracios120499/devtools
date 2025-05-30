@@ -81,3 +81,7 @@ Decode and verify JWT tokens
 # SQL Formatter
 https://onlinewebdevtools.com/sql-formatter
 Format and beautify SQL queries with syntax highlighting
+
+# Image Color Picker
+https://onlinewebdevtools.com/image-color-picker
+Pick colors from uploaded images and get their color codes

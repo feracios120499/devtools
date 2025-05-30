@@ -451,9 +451,14 @@ app.use('/**', async (req, res, next) => {
     '/hex-to-file',
     '/hex-to-base64',
     '/color-converter',
+    '/image-color-picker',
     '/jwt-decode',
     '/sql-formatter',
     '/svg-to-react-component',
+    '/text-diff-checker',
+    '/word-counter',
+    '/lorem-ipsum-generator',
+    '/markdown-preview',
     '/404'
   ];
   

@@ -74,6 +74,11 @@ export const routes: Routes = [
     title: 'Color Converter | DevTools' 
   },
   { 
+    path: 'image-color-picker', 
+    loadComponent: () => import('./pages/image-color-picker/image-color-picker.component').then(m => m.ImageColorPickerComponent),
+    title: 'Image Color Picker | DevTools' 
+  },
+  { 
     path: 'jwt-decode', 
     loadComponent: () => import('./pages/jwt-decode/jwt-decode.component').then(m => m.JwtDecodeComponent),
     title: 'JWT Decoder and Verifier | DevTools' 

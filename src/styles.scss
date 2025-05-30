@@ -222,3 +222,8 @@ p-radiobutton {
     background-color: rgba(var(--primary-color-rgb), 0.1) !important;
   }
 }
+
+.dt-border {
+  border: 1px solid var(--p-dialog-border-color);
+  border-radius: 0.5rem;
+}

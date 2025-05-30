@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -75,7 +76,8 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
         private messageService: MessageService,
         private userPreferencesService: UserPreferencesService,
         private colorConverterService: ColorConverterService,
-        private seoService: SeoService
+        private seoService: SeoService,
+        private router: Router
     ) {
         this.isBrowser = isPlatformBrowser(this.platformId);
     }
@@ -83,9 +85,10 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
     ngOnInit() {
         // Устанавливаем заголовок страницы
         this.pageTitleService.setTitle('Color Converter');
-        
+
         // Настройка SEO
         this.setupSeo();
+
 
 
         // Загружаем сохраненные настройки
@@ -96,6 +99,9 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
 
         // Инициализируем значение в инпуте
         this.updateInputValue();
+
+        // Проверяем, есть ли переданный цвет из другой страницы
+        this.checkForPassedColor();
 
         // Подписка на историю
         this.colorConverterService.getHistory().subscribe(history => {
@@ -126,7 +132,7 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
                 url: 'https://onlinewebdevtools.com/color-converter'
             }
         };
-        
+
         this.seoService.setupSeo(metaData);
     }
 
@@ -930,5 +936,31 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
             g: Math.round(gValue),
             b: Math.round(bValue)
         };
+    }
+
+    /**
+     * Проверяет, есть ли переданный цвет из другой страницы
+     */
+    private checkForPassedColor() {
+        if (!this.isBrowser) return;
+
+        // Получаем state из navigation
+        const navigation = this.router.getCurrentNavigation();
+        const state = navigation?.extras?.state || history.state;
+
+        if (state && state['selectedColor']) {
+            const passedColor = state['selectedColor'];
+            console.log('Received color from image picker:', passedColor);
+
+            // Устанавливаем переданный цвет
+            this.selectedColor = passedColor;
+            this.selectedFormat = 'HEX';
+            this.inputColorValue = passedColor;
+            this.saveSettings();
+            // Очищаем state чтобы избежать повторного использования при обновлении
+            if (history.state && history.state['selectedColor']) {
+                history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
     }
 } 

@@ -175,6 +175,15 @@ export class ToolsService {
       category: 'REACT TOOLS',
       description: 'Convert SVG files to React components'
     },
+    // IMAGE TOOLS
+    {
+      id: 'image-color-picker',
+      label: 'Image Color Picker',
+      icon: 'cricket',
+      routerLink: '/image-color-picker',
+      category: 'IMAGE TOOLS',
+      description: 'Extract colors from images with magnifying glass preview'
+    },
     // MISC TOOLS
     {
       id: 'color-converter',
