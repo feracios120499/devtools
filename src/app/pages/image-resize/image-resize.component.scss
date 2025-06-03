@@ -1,0 +1,101 @@
+.upload-area {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    @apply border-primary;
+    color: var(--primary-color);
+  }
+}
+
+.loading-placeholder {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.canvas-container {
+  .canvas-wrapper {
+    display: block;
+    max-width: 100%;
+    min-height: 600px;
+  }
+
+  canvas {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .upload-area,
+  .loading-placeholder {
+    min-height: 400px;
+  }
+
+  .grid-cols-1 {
+    .flex-wrap {
+      flex-direction: column;
+      
+      button {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.resize-info-container {
+  min-height: 210px;
+
+  &-upload {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    height: 100%;
+    width: 100%;
+    max-height: 400px;
+    flex-direction: column;
+  }
+}
+
+// Input number customization
+:host ::ng-deep {
+  .p-inputnumber {
+    width: 100%;
+    
+    .p-inputnumber-input {
+      width: 100%;
+    }
+  }
+
+  .p-checkbox {
+    .p-checkbox-box {
+      border-radius: 4px;
+    }
+  }
+}
+
+// Ensure consistent button sizing
+.flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+// Canvas border styling
+canvas {
+  border: 1px solid var(--surface-border);
+}
+
+// Settings panel styling
+.surface-ground {
+  border: 1px solid var(--surface-border);
+} 

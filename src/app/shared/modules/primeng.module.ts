@@ -25,6 +25,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BadgeModule } from 'primeng/badge';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectButtonModule } from 'primeng/selectbutton';
 /**
  * Общий модуль для импорта компонентов PrimeNG
  * Используется для минимизации дублирования импортов в компонентах
@@ -55,7 +56,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     SplitButtonModule,
     AutoCompleteModule,
     BadgeModule,
-    InputNumberModule
+    InputNumberModule,
+    SelectButtonModule
   ],
   exports: [
     InputTextModule,
@@ -82,7 +84,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
     SplitButtonModule,
     AutoCompleteModule,
     BadgeModule,
-    InputNumberModule
+    InputNumberModule,
+    SelectButtonModule
   ],
   providers: [
     MessageService

@@ -1,0 +1,174 @@
+<div class="dt-container">
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+  <app-page-header>Compress images with quality control and reduce file sizes</app-page-header>
+  <div class="p-3">
+    <p>This <strong>image compression tool</strong> allows you to reduce image file sizes while maintaining visual
+      quality.</p>
+    <p>Simply <strong>drag and drop an image</strong> or click to upload, adjust the compression quality using the
+      slider, and get your optimized image.
+      <strong>Quality control</strong> works for JPEG and WebP formats.
+    </p>
+  </div>
+
+  <!-- Compression Settings -->
+  <div *ngIf="isImageLoaded" class="p-2">
+    <h4 class="text-lg font-medium text-700 mb-3">Compression Settings</h4>
+
+    <div class="dt-border p-4">
+      <div class="flex flex-col gap-4">
+        <!-- Quality Input -->
+        <div class="flex flex-col p-3">
+          <label for="quality" class="text-sm font-medium text-700 mb-2">
+            Quality: {{compressionSettings.quality}}/100
+          </label>
+          <p-inputNumber
+            inputId="quality"
+            [(ngModel)]="compressionSettings.quality"
+            [min]="1"
+            [max]="100"
+            [step]="1"
+            [showButtons]="true"
+            suffix="%"
+            (ngModelChange)="onQualityChange()"
+            class="w-full">
+          </p-inputNumber>
+          <div class="text-xs text-500 mt-2">
+            Lower values = smaller file size, higher values = better quality
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left column - Image upload and original canvas -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+
+          <div class="flex text-sm gap-2" *ngIf="isImageLoaded && isBrowser">
+            <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
+              class="p-button-outlined" (click)="openFileDialog()">
+            </button>
+          </div>
+        </div>
+
+        <!-- File upload area -->
+        <div *ngIf="!isImageLoaded && isBrowser"
+          class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+          [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
+          (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+          (click)="openFileDialog()">
+          <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+          <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
+          <p class="text-sm text-600 mb-3">or click to select from your device</p>
+          <p class="text-xs text-500">Supports: JPEG, WebP</p>
+        </div>
+
+        <!-- Loading message for SSR -->
+        <div *ngIf="!isBrowser" class="loading-placeholder text-center p-6 surface-ground border-round">
+          <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+          <p class="text-sm text-600 m-0">Loading image compression tool...</p>
+        </div>
+
+        <!-- Original Canvas area -->
+        <div *ngIf="isBrowser" class="canvas-container relative">
+          <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
+            <h4 class="text-lg font-medium text-700 mb-2">Original Image</h4>
+            <canvas #originalCanvas class="border rounded"></canvas>
+            <div class="mt-2 text-sm text-600">
+              File size: {{formatFileSize(compressionSettings.originalSize)}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Hidden file input -->
+        <input *ngIf="isBrowser" #fileInput type="file" accept="image/jpeg,image/webp" class="hidden"
+          (change)="onFileSelected($event)">
+      </div>
+    </div>
+
+    <!-- Right column - Compressed image and controls -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Compressed Image</h3>
+          <div class="flex text-sm gap-2" *ngIf="isImageLoaded && isBrowser">
+            <button pButton pRipple type="button" label="Download" icon="pi pi-download" severity="contrast"
+              class="p-button-outlined" (click)="downloadImage()">
+            </button>
+            <button pButton pRipple type="button" label="Copy" icon="pi pi-copy" severity="contrast"
+              class="p-button-outlined" (click)="copyImage()">
+            </button>
+          </div>
+        </div>
+
+        <!-- Compressed Canvas -->
+        <div *ngIf="isImageLoaded && isBrowser" class="canvas-container mb-4">
+          <div class="canvas-wrapper dt-border p-3">
+            <h4 class="text-lg font-medium text-700 mb-2">Preview</h4>
+            <canvas #compressedCanvas class="border rounded"></canvas>
+            <div class="mt-2 flex flex-col gap-1 text-sm text-600">
+              <div>Compressed size: {{formatFileSize(compressionSettings.compressedSize)}}</div>
+              <div class="text-green-600 font-medium" *ngIf="getCompressionRatio() > 0">
+                Saved {{getCompressionRatio()}}% ({{formatFileSize(compressionSettings.originalSize -
+                compressionSettings.compressedSize)}})
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Default instructions for SSR or when no image -->
+        <div *ngIf="!isBrowser || !isImageLoaded"
+          class="text-center p-4 surface-ground dt-border resize-info-container-upload">
+          <div>
+            <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
+          </div>
+          <p class="text-lg font-medium text-700 mb-2">Upload an image to start compressing</p>
+          <p class="text-sm text-600">Adjust quality settings and download your optimized image</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+    <h4 class="text-xl font-semibold mb-2">About Image Compressor</h4>
+    <p class="mb-2 text-sm">
+      Image Compressor is a powerful tool that reduces image file sizes while maintaining visual quality.
+      Simply upload an image and adjust the compression quality to get the perfect balance between file size and image
+      quality.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>How it works:</strong>
+      Upload an image via drag and drop or file selection. Use the quality input field to control compression level.
+      Preview your compressed image in real-time with size comparison and download or copy when ready.
+    </p>
+    <p class="mb-2 text-sm">
+      <strong>Key features:</strong>
+    </p>
+    <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
+      <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
+      <li><span class="text-primary">Quality Control:</span> Adjust compression quality from 1-100 for optimal results
+      </li>
+      <li><span class="text-primary">JPEG & WebP Support:</span> Optimized compression for modern web formats</li>
+      <li><span class="text-primary">Real-time Preview:</span> See compressed image and file size instantly</li>
+      <li><span class="text-primary">Size Comparison:</span> View original vs compressed file sizes with savings
+        percentage</li>
+      <li><span class="text-primary">Download & Copy:</span> Download compressed image or copy to clipboard</li>
+      <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
+      </li>
+    </ul>
+    <p class="text-sm">
+      Perfect for web developers, graphic designers, content creators, and anyone who needs to optimize images for web
+      use.
+      Learn more about image compression at
+      <a href="https://en.wikipedia.org/wiki/Image_compression" target="_blank" rel="noopener noreferrer"
+        class="text-blue-600 underline hover:text-blue-800">Wikipedia Image Compression</a>.
+    </p>
+  </div>
+
+</div>

@@ -79,6 +79,21 @@ export const routes: Routes = [
     title: 'Image Color Picker | DevTools' 
   },
   { 
+    path: 'image-resize', 
+    loadComponent: () => import('./pages/image-resize/image-resize.component').then(m => m.ImageResizeComponent),
+    title: 'Image Resize | DevTools' 
+  },
+  { 
+    path: 'image-compressor', 
+    loadComponent: () => import('./pages/image-compressor/image-compressor.component').then(m => m.ImageCompressorComponent),
+    title: 'Image Compressor | DevTools' 
+  },
+  { 
+    path: 'image-format-converter', 
+    loadComponent: () => import('./pages/image-format-converter/image-format-converter.component').then(m => m.ImageFormatConverterComponent),
+    title: 'Image Format Converter | DevTools' 
+  },
+  { 
     path: 'jwt-decode', 
     loadComponent: () => import('./pages/jwt-decode/jwt-decode.component').then(m => m.JwtDecodeComponent),
     title: 'JWT Decoder and Verifier | DevTools' 

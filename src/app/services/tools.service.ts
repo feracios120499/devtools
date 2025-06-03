@@ -184,6 +184,30 @@ export class ToolsService {
       category: 'IMAGE TOOLS',
       description: 'Extract colors from images with magnifying glass preview'
     },
+    {
+      id: 'image-resize',
+      label: 'Image Resize',
+      icon: 'resize',
+      routerLink: '/image-resize', 
+      category: 'IMAGE TOOLS',
+      description: 'Resize images with custom dimensions and maintain aspect ratio'
+    },
+    {
+      id: 'image-compressor',
+      label: 'Image Compressor',
+      icon: 'file-zip',
+      routerLink: '/image-compressor',
+      category: 'IMAGE TOOLS',
+      description: 'Compress images with quality control to reduce file sizes'
+    },
+    {
+      id: 'image-format-converter',
+      label: 'Image Format Converter',
+      icon: 'transform',
+      routerLink: '/image-format-converter',
+      category: 'IMAGE TOOLS',
+      description: 'Convert images between different formats (JPG, PNG, WebP, BMP, GIF)'
+    },
     // MISC TOOLS
     {
       id: 'color-converter',
