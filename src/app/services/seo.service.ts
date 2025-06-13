@@ -83,7 +83,12 @@ export class SeoService {
             "description": data.description,
             "applicationCategory": "Utilities",
             "operatingSystem": "All",
-            "url": data.url
+            "url": data.url,
+            "offers": {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD"
+            }
         };
 
         try {

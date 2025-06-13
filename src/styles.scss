@@ -104,6 +104,26 @@ p-radiobutton {
     max-width: 800px;
   }
 
+  &-info {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    flex: 1 1 0%;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    &-item {
+      border: 1px solid var(--p-dialog-border-color);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      &-full{
+        grid-column: span 2;
+      }
+    }
+  }
+
   &-editors {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

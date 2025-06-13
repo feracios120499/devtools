@@ -51,7 +51,7 @@ export const routes: Routes = [
   { 
     path: 'base64-to-hex', 
     loadComponent: () => import('./pages/base64-to-hex/base64-to-hex.component').then(m => m.Base64ToHexComponent),
-    title: 'Base64 to HEX Converter | DevTools' 
+    title: 'Base64 to HEX Converter | Free & Fast Online Tool – DevTools' 
   },
   { 
     path: 'hex', 

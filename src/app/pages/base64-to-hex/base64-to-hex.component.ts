@@ -15,6 +15,7 @@ import { UserPreferencesService, Base64ToHexSettings } from '../../services/user
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
   // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -40,7 +41,8 @@ interface HexFormatOption {
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    MonacoScrollFixDirective,
+    AnchorHeadingDirective
   ],
   providers: [MessageService],
   templateUrl: './base64-to-hex.component.html',
@@ -142,20 +144,15 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
-    @Inject(DOCUMENT) private document: Document,
-    private ngZone: NgZone,
-    private renderer: Renderer2,
     private themeService: ThemeService,
     private pageTitleService: PageTitleService,
-    private metaService: Meta,
-    private titleService: Title,
     private messageService: MessageService,
     private router: Router,
     private userPreferencesService: UserPreferencesService,
     private seoService: SeoService,
     private monacoConfigService: MonacoConfigService
   ) {
-    
+    console.log('Base64ToHexComponent')
     // Initialize editor options
     this.initializeEditorOptions();
 
@@ -354,13 +351,13 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   // Setup metadata for SEO
   private setupSeo() {
     const metaData: MetaData = {
-      OgTitle: 'Base64 to HEX Converter | DevTools',
-      OgDescription: 'Free online Base64 to HEX converter and HEX to Base64 converter. Convert between different encodings with ease and precision.',
-      description: 'Free online tool to convert between Base64 and Hexadecimal formats. Easily encode and decode data for various applications. Supports custom options like spacing, prefixes, and different case styles.',
+      OgTitle: 'Base64 to HEX Converter | Free & Fast Online Tool – DevTools',
+      OgDescription: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
+      description: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
       keywords: ['base64 to hex', 'hex to base64', 'base64 converter', 'hex converter', 'encoding converter', 'base64 decode', 'hexadecimal converter', 'base64 to hex converter', 'hex to base64 converter'],
       jsonLd: {
         name: 'Base64 to HEX Converter',
-        description: 'Online tool to convert between Base64 and Hexadecimal formats',
+        description: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
         url: 'https://onlinewebdevtools.com/base64-to-hex'
       }
     };
@@ -373,12 +370,14 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputEditorOptions = {
       ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
       wordWrap: 'on',
-      wordWrapColumn: 80
+      wordWrapColumn: 80,
+      placeholder: 'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh'
     };
     this.outputEditorOptions = {
       ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
       wordWrap: 'on',
-      wordWrapColumn: 80
+      wordWrapColumn: 80,
+      placeholder: 'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421'
     };
   }
   
@@ -389,12 +388,14 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputEditorOptions = {
       ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
       wordWrap: 'on',
-      wordWrapColumn: 80
+      wordWrapColumn: 80,
+      placeholder: 'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh'
     };
     this.outputEditorOptions = {
       ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
       wordWrap: 'on',
-      wordWrapColumn: 80
+      wordWrapColumn: 80,
+      placeholder: 'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421'
     };
   }
   
