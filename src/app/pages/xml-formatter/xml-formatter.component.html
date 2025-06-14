@@ -1,0 +1,314 @@
+<div class="dt-container">
+  <!-- Structured data Schema.org is added to head via Renderer2 -->
+
+  <app-page-header>Tool for formatting, validating and improving XML code readability</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online XML formatter and validator</strong> beautifies XML code with proper indentation and
+      validates syntax errors.</p>
+    <p>Quickly <strong>format XML</strong> and <strong>validate XML syntax</strong> in your browser with no server
+      upload.</p>
+  </div>
+
+  <div class="dt-editors">
+    <!-- Left column - Input XML -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <h3 class="text-xl font-medium text-800 m-0">Input XML</h3>
+        </div>
+        <!-- Spacing for dropdown -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="formatXml()"
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleXml()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="code" class="icon-sm"> </i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                  (click)="pasteFromClipboard()" severity="contrast">
+                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                </button>
+
+                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearXml()" severity="danger"
+                  class=" p-button-sm">
+                  <i-tabler name="trash" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+            (ngModelChange)="formatXml()" class="w-full h-full" monacoScrollFix>
+          </ngx-monaco-editor>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column - Formatted XML -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <h3 class="text-xl font-medium text-800 m-0">Formatted XML</h3>
+          <div class="flex gap-2 items-center">
+
+            <p-select [options]="tagCaseOptions" [(ngModel)]="selectedTagCase" optionLabel="label"
+              (onChange)="onTagCaseChange()" styleClass="p-select-sm custom-select"
+              [panelStyleClass]="'same-width-panel'" appendTo="body" [style]="{'min-width': '120px'}">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>{{selectedTagCase.label}}</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}}</span>
+                </div>
+              </ng-template>
+            </p-select>
+
+            <p-select [options]="spacingOptions" [(ngModel)]="selectedSpacing" optionLabel="label"
+              (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+            </p-select>
+          </div>
+        </div>
+
+        <!-- Spacing for dropdown -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
+          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+        </textarea>
+
+        <!-- Monaco editor for browser environment -->
+        <div *ngIf="isBrowser"
+          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+          <div class="dt-editors-editor-actions">
+            <div class="flex justify-between p-2">
+              <div class="flex gap-3 align-items-center">
+                <button pButton type="button" [outlined]="true" label="Use in Input" (click)="inputCode = outputCode"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="arrow-left" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="copy" class="icon-sm"></i-tabler>
+                </button>
+                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadXml()"
+                  class="p-button-sm" severity="contrast">
+                  <i-tabler name="download" class="icon-sm"></i-tabler>
+                </button>
+              </div>
+              <div class="flex align-items-center">
+                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                </button>
+                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
+                  severity="contrast" class="p-button-text p-button-sm">
+                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                </button>
+              </div>
+            </div>
+            <hr>
+          </div>
+          <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+            class="w-full h-full" monacoScrollFix>
+          </ngx-monaco-editor>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is XML?</h2>
+      <p class="mt-3">
+        XML (eXtensible Markup Language) is a markup language designed to store and transport data. It defines a set of
+        rules for encoding documents in a human-readable and machine-readable format. XML is commonly used in
+        configuration files, web services (like SOAP), RSS feeds, and API responses.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use an XML Formatter?</h2>
+      <p class="mt-3">
+        Raw XML can be difficult to read and manage, especially when it's minified or lacks indentation. An XML
+        formatter helps to organize your XML code with proper spacing and structure. It enhances readability, makes
+        debugging easier, and ensures consistent formatting across files and projects.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Format and Validate XML Online</h2>
+      <p class="mt-3">
+        Using this online tool is easy. Simply paste your XML code into the editor, and click the "Format & Validate"
+        button. The tool will automatically beautify your XML with proper indentation and check it for syntax errors
+        based on W3C XML standards. No server upload is required — all processing is done directly in your browser.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our XML Formatter Tool?</h2>
+      <p class="mt-3">
+        Our XML formatter is designed with performance, privacy, and usability in mind. Unlike other online tools, it
+        processes data entirely on the client side, ensuring speed and security. Key features include syntax
+        highlighting, error detection, customizable indentation, clipboard copy, download functionality, and support for
+        sample XML input.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+      <p class="mt-3"><strong>Is this XML formatter free?</strong><br>
+        Yes, it's completely free to use with no registration required.
+      </p>
+      <p class="mt-3"><strong>Do you store my XML data?</strong><br>
+        No, all processing is done locally in your browser. Nothing is sent to our servers.
+      </p>
+      <p class="mt-3"><strong>Can I format large XML files?</strong><br>
+        Yes, the tool supports large XML documents, depending on your browser's memory limits.
+      </p>
+      <p class="mt-3"><strong>Does the tool validate my XML?</strong><br>
+        Absolutely. It checks your XML for syntax errors and structural validity in real time.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Does XML Beautification Work?</h2>
+      <p class="mt-3">
+        XML beautification is the process of reformatting XML code with consistent indentation and line breaks. Our tool
+        analyzes the structure of your XML, identifies nested elements, and adjusts spacing based on your preferences.
+        This makes it easier to understand complex documents, identify errors, and maintain code consistency.
+      </p>
+      <p class="mt-3">
+        Unlike manual formatting, which is time-consuming and error-prone, our formatter uses a reliable parser to
+        analyze and restructure your data automatically. It also highlights opening and closing tags to help developers
+        spot mismatches or incomplete blocks.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>XML Viewer Features</h2>
+      <p class="mt-3">
+        The built-in XML viewer provides a structured display of your XML code. You can expand and collapse nodes for
+        better navigation, and search for specific elements or attributes. Syntax highlighting improves readability by
+        visually distinguishing tag names, attributes, and values.
+      </p>
+      <p class="mt-3">
+        For large XML files, the viewer allows horizontal and vertical scrolling with clear visual alignment. You can
+        also compare raw and formatted versions side-by-side to understand the impact of formatting changes.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases for Developers</h2>
+      <p class="mt-3">
+        This XML formatter is widely used by backend and frontend developers, system integrators, DevOps engineers, QA
+        testers, and students. Whether you're working with configuration files, XML-based APIs (SOAP, REST with XML
+        payload), or data feeds like RSS and Atom, this tool can save hours of manual work.
+      </p>
+      <p class="mt-3">
+        It's also helpful when debugging XML returned from third-party services or when converting exported data into a
+        readable format. If you're building or testing an XML schema (XSD), proper formatting ensures easier structure
+        validation.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Format XML Online?</h2>
+      <p class="mt-3">
+        Yes. This tool is built with privacy and security in mind. All formatting and validation happen locally in your
+        browser using JavaScript. Your data never leaves your computer, and there are no background uploads or storage.
+      </p>
+      <p class="mt-3">
+        This approach not only protects your data, but also delivers better performance — even with large XML documents.
+        No registration, no ads, and no tracking. Just clean, fast formatting.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools XML Formatter?</h2>
+      <p class="mt-3">
+        With dozens of XML tools available online, DevTools XML Formatter stands out for its speed, simplicity, and
+        privacy. It's a 100% free, ad-free tool built by developers for developers. We believe in lightweight,
+        distraction-free utilities that just work.
+      </p>
+      <p class="mt-3">
+        Whether you need to format XML once or dozens of times a day, our tool provides a clean, focused environment to
+        get the job done without hassle. It's part of a growing suite of web-based DevTools designed to help developers
+        solve common tasks quickly and securely.
+      </p>
+    </div>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download and Export Options</h2>
+      <p class="mt-3">
+        After formatting your XML, you can instantly copy the result to your clipboard or download it as a `.xml` file.
+        This is especially useful when working with large datasets, sharing formatted code with teammates, or preparing
+        files for production.
+      </p>
+      <p class="mt-3">
+        You can also paste sample XML from our predefined examples to test formatting behavior and understand how the
+        tool handles different XML structures.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>XML Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of XML and its applications, here are some valuable external resources:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://www.w3.org/XML/" target="_blank" rel="noopener noreferrer" 
+             class="text-primary hover:underline">
+            W3C XML Specification
+          </a> - The official XML standard and documentation from the World Wide Web Consortium
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/XML/XML_introduction" target="_blank" rel="noopener noreferrer" 
+             class="text-primary hover:underline">
+            MDN XML Introduction
+          </a> - Comprehensive guide to XML fundamentals, syntax, and best practices
+        </li>
+        <li>
+          <a href="https://www.w3schools.com/xml/" target="_blank" rel="noopener noreferrer" 
+             class="text-primary hover:underline">
+            W3Schools XML Tutorial
+          </a> - Step-by-step XML tutorials with examples and exercises
+        </li>
+        <li>
+          <a href="https://xmllint.com/" target="_blank" rel="noopener noreferrer" 
+             class="text-primary hover:underline">
+            XML Schema Validator
+          </a> - Advanced XML validation tool for checking against XSD schemas
+        </li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- Toast для уведомлений -->
+  <p-toast  position="bottom-right"></p-toast>
+</div>

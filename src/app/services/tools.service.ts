@@ -57,6 +57,15 @@ export class ToolsService {
       category: 'JSON TOOLS',
       description: 'Query and explore complex JSON structures'
     },
+    // XML TOOLS
+    {
+      id: 'xml-formatter',
+      label: 'XML Formatter',
+      icon: 'file-type-xml',
+      routerLink: '/xml-formatter',
+      category: 'XML TOOLS',
+      description: 'Format and beautify XML with customizable indentation'
+    },
     // TEXT TOOLS
     {
       id: 'text-diff-checker',

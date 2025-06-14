@@ -19,6 +19,12 @@
     <priority>1</priority>
   </url>
   <url>
+    <loc>https://onlinewebdevtools.com/xml-formatter</loc>
+    <lastmod>2025-06-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1</priority>
+  </url>
+  <url>
     <loc>https://onlinewebdevtools.com/url-encoder</loc>
     <lastmod>2025-05-26</lastmod>
     <changefreq>weekly</changefreq>

@@ -14,6 +14,11 @@ export const routes: Routes = [
     title: 'JSON to XML Converter | DevTools' 
   },
   { 
+    path: 'xml-formatter', 
+    loadComponent: () => import('./pages/xml-formatter/xml-formatter.component').then(m => m.XmlFormatterComponent),
+    title: 'XML Formatter, Beautifier & Viewer Online | DevTools' 
+  },
+  { 
     path: 'json-to-env', 
     loadComponent: () => import('./pages/json-to-env/json-to-env.component').then(m => m.JsonToEnvComponent),
     title: 'JSON to ENV Converter | DevTools' 
