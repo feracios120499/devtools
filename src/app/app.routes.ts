@@ -6,7 +6,7 @@ export const routes: Routes = [
   { 
     path: 'json-formatter', 
     loadComponent: () => import('./pages/json-formatter/json-formatter.component').then(m => m.JsonFormatterComponent),
-    title: 'JSON Formatter and Validator | DevTools' 
+    title: 'JSON Formatter, Beautifier & Viewer Online | DevTool' 
   },
   { 
     path: 'json-to-xml', 

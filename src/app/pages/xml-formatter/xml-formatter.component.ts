@@ -160,7 +160,7 @@ export class XmlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
       OgTitle: 'XML Formatter, Beautifier & Viewer | Free Online DevTools',
       OgDescription: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',
       description: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',
-      keywords: ['XML formatter', 'XML validator', 'XML parser', 'format XML online', 'XML tools', 'XML beautifier', 'XML editor', 'XML viewer', 'XML pretty print', 'XML lint', 'XML checker', 'XML format online', 'XML beautify online', 'XML validate online'],
+      keywords: ['XML formatter', 'XML beautifier', 'XML viewer', 'format XML online', 'view XML online', 'XML tools', 'beautify XML', 'pretty print XML', 'XML validator', 'XML highlighter'],
       jsonLd: {
         name: 'XML Formatter, Beautifier & Viewer | Free Online DevTools',
         description: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',

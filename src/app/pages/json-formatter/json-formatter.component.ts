@@ -14,6 +14,7 @@ import { PageHeaderComponent } from '../../components/page-header/page-header.co
 import { IconsModule } from '../../shared/modules/icons.module';
 import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { Router } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Интерфейсы для типизации
 interface SpacingOption {
@@ -37,7 +38,8 @@ interface KeyCaseOption {
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    MonacoScrollFixDirective,
+    AnchorHeadingDirective
   ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
@@ -89,17 +91,17 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     {
       label: 'JSON to XML',
       icon: 'file-type-xml',
-      routerLink:'/json-to-xml'
+      routerLink: '/json-to-xml'
     },
     {
       label: 'JSON to ENV',
       icon: 'brand-docker',
-      routerLink:'/json-to-env'
+      routerLink: '/json-to-env'
     },
     {
       label: 'JSON Query',
       icon: 'pencil-search',
-      routerLink:'/json-query'
+      routerLink: '/json-query'
     }
   ]
 
@@ -113,12 +115,18 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
     private monacoConfigService: MonacoConfigService
   ) {
     // Set page title
-    this.pageTitleService.setTitle('JSON Formatter and Validator');
+    this.pageTitleService.setTitle('JSON Formatter, Beautifier & Viewer');
     this.isBrowser = isPlatformBrowser(this.platformId);
 
-    // Initialize editor options
-    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
-    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
+    // Initialize editor options with placeholders
+    this.inputEditorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json'),
+      placeholder: 'Paste or type your JSON here...\n\nExample:\n{\n  "name": "John Doe",\n  "age": 30,\n  "city": "New York"\n}'
+    };
+    this.outputEditorOptions = {
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json'),
+      placeholder: 'Formatted JSON will appear here...\n\nThe formatter will:\n• Beautify structure with proper indentation\n• Validate JSON syntax\n• Transform key names if needed'
+    };
 
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
@@ -141,7 +149,7 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;
       this.isOutputFullscreen = false;
-      
+
       // Обновляем размер редакторов
       setTimeout(() => {
         if (this.inputMonacoEditor?.editor) {
@@ -179,13 +187,16 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
    */
   private setupSeo() {
     const metaData: MetaData = {
-      OgTitle: 'JSON Formatter and Validator | DevTools',
-      OgDescription: 'Free online JSON formatter and validator. Convert raw JSON into beautifully formatted, readable structure with customizable indentation. Includes validation, copy, and download options.',
-      description: 'Free online tool for formatting and validating JSON code. Easily clean, format, and validate messy JSON data with customizable indentation options. Convert raw JSON into beautifully formatted and readable structure for better code readability and debugging. Supports copy, paste, and download features.',
-      keywords: ['JSON formatter', 'JSON validator', 'JSON parser', 'format JSON online', 'JSON tools', 'JSON beautifier', 'JSON editor', 'JSON viewer', 'JSON pretty print', 'JSON lint', 'JSON checker', 'JSON format online', 'JSON beautify online', 'JSON validate online'],
+      OgTitle: 'JSON Formatter, Beautifier & Viewer Online | DevTool',
+      OgDescription: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
+      description: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
+      keywords: ['JSON formatter', 'JSON beautifier', 'JSON viewer', 'format JSON online',
+        'JSON validator', 'JSON lint', 'JSON pretty print', 'JSON editor',
+        'online JSON tool', 'view JSON online', 'JSON highlighter', 'clean JSON',
+        'JSON checker', 'beautify JSON'],
       jsonLd: {
-        name: 'JSON Formatter and Validator',
-        description: 'Free online tool for formatting and validating JSON code',
+        name: 'JSON Formatter, Beautifier & Viewer Online | DevTool',
+        description: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
         url: 'https://onlinewebdevtools.com/json-formatter'
       }
     };
@@ -303,8 +314,14 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
   // Update editor settings when theme changes
   updateEditorTheme() {
-    this.inputEditorOptions = this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json');
-    this.outputEditorOptions = this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json');
+    this.inputEditorOptions = {
+      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'json'),
+      placeholder: 'Paste or type your JSON here...\n\nExample:\n{\n  "name": "John Doe",\n  "age": 30,\n  "city": "New York"\n}'
+    };
+    this.outputEditorOptions = {
+      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'json'),
+      placeholder: 'Formatted JSON will appear here...\n\nThe formatter will:\n• Beautify structure with proper indentation\n• Validate JSON syntax\n• Transform key names if needed'
+    };
   }
 
   /**
@@ -428,20 +445,20 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
 
     if (editorType === 'input') {
       this.isInputFullscreen = !this.isInputFullscreen;
-      
+
       if (this.isInputFullscreen) {
         // Если переключаем на полноэкранный режим для input, выключаем для output
         this.isOutputFullscreen = false;
       }
     } else {
       this.isOutputFullscreen = !this.isOutputFullscreen;
-      
+
       if (this.isOutputFullscreen) {
         // Если переключаем на полноэкранный режим для output, выключаем для input
         this.isInputFullscreen = false;
       }
     }
-    
+
     // Resize the editor after toggling fullscreen
     setTimeout(() => {
       if (editorType === 'input' && this.inputMonacoEditor?.editor) {
