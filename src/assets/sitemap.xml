@@ -162,6 +162,11 @@
     <changefreq>weekly</changefreq>
     <priority>1</priority>
   </url>
-
+  <url>
+    <loc>https://chatgpt.com/share/68949a43-cc68-8007-b3ad-bcac48f62e6a</loc>
+    <lastmod>2025-08-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1</priority>
+  </url>
   <!-- Add more URLs as needed -->
 </urlset> 
