@@ -14,10 +14,14 @@ import { FormsModule } from '@angular/forms';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { Tool, ToolsService } from '../../services/tools.service';
 import { Router, RouterModule } from '@angular/router';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [ButtonModule, MenubarModule, CommonModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule, RouterModule],
+  imports: [ButtonModule, MenubarModule, CommonModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule, RouterModule, ToastModule, TooltipModule],
+  providers: [MessageService],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']
 })
@@ -25,12 +29,15 @@ export class TopbarComponent implements AfterViewInit {
   // Get page title from service
   pageTitle;
   visible = false;
+  feedbackVisible = false;
   searchValue = '';
+  feedbackEmail = 'onlinewebdevtools@outlook.com';
   public tools: Tool[] = [];
   activeTool: Tool | null = null;
   selectedIndex = 0;
   filteredTools: Tool[] = [];
   isMacOS = false;
+  isBrowser = false;
   @ViewChild('searchInput') searchInput!: ElementRef;
 
   constructor(
@@ -38,13 +45,15 @@ export class TopbarComponent implements AfterViewInit {
     private pageTitleService: PageTitleService,
     private toolsService: ToolsService,
     private router: Router,
+    private messageService: MessageService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     // Initialize pageTitle in constructor
     this.pageTitle = this.pageTitleService.getTitle();
     
-    // Определяем macOS
+    // Определяем macOS и браузер
     if (isPlatformBrowser(this.platformId)) {
+      this.isBrowser = true;
       this.isMacOS = navigator.platform.toUpperCase().indexOf('MAC') >= 0 || 
                     /iPhone|iPad|iPod/.test(navigator.userAgent);
     }
@@ -82,6 +91,30 @@ export class TopbarComponent implements AfterViewInit {
 
   showSearchModal() {
     this.visible = true;
+  }
+
+  showFeedbackModal() {
+    this.feedbackVisible = true;
+  }
+
+  copyEmailToClipboard() {
+    if (this.isBrowser && navigator.clipboard) {
+      navigator.clipboard.writeText(this.feedbackEmail).then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Copied!',
+          detail: 'Email address copied to clipboard',
+          life: 3000
+        });
+      }).catch(() => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to copy email address',
+          life: 3000
+        });
+      });
+    }
   }
 
   onDialogShow() {
@@ -180,7 +213,13 @@ export class TopbarComponent implements AfterViewInit {
       return;
     }
 
-    // Обрабатываем клавиши только когда диалог открыт
+    // Закрытие модального окна Feedback по Escape
+    if (event.key === 'Escape' && this.feedbackVisible) {
+      this.feedbackVisible = false;
+      return;
+    }
+
+    // Обрабатываем клавиши только когда диалог поиска открыт
     if (!this.visible) {
       return;
     }

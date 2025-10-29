@@ -10,7 +10,7 @@
   </div>
 
   <div class="topbar-right">
-    <p-button size="small" (onClick)="showSearchModal()" variant="outlined" severity="contrast">
+    <p-button size="small" (onClick)="showSearchModal()" variant="outlined" severity="contrast" styleClass="h-9">
       <i-tabler name="search" class="icon-sm"></i-tabler>
       <span>Search</span>
       <span class="ml-auto border border-surface rounded bg-emphasis text-muted-color text-xs p-1">
@@ -21,6 +21,10 @@
           Ctrl + K
         </ng-template>
       </span>
+    </p-button>
+    <p-button size="small" (onClick)="showFeedbackModal()" variant="outlined" severity="contrast" styleClass="ml-2 h-9">
+      <i-tabler name="message" class="icon-sm"></i-tabler>
+      <span>Feedback</span>
     </p-button>
     <p-button icon="pi pi-moon" (onClick)="toggleDarkMode()"
       styleClass="p-button-rounded p-button-text ml-4"></p-button>
@@ -111,3 +115,76 @@
   </ng-template>
 
 </p-dialog>
+
+<p-dialog maskStyleClass="backdrop-blur-sm" [focusOnShow]="false" [modal]="true" [(visible)]="feedbackVisible"
+  [draggable]="false" [resizable]="false" [position]="'top'" [closable]="true" [dismissableMask]="true"
+  [style]="{'width': '560px'}">
+  <ng-template pTemplate="content">
+    <div class="w-full">
+      <div class="mb-4">
+        <p class="text-base leading-relaxed text-700 mb-4">
+          Hello everyone! My name is Maxim, and I'm glad to see that many of you enjoy using this website.
+        </p>
+        <p class="text-base leading-relaxed text-700 mb-4">
+          I would love to hear your feedback! Specifically, I'm interested in knowing:
+        </p>
+        <ul class="list-none pl-0 mb-4">
+          <li class="flex align-items-start mb-3">
+            <i-tabler name="arrow-right" class="icon-sm text-primary mr-2 mt-1 flex-shrink-0"></i-tabler>
+            <span class="text-base text-700">Which tools do you use most frequently?</span>
+          </li>
+          <li class="flex align-items-start mb-3">
+            <i-tabler name="arrow-right" class="icon-sm text-primary mr-2 mt-1 flex-shrink-0"></i-tabler>
+            <span class="text-base text-700">What features would you like to see added?</span>
+          </li>
+          <li class="flex align-items-start mb-3">
+            <i-tabler name="arrow-right" class="icon-sm text-primary mr-2 mt-1 flex-shrink-0"></i-tabler>
+            <span class="text-base text-700">Any suggestions or ideas for improvement?</span>
+          </li>
+        </ul>
+        <p class="text-base leading-relaxed text-700 mb-4">
+          Please send your ideas and feedback to my email. Your input is greatly appreciated and helps me make this platform better for everyone.
+        </p>
+        
+        <div class="mb-4">
+          <label class="text-sm font-medium text-700 mb-2 block">Email Address</label>
+          <div class="flex align-items-stretch">
+            <p-iconfield class="flex-1">
+              <p-inputicon class="pi pi-envelope" />
+              <input pInputText [value]="feedbackEmail" readonly class="w-full" />
+            </p-iconfield>
+            <p-button 
+              type="button" 
+              icon="pi pi-copy" 
+              [outlined]="true" 
+              severity="contrast"
+              (onClick)="copyEmailToClipboard()"
+              styleClass="ml-2"
+              pTooltip="Copy email address"
+              tooltipPosition="top">
+            </p-button>
+          </div>
+        </div>
+
+        <div class="mt-4 mb-4">
+          <a [href]="'mailto:' + feedbackEmail" 
+             class="no-underline w-full block">
+            <p-button 
+              label="Send Feedback" 
+              icon="pi pi-send"
+              severity="primary"
+              [style]="{'width': '100%'}"
+              styleClass="p-button-lg">
+            </p-button>
+          </a>
+        </div>
+        
+        <p class="text-sm text-muted-color text-center mt-4">
+          Thank you for your support!
+        </p>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-toast></p-toast>
