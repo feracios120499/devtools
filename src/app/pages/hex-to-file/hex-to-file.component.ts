@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
+import { Router } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
@@ -64,17 +65,51 @@ export class HexToFileComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private fileTypeService: FileTypeService,
     public mimeTypeService: MimeTypeService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private router: Router
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Получаем данные из истории (history state) в конструкторе
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const receivedData = navigation.extras.state['data'] || '';
+      if (receivedData) {
+        this.originalHex = receivedData;
+        this.inputHex = receivedData;
+        console.log('Data from navigation:', receivedData);
+      }
+    }
   }
 
   ngOnInit() {
     // Устанавливаем заголовок страницы
     this.pageTitleService.setTitle('HEX to File Converter');
+
+    // Альтернативный метод получения данных через history state
+    if (this.isBrowser) {
+      const state = history.state;
+      if (state?.data) {
+        // Если данные уже были установлены в конструкторе, пропускаем
+        if (!this.inputHex || this.inputHex !== state.data) {
+          this.originalHex = state.data;
+          this.inputHex = state.data;
+          console.log('Data from history state:', state.data);
+          // Обрабатываем полученные данные
+          this.formatDisplayText();
+          this.onHexChanged();
+        }
+        // Очищаем state чтобы избежать повторного использования при обновлении
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
     
     // Настройка SEO
     this.setupSeo();
+    if (this.originalHex) {
+      this.onHexChanged();
+      this.onInputChange(this.originalHex);
+    }
   }
 
   ngOnDestroy() {

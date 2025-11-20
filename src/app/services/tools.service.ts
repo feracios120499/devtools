@@ -1,23 +1,24 @@
-import { Injectable, inject, signal, computed } from '@angular/core';
+import { computed, inject, Injectable, signal } from '@angular/core';
+
 import { FavoritesService } from './favorites.service';
 
 export interface Tool {
-  id: string;      // Уникальный идентификатор (совпадает с routerLink без /)
-  label: string;   // Название инструмента
-  icon: string;    // Название иконки
+  id: string; // Уникальный идентификатор (совпадает с routerLink без /)
+  label: string; // Название инструмента
+  icon: string; // Название иконки
   routerLink: string; // Ссылка на инструмент
-  category: string;  // Категория инструмента
+  category: string; // Категория инструмента
   description?: string; // Опциональное описание
   isFavorite?: boolean; // Флаг избранного
 }
 
 export interface ToolCategory {
-  name: string;   // Название категории
-  tools: Tool[];  // Инструменты в категории
+  name: string; // Название категории
+  tools: Tool[]; // Инструменты в категории
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ToolsService {
   private favoritesService = inject(FavoritesService);
@@ -31,7 +32,7 @@ export class ToolsService {
       icon: 'align-left-2',
       routerLink: '/json-formatter',
       category: 'JSON TOOLS',
-      description: 'Format and beautify JSON with customizable options'
+      description: 'Format and beautify JSON with customizable options',
     },
     {
       id: 'json-to-xml',
@@ -39,7 +40,7 @@ export class ToolsService {
       icon: 'file-type-xml',
       routerLink: '/json-to-xml',
       category: 'JSON TOOLS',
-      description: 'Convert JSON to XML format'
+      description: 'Convert JSON to XML format',
     },
     {
       id: 'json-to-env',
@@ -47,7 +48,7 @@ export class ToolsService {
       icon: 'brand-docker',
       routerLink: '/json-to-env',
       category: 'JSON TOOLS',
-      description: 'Convert JSON to environment variables format'
+      description: 'Convert JSON to environment variables format',
     },
     {
       id: 'json-query',
@@ -55,7 +56,7 @@ export class ToolsService {
       icon: 'pencil-search',
       routerLink: '/json-query',
       category: 'JSON TOOLS',
-      description: 'Query and explore complex JSON structures'
+      description: 'Query and explore complex JSON structures',
     },
     // XML TOOLS
     {
@@ -64,7 +65,7 @@ export class ToolsService {
       icon: 'file-type-xml',
       routerLink: '/xml-formatter',
       category: 'XML TOOLS',
-      description: 'Format and beautify XML with customizable indentation'
+      description: 'Format and beautify XML with customizable indentation',
     },
     // TEXT TOOLS
     {
@@ -73,7 +74,7 @@ export class ToolsService {
       icon: 'file-diff',
       routerLink: '/text-diff-checker',
       category: 'TEXT TOOLS',
-      description: 'Compare and diff text files side by side'
+      description: 'Compare and diff text files side by side',
     },
     {
       id: 'word-counter',
@@ -81,7 +82,7 @@ export class ToolsService {
       icon: 'letter-case',
       routerLink: '/word-counter',
       category: 'TEXT TOOLS',
-      description: 'Count words, characters and analyze text statistics'
+      description: 'Count words, characters and analyze text statistics',
     },
     {
       id: 'lorem-ipsum-generator',
@@ -89,7 +90,8 @@ export class ToolsService {
       icon: 'text-recognition',
       routerLink: '/lorem-ipsum-generator',
       category: 'TEXT TOOLS',
-      description: 'Generate placeholder text in paragraphs, sentences or words'
+      description:
+        'Generate placeholder text in paragraphs, sentences or words',
     },
     {
       id: 'markdown-preview',
@@ -97,7 +99,7 @@ export class ToolsService {
       icon: 'markdown',
       routerLink: '/markdown-preview',
       category: 'TEXT TOOLS',
-      description: 'Preview Markdown with real-time HTML rendering'
+      description: 'Preview Markdown with real-time HTML rendering',
     },
     // CSV TOOLS
     {
@@ -106,7 +108,7 @@ export class ToolsService {
       icon: 'table',
       routerLink: '/csv-viewer',
       category: 'CSV TOOLS',
-      description: 'View and explore CSV files in tabular format'
+      description: 'View and explore CSV files in tabular format',
     },
     // URL TOOLS
     {
@@ -115,7 +117,7 @@ export class ToolsService {
       icon: 'unlink',
       routerLink: '/url-encoder',
       category: 'URL TOOLS',
-      description: 'Encode and decode URLs'
+      description: 'Encode and decode URLs',
     },
     {
       id: 'url-to-qr',
@@ -123,7 +125,7 @@ export class ToolsService {
       icon: 'qrcode',
       routerLink: '/url-to-qr',
       category: 'URL TOOLS',
-      description: 'Generate QR codes from URLs'
+      description: 'Generate QR codes from URLs',
     },
     // BASE64 TOOLS
     {
@@ -132,7 +134,7 @@ export class ToolsService {
       icon: 'transform',
       routerLink: '/base64',
       category: 'BASE64 TOOLS',
-      description: 'Encode and decode Base64 strings'
+      description: 'Encode and decode Base64 strings',
     },
     {
       id: 'base64-to-file',
@@ -140,7 +142,7 @@ export class ToolsService {
       icon: 'file-arrow-right',
       routerLink: '/base64-to-file',
       category: 'BASE64 TOOLS',
-      description: 'Convert Base64 strings to downloadable files'
+      description: 'Convert Base64 strings to downloadable files',
     },
     {
       id: 'base64-to-hex',
@@ -148,7 +150,15 @@ export class ToolsService {
       icon: 'exchange',
       routerLink: '/base64-to-hex',
       category: 'BASE64 TOOLS',
-      description: 'Convert between Base64 and hexadecimal formats'
+      description: 'Convert between Base64 and hexadecimal formats',
+    },
+    {
+      id: 'file-to-base64',
+      label: 'File to Base64',
+      icon: 'file-arrow-left',
+      routerLink: '/file-to-base64',
+      category: 'BASE64 TOOLS',
+      description: 'Convert files to Base64 encoded strings',
     },
     // HEX TOOLS
     {
@@ -157,7 +167,7 @@ export class ToolsService {
       icon: 'binary',
       routerLink: '/hex',
       category: 'HEX TOOLS',
-      description: 'Encode and decode text using hexadecimal format'
+      description: 'Encode and decode text using hexadecimal format',
     },
     {
       id: 'hex-to-file',
@@ -165,7 +175,7 @@ export class ToolsService {
       icon: 'file-arrow-right',
       routerLink: '/hex-to-file',
       category: 'HEX TOOLS',
-      description: 'Convert hexadecimal data to downloadable files'
+      description: 'Convert hexadecimal data to downloadable files',
     },
     {
       id: 'hex-to-base64',
@@ -173,7 +183,15 @@ export class ToolsService {
       icon: 'exchange',
       routerLink: '/hex-to-base64',
       category: 'HEX TOOLS',
-      description: 'Convert hexadecimal data to Base64 encoding'
+      description: 'Convert hexadecimal data to Base64 encoding',
+    },
+    {
+      id: 'file-to-hex',
+      label: 'File to HEX',
+      icon: 'file-arrow-left',
+      routerLink: '/file-to-hex',
+      category: 'HEX TOOLS',
+      description: 'Convert files to hexadecimal format',
     },
     // REACT TOOLS
     {
@@ -182,7 +200,7 @@ export class ToolsService {
       icon: 'brand-react',
       routerLink: '/svg-to-react-component',
       category: 'REACT TOOLS',
-      description: 'Convert SVG files to React components'
+      description: 'Convert SVG files to React components',
     },
     // IMAGE TOOLS
     {
@@ -191,15 +209,16 @@ export class ToolsService {
       icon: 'cricket',
       routerLink: '/image-color-picker',
       category: 'IMAGE TOOLS',
-      description: 'Extract colors from images with magnifying glass preview'
+      description: 'Extract colors from images with magnifying glass preview',
     },
     {
       id: 'image-resize',
       label: 'Image Resize',
       icon: 'resize',
-      routerLink: '/image-resize', 
+      routerLink: '/image-resize',
       category: 'IMAGE TOOLS',
-      description: 'Resize images with custom dimensions and maintain aspect ratio'
+      description:
+        'Resize images with custom dimensions and maintain aspect ratio',
     },
     {
       id: 'image-compressor',
@@ -207,7 +226,7 @@ export class ToolsService {
       icon: 'file-zip',
       routerLink: '/image-compressor',
       category: 'IMAGE TOOLS',
-      description: 'Compress images with quality control to reduce file sizes'
+      description: 'Compress images with quality control to reduce file sizes',
     },
     {
       id: 'image-format-converter',
@@ -215,7 +234,8 @@ export class ToolsService {
       icon: 'transform',
       routerLink: '/image-format-converter',
       category: 'IMAGE TOOLS',
-      description: 'Convert images between different formats (JPG, PNG, WebP, BMP, GIF)'
+      description:
+        'Convert images between different formats (JPG, PNG, WebP, BMP, GIF)',
     },
     // MISC TOOLS
     {
@@ -224,7 +244,7 @@ export class ToolsService {
       icon: 'palette',
       routerLink: '/color-converter',
       category: 'MISC TOOLS',
-      description: 'Convert between color formats (HEX, RGB, HSL)'
+      description: 'Convert between color formats (HEX, RGB, HSL)',
     },
     {
       id: 'jwt-decode',
@@ -232,7 +252,7 @@ export class ToolsService {
       icon: 'key',
       routerLink: '/jwt-decode',
       category: 'MISC TOOLS',
-      description: 'Decode and verify JWT tokens'
+      description: 'Decode and verify JWT tokens',
     },
     {
       id: 'sql-formatter',
@@ -240,15 +260,15 @@ export class ToolsService {
       icon: 'database',
       routerLink: '/sql-formatter',
       category: 'MISC TOOLS',
-      description: 'Format and beautify SQL queries with syntax highlighting'
+      description: 'Format and beautify SQL queries with syntax highlighting',
     },
   ]);
 
   // Вычисляемый сигнал с инструментами, включая статус избранного
   allTools = computed(() => {
-    return this._allTools().map(tool => ({
+    return this._allTools().map((tool) => ({
       ...tool,
-      isFavorite: this.isFavorite(tool.routerLink)
+      isFavorite: this.isFavorite(tool.routerLink),
     }));
   });
 
@@ -258,8 +278,8 @@ export class ToolsService {
     const categories: ToolCategory[] = [];
 
     // Группировка инструментов по категориям
-    tools.forEach(tool => {
-      let category = categories.find(c => c.name === tool.category);
+    tools.forEach((tool) => {
+      let category = categories.find((c) => c.name === tool.category);
 
       if (!category) {
         category = { name: tool.category, tools: [] };
@@ -274,10 +294,10 @@ export class ToolsService {
 
   // Избранные инструменты
   favoriteTools = computed(() => {
-    return this.allTools().filter(tool => tool.isFavorite);
+    return this.allTools().filter((tool) => tool.isFavorite);
   });
 
-  constructor() { }
+  constructor() {}
 
   /**
    * Проверяет, является ли инструмент избранным
@@ -302,7 +322,7 @@ export class ToolsService {
    * @returns Инструмент или undefined, если не найден
    */
   getToolById(id: string): Tool | undefined {
-    return this.allTools().find(tool => tool.id === id);
+    return this.allTools().find((tool) => tool.id === id);
   }
 
   /**
@@ -311,7 +331,7 @@ export class ToolsService {
    * @returns Инструмент или undefined, если не найден
    */
   getToolByRoute(routerLink: string): Tool | undefined {
-    return this.allTools().find(tool => tool.routerLink === routerLink);
+    return this.allTools().find((tool) => tool.routerLink === routerLink);
   }
 
   /**
@@ -320,6 +340,6 @@ export class ToolsService {
    * @returns Массив инструментов
    */
   getToolsByCategory(category: string): Tool[] {
-    return this.allTools().filter(tool => tool.category === category);
+    return this.allTools().filter((tool) => tool.category === category);
   }
 }

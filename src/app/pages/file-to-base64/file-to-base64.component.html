@@ -1,0 +1,214 @@
+<div class="dt-container">
+  <app-page-header>Tool for converting files to Base64 encoded strings</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online File to Base64 converter</strong> encodes any file into Base64 format for easy transmission and storage.</p>
+    <p>Quickly <strong>convert files to Base64</strong> and <strong>copy or download encoded strings</strong> in your browser with no server upload.</p>
+  </div>
+
+  <!-- File Upload Section -->
+  <div class="mb-4">
+    <div class="card p-3 surface-card shadow-sm">
+      <!-- Header -->
+      <div class="flex justify-between items-center h-10 mb-3">
+        <h3 class="text-xl font-medium text-800 m-0">Upload File</h3>
+        <div class="flex gap-2">
+          <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
+            class="p-button-sm" severity="contrast">
+            <i-tabler name="code" class="icon-sm"></i-tabler>
+          </button>
+          <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()" severity="danger"
+            class="p-button-sm">
+            <i-tabler name="trash" class="icon-sm"></i-tabler>
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload Area -->
+      <div *ngIf="isBrowser"
+        class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+        [class.border-primary]="isDragOver" 
+        [class.border-300]="!isDragOver" 
+        [class.bg-primary-50]="isDragOver"
+        (dragover)="onDragOver($event)" 
+        (dragleave)="onDragLeave($event)" 
+        (drop)="onDrop($event)"
+        (click)="openFileDialog()">
+        <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+        <p class="text-lg font-medium text-700 mb-2">Drop a file here</p>
+        <p class="text-sm text-600 mb-3">or click to select from your device</p>
+        <p class="text-xs text-500">Supports all file types</p>
+      </div>
+
+      <!-- Loading message for SSR -->
+      <div *ngIf="!isBrowser" class="loading-placeholder text-center p-6 surface-ground border-round">
+        <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+        <p class="text-sm text-600 m-0">Loading file to Base64 converter...</p>
+      </div>
+
+      <!-- File Info -->
+      <div *ngIf="selectedFile && isBrowser" class="mt-3 p-3 bg-blue-50 rounded-md border-1 border-blue-300">
+        <div class="flex items-center">
+          <i-tabler name="file" class="icon-md text-blue-600 mr-2"></i-tabler>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-blue-800 m-0">{{ fileName }}</p>
+            <p class="text-xs text-blue-600 m-0 mt-1">Size: {{ formatFileSize(fileSize) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input *ngIf="isBrowser" #fileInput type="file" class="hidden" (change)="onFileSelected($event)">
+    </div>
+  </div>
+
+  <!-- Base64 Output Section -->
+  <div class="mb-4">
+    <div class="card p-3 surface-card shadow-sm">
+      <!-- Header -->
+      <div class="flex justify-between items-center h-10 mb-3">
+        <h3 class="text-xl font-medium text-800 m-0">Base64 Output</h3>
+        <div class="flex gap-2 items-center">
+          <p-select 
+            [options]="base64FormatOptions" 
+            [(ngModel)]="selectedFormat" 
+            optionLabel="label"
+            (onChange)="onFormatChange()" 
+            styleClass="p-select-sm custom-select"
+            [panelStyleClass]="'same-width-panel'" 
+            appendTo="body" 
+            [style]="{'min-width': '160px'}">
+            <ng-template pTemplate="selectedItem">
+              <div class="flex align-items-center">
+                <span>{{selectedFormat.label}}</span>
+              </div>
+            </ng-template>
+            <ng-template let-option pTemplate="item">
+              <div class="flex align-items-center">
+                <span>{{option.label}}</span>
+              </div>
+            </ng-template>
+          </p-select>
+
+          <div class="relative">
+            <button pButton type="button" [outlined]="true" label="Use in" (click)="menu.toggle($event)"
+              class="p-button-sm" severity="contrast" [disabled]="!base64Output">
+              <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+            </button>
+            <p-tieredMenu #menu [model]="useBase64InItems" [popup]="true">
+              <ng-template #item let-item>
+                <a pRipple class="flex items-center p-tieredmenu-item-link" (click)="sendData(item.routerLink)">
+                  <i-tabler [name]="item.icon" class="icon-sm"></i-tabler>
+                  <span class="ml-2">{{ item.label }}</span>
+                </a>
+              </ng-template>
+            </p-tieredMenu>
+          </div>
+
+          <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+            class="p-button-sm" severity="contrast" [disabled]="!base64Output">
+            <i-tabler name="copy" class="icon-sm"></i-tabler>
+          </button>
+          <button pButton type="button" [outlined]="true" label="Download" (click)="downloadBase64()"
+            class="p-button-sm" severity="contrast" [disabled]="!base64Output">
+            <i-tabler name="download" class="icon-sm"></i-tabler>
+          </button>
+        </div>
+      </div>
+
+      <!-- Base64 Textarea -->
+      <div class="p-fluid w-full">
+        <textarea 
+          pTextarea 
+          [(ngModel)]="base64Output" 
+          [readonly]="true"
+          rows="10" 
+          class="w-full font-mono"
+          placeholder="Base64 encoded string will appear here after file upload..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">What is Base64 Encoding?</h2>
+      <p class="mt-3">
+        Base64 is a binary-to-text encoding scheme that represents binary data in an ASCII string format. It's commonly used to encode files, images, and other binary data for transmission over text-based protocols like email, HTTP, or XML. Base64 encoding converts binary data into a string of 64 ASCII characters (A-Z, a-z, 0-9, +, /) with padding characters (=) when needed.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Why Convert Files to Base64?</h2>
+      <p class="mt-3">
+        Converting files to Base64 is essential for embedding binary data in text-based formats. Common use cases include embedding images in HTML/CSS using data URIs, sending file attachments via JSON APIs, storing files in databases as text, encoding files for email transmission, and including binary data in XML or JSON documents. Base64 encoding ensures data integrity while making binary content compatible with text-only systems.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">How to Convert File to Base64 Online</h2>
+      <p class="mt-3">
+        Using our File to Base64 converter is straightforward. Simply drag and drop a file onto the upload area or click to select a file from your device. The tool automatically converts the file to Base64 format and displays the encoded string in the output area. You can then copy the Base64 string to your clipboard, download it as a text file, or use it directly in other tools like our <a routerLink="/base64-to-file" class="text-primary hover:underline">Base64 to File converter</a>. All processing happens locally in your browser for maximum privacy and speed.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Why Choose Our File to Base64 Tool?</h2>
+      <p class="mt-3">
+        Our File to Base64 converter prioritizes performance, privacy, and usability. Unlike other tools, it processes files entirely client-side, ensuring your sensitive data never leaves your browser. Features include support for all file types, instant conversion, easy copy/download functionality, drag-and-drop file upload, and seamless integration with other Base64 tools. The tool handles files of any size, limited only by your browser's memory.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">FAQ</h2>
+      <p class="mt-3"><strong>Is this File to Base64 converter free to use?</strong><br>
+        Yes, it's completely free with no registration, ads, or usage limits.
+      </p>
+      <p class="mt-3"><strong>Do you store my files?</strong><br>
+        No, all processing is done locally in your browser. Your files never touch our servers.
+      </p>
+      <p class="mt-3"><strong>What file types are supported?</strong><br>
+        All file types are supported - images, documents, archives, videos, audio files, and any other binary or text files.
+      </p>
+      <p class="mt-3"><strong>Can I convert large files?</strong><br>
+        Yes, the tool handles large files efficiently, limited only by your browser's available memory.
+      </p>
+      <p class="mt-3"><strong>How do I use the Base64 output?</strong><br>
+        You can copy the Base64 string and use it in data URIs, JSON APIs, databases, or convert it back to a file using our <a routerLink="/base64-to-file" class="text-primary hover:underline">Base64 to File converter</a>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Common Use Cases for Developers</h2>
+      <p class="mt-3">
+        This File to Base64 converter is essential for web developers, API developers, and system administrators. Common uses include embedding images in HTML/CSS as data URIs, sending file attachments via REST APIs, storing files in NoSQL databases, encoding files for email transmission, preparing files for JSON payloads, and converting binary data for XML documents.
+      </p>
+      <p class="mt-3">
+        It's particularly valuable when working with single-page applications, microservices that need to transfer files, mobile app development, or when integrating with systems that require text-based file representation.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Is It Safe to Convert Files to Base64 Online?</h2>
+      <p class="mt-3">
+        Yes, our tool is built with security and privacy as top priorities. All file processing occurs entirely within your browser using JavaScript - no data is transmitted to external servers. This client-side approach protects sensitive information while providing instant results.
+      </p>
+      <p class="mt-3">
+        This architecture not only ensures data privacy but also delivers superior performance, even with large files. No account creation, no tracking, no ads - just a clean, fast file conversion experience.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Base64 Encoding Standards</h2>
+      <p class="mt-3">
+        Our converter follows the Base64 encoding standard defined in RFC 4648. The encoded output uses the standard Base64 alphabet (A-Z, a-z, 0-9, +, /) with padding characters (=) when necessary. This ensures compatibility with all systems and tools that support Base64 decoding.
+      </p>
+      <p class="mt-3">
+        For more information about Base64 encoding standards, visit <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 4648</a>.
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>
+

@@ -1,0 +1,225 @@
+<div class="dt-container">
+  <app-page-header>Tool for converting files to hexadecimal format</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online File to HEX converter</strong> encodes any file into hexadecimal format for data analysis and debugging.</p>
+    <p>Quickly <strong>convert files to HEX</strong> and <strong>copy or download hexadecimal strings</strong> in your browser with no server upload.</p>
+  </div>
+
+  <!-- File Upload Section -->
+  <div class="mb-4">
+    <div class="card p-3 surface-card shadow-sm">
+      <!-- Header -->
+      <div class="flex justify-between items-center h-10 mb-3">
+        <h3 class="text-xl font-medium text-800 m-0">Upload File</h3>
+        <div class="flex gap-2">
+          <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
+            class="p-button-sm" severity="contrast">
+            <i-tabler name="code" class="icon-sm"></i-tabler>
+          </button>
+          <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()" severity="danger"
+            class="p-button-sm">
+            <i-tabler name="trash" class="icon-sm"></i-tabler>
+          </button>
+        </div>
+      </div>
+
+      <!-- File Upload Area -->
+      <div *ngIf="isBrowser"
+        class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+        [class.border-primary]="isDragOver" 
+        [class.border-300]="!isDragOver" 
+        [class.bg-primary-50]="isDragOver"
+        (dragover)="onDragOver($event)" 
+        (dragleave)="onDragLeave($event)" 
+        (drop)="onDrop($event)"
+        (click)="openFileDialog()">
+        <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+        <p class="text-lg font-medium text-700 mb-2">Drop a file here</p>
+        <p class="text-sm text-600 mb-3">or click to select from your device</p>
+        <p class="text-xs text-500">Supports all file types</p>
+      </div>
+
+      <!-- Loading message for SSR -->
+      <div *ngIf="!isBrowser" class="loading-placeholder text-center p-6 surface-ground border-round">
+        <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+        <p class="text-sm text-600 m-0">Loading file to HEX converter...</p>
+      </div>
+
+      <!-- File Info -->
+      <div *ngIf="selectedFile && isBrowser" class="mt-3 p-3 bg-blue-50 rounded-md border-1 border-blue-300">
+        <div class="flex items-center">
+          <i-tabler name="file" class="icon-md text-blue-600 mr-2"></i-tabler>
+          <div class="flex-1">
+            <p class="text-sm font-medium text-blue-800 m-0">{{ fileName }}</p>
+            <p class="text-xs text-blue-600 m-0 mt-1">Size: {{ formatFileSize(fileSize) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input *ngIf="isBrowser" #fileInput type="file" class="hidden" (change)="onFileSelected($event)">
+    </div>
+  </div>
+
+  <!-- HEX Output Section -->
+  <div class="mb-4">
+    <div class="card p-3 surface-card shadow-sm">
+      <!-- Header -->
+      <div class="flex justify-between items-center h-10 mb-3">
+        <h3 class="text-xl font-medium text-800 m-0">HEX Output</h3>
+        <div class="flex gap-2 items-center">
+          <p-select 
+            [options]="hexFormatOptions" 
+            [(ngModel)]="selectedFormat" 
+            optionLabel="label"
+            (onChange)="onFormatChange()" 
+            styleClass="p-select-sm custom-select"
+            [panelStyleClass]="'same-width-panel'" 
+            appendTo="body" 
+            [style]="{'min-width': '160px'}">
+            <ng-template pTemplate="selectedItem">
+              <div class="flex align-items-center">
+                <span>{{selectedFormat.label}}</span>
+              </div>
+            </ng-template>
+            <ng-template let-option pTemplate="item">
+              <div class="flex align-items-center">
+                <span>{{option.label}}</span>
+              </div>
+            </ng-template>
+          </p-select>
+
+          <div class="relative">
+            <button pButton type="button" [outlined]="true" label="Use in" (click)="menu.toggle($event)"
+              class="p-button-sm" severity="contrast" [disabled]="!hexOutput">
+              <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+            </button>
+            <p-tieredMenu #menu [model]="useHexInItems" [popup]="true">
+              <ng-template #item let-item>
+                <a pRipple class="flex items-center p-tieredmenu-item-link" (click)="sendData(item.routerLink)">
+                  <i-tabler [name]="item.icon" class="icon-sm"></i-tabler>
+                  <span class="ml-2">{{ item.label }}</span>
+                </a>
+              </ng-template>
+            </p-tieredMenu>
+          </div>
+
+          <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+            class="p-button-sm" severity="contrast" [disabled]="!hexOutput">
+            <i-tabler name="copy" class="icon-sm"></i-tabler>
+          </button>
+          <button pButton type="button" [outlined]="true" label="Download" (click)="downloadHex()"
+            class="p-button-sm" severity="contrast" [disabled]="!hexOutput">
+            <i-tabler name="download" class="icon-sm"></i-tabler>
+          </button>
+        </div>
+      </div>
+
+      <!-- HEX Textarea -->
+      <div class="p-fluid w-full">
+        <textarea 
+          pTextarea 
+          [(ngModel)]="hexOutput" 
+          [readonly]="true"
+          rows="10" 
+          class="w-full font-mono"
+          placeholder="Hexadecimal string will appear here after file upload..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Section -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">What is Hexadecimal Encoding?</h2>
+      <p class="mt-3">
+        Hexadecimal (HEX) is a base-16 numbering system that uses 16 distinct symbols: 0-9 to represent values zero to nine, and A-F (or a-f) to represent values ten to fifteen. Each hexadecimal digit represents four binary digits (bits), making it a convenient way to represent binary data in a human-readable format. HEX encoding is commonly used in programming, debugging, data analysis, and low-level system operations.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Why Convert Files to HEX?</h2>
+      <p class="mt-3">
+        Converting files to hexadecimal format is essential for binary data analysis, debugging, reverse engineering, and understanding file structures. Common use cases include analyzing binary file formats, debugging network protocols, examining memory dumps, reverse engineering software, inspecting file headers and signatures, and converting binary data for transmission in text-based protocols. HEX representation makes it easier to identify patterns, offsets, and data structures within binary files.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">How to Convert File to HEX Online</h2>
+      <p class="mt-3">
+        Using our File to HEX converter is straightforward. Simply drag and drop a file onto the upload area or click to select a file from your device. The tool automatically converts the file to hexadecimal format and displays the encoded string in the output area. You can choose from multiple formatting options (Plain, With Dashes, With 0x Prefix, With Colons, Lowercase, With Spaces) and then copy the HEX string to your clipboard, download it as a text file, or use it directly in other tools like our <a routerLink="/hex-to-file" class="text-primary hover:underline">HEX to File converter</a> or <a routerLink="/hex-to-base64" class="text-primary hover:underline">HEX to Base64 converter</a>. All processing happens locally in your browser for maximum privacy and speed.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Why Choose Our File to HEX Tool?</h2>
+      <p class="mt-3">
+        Our File to HEX converter prioritizes performance, privacy, and usability. Unlike other tools, it processes files entirely client-side, ensuring your sensitive data never leaves your browser. Features include support for all file types, instant conversion, multiple formatting options, easy copy/download functionality, drag-and-drop file upload, and seamless integration with other HEX tools. The tool handles files of any size, limited only by your browser's memory.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">FAQ</h2>
+      <p class="mt-3"><strong>Is this File to HEX converter free to use?</strong><br>
+        Yes, it's completely free with no registration, ads, or usage limits.
+      </p>
+      <p class="mt-3"><strong>Do you store my files?</strong><br>
+        No, all processing is done locally in your browser. Your files never touch our servers.
+      </p>
+      <p class="mt-3"><strong>What file types are supported?</strong><br>
+        All file types are supported - images, documents, archives, videos, audio files, executables, and any other binary or text files.
+      </p>
+      <p class="mt-3"><strong>Can I convert large files?</strong><br>
+        Yes, the tool handles large files efficiently, limited only by your browser's available memory.
+      </p>
+      <p class="mt-3"><strong>What HEX formats are available?</strong><br>
+        You can choose from Plain, With Dashes, With 0x Prefix, With Colons, Lowercase, or With Spaces formatting options. Your preference is saved for future use.
+      </p>
+      <p class="mt-3"><strong>How do I use the HEX output?</strong><br>
+        You can copy the HEX string and use it for analysis, debugging, or convert it back to a file using our <a routerLink="/hex-to-file" class="text-primary hover:underline">HEX to File converter</a> or convert it to Base64 using our <a routerLink="/hex-to-base64" class="text-primary hover:underline">HEX to Base64 converter</a>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Common Use Cases for Developers</h2>
+      <p class="mt-3">
+        This File to HEX converter is essential for software developers, security researchers, reverse engineers, and system administrators. Common uses include analyzing binary file formats, debugging network protocols, examining memory dumps, reverse engineering software, inspecting file headers and magic numbers, analyzing malware samples, and converting binary data for text-based transmission.
+      </p>
+      <p class="mt-3">
+        It's particularly valuable when working with low-level programming, binary protocol analysis, file format research, security analysis, or when debugging issues that require examining raw binary data.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">Is It Safe to Convert Files to HEX Online?</h2>
+      <p class="mt-3">
+        Yes, our tool is built with security and privacy as top priorities. All file processing occurs entirely within your browser using JavaScript - no data is transmitted to external servers. This client-side approach protects sensitive information while providing instant results.
+      </p>
+      <p class="mt-3">
+        This architecture not only ensures data privacy but also delivers superior performance, even with large files. No account creation, no tracking, no ads - just a clean, fast file conversion experience.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary">HEX Formatting Options</h2>
+      <p class="mt-3">
+        Our converter supports multiple HEX formatting options to suit different use cases:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Plain:</strong> Standard uppercase HEX without separators (DEADBEEF)</li>
+        <li><strong>With Dashes:</strong> HEX bytes separated by dashes (DE-AD-BE-EF)</li>
+        <li><strong>With 0x Prefix:</strong> Each byte prefixed with 0x (0xDE 0xAD 0xBE 0xEF)</li>
+        <li><strong>With Colons:</strong> HEX bytes separated by colons (DE:AD:BE:EF)</li>
+        <li><strong>Lowercase:</strong> Lowercase HEX without separators (deadbeef)</li>
+        <li><strong>With Spaces:</strong> HEX bytes separated by spaces (DE AD BE EF)</li>
+      </ul>
+      <p class="mt-3">
+        Your selected format preference is automatically saved and restored on your next visit.
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>
+
