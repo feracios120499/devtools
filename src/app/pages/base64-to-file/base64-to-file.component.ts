@@ -1,23 +1,24 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, DOCUMENT } from '@angular/core';
+import { DOCUMENT, Component, Inject, OnDestroy, OnInit, PLATFORM_ID, Renderer2 } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
+import { Router, RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
-
-import { ThemeService } from '../../services/theme.service';
-import { PageTitleService } from '../../services/page-title.service';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
 import { TextareaModule } from 'primeng/textarea';
 import { ToastModule } from 'primeng/toast';
-import { FileTypeService, FileTypeInfo } from '../../services/file-type.service';
-import { MimeTypeService, MimeTypeInfo } from '../../services/mime-type.service';
+
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-import { SeoService, MetaData } from '../../services/seo.service';
-import { RouterModule } from '@angular/router';
 import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
+import { FileTypeInfo, FileTypeService } from '../../services/file-type.service';
+import { MimeTypeInfo, MimeTypeService } from '../../services/mime-type.service';
+import { PageTitleService } from '../../services/page-title.service';
+import { MetaData, SeoService } from '../../services/seo.service';
+import { ThemeService } from '../../services/theme.service';
+
 // Интерфейс TypeOption совпадает с FileTypeInfo для использования с p-select
 interface TypeOption extends FileTypeInfo {
   // Нет необходимости добавлять поле value, так как будем использовать исходные объекты
@@ -36,11 +37,11 @@ interface TypeOption extends FileTypeInfo {
     ToastModule,
     PageHeaderComponent,
     RouterModule,
-    AnchorHeadingDirective
-],
+    AnchorHeadingDirective,
+  ],
   providers: [MessageService],
   templateUrl: './base64-to-file.component.html',
-  styleUrl: './base64-to-file.component.scss'
+  styleUrl: './base64-to-file.component.scss',
 })
 export class Base64ToFileComponent implements OnInit, OnDestroy {
   // Входные данные
@@ -50,17 +51,17 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
   hiddenSymbolsCount: number = 0; // Количество скрытых символов
   maxDisplayLength: number = 1200; // Максимальная длина для отображения
   invalidBase64: boolean = false; // Флаг для некорректного Base64
-  
+
   fileName: string = '';
   detectedFileType: string | null = null;
-  
+
   // Опции выбора типа файла
   typeOptions: TypeOption[] = [];
   selectedTypeOption: TypeOption | null = null;
-  
+
   // Информация о MIME-типе
   mimeTypeInfo: MimeTypeInfo[] = [];
-  
+
   // Для SEO
   isBrowser: boolean = false;
 
@@ -75,17 +76,51 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private fileTypeService: FileTypeService,
     public mimeTypeService: MimeTypeService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private router: Router
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
+
+    // Получаем данные из истории (history state) в конструкторе
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const receivedData = navigation.extras.state['data'] || '';
+      if (receivedData) {
+        this.originalBase64 = receivedData;
+        this.inputBase64 = receivedData;
+        console.log('Data from navigation:', receivedData);
+      }
+    }
   }
 
   ngOnInit() {
     // Устанавливаем заголовок страницы
     this.pageTitleService.setTitle('Base64 to File Converter');
-    
+
+    // Альтернативный метод получения данных через history state
+    if (this.isBrowser) {
+      const state = history.state;
+      if (state?.data) {
+        // Если данные уже были установлены в конструкторе, пропускаем
+        if (!this.inputBase64 || this.inputBase64 !== state.data) {
+          this.originalBase64 = state.data;
+          this.inputBase64 = state.data;
+          console.log('Data from history state:', state.data);
+          // Обрабатываем полученные данные
+          this.formatDisplayText();
+          this.onBase64Changed();
+        }
+        // Очищаем state чтобы избежать повторного использования при обновлении
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
     // Настройка SEO
     this.setupSeo();
+    if (this.originalBase64) {
+      this.onBase64Changed();
+      this.onInputChange(this.originalBase64);
+    }
   }
 
   ngOnDestroy() {
@@ -206,16 +241,16 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
   onInputChange(value: string) {
     // Сохраняем оригинальную строку
     this.originalBase64 = value;
-    
+
     // Сбрасываем флаг ошибки
     this.invalidBase64 = false;
-    
+
     // Проверяем, является ли строка корректным Base64
     if (value && !this.isValidBase64(value)) {
       this.invalidBase64 = true;
       this.displayBase64 = value; // Показываем оригинал для исправления
       this.inputBase64 = value;
-      
+
       // Сбрасываем информацию о типе файла
       this.detectedFileType = null;
       this.selectedTypeOption = null;
@@ -223,14 +258,14 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       this.mimeTypeInfo = [];
       return;
     }
-    
+
     // Форматируем отображаемый текст
     this.formatDisplayText();
-    
+
     // Вызываем обработку base64 (определение типа файла и пр.)
     this.onBase64Changed();
   }
-  
+
   /**
    * Проверяет, является ли строка корректным Base64
    * @param str Строка для проверки
@@ -240,31 +275,31 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
     if (!str || str.trim() === '') {
       return false;
     }
-    
+
     // Удаляем префикс data:*/*;base64, если он есть
     let testStr = str;
     if (str.includes('base64,')) {
       testStr = str.split('base64,')[1];
     }
-    
+
     // Удаляем все пробелы и переносы строк
     testStr = testStr.replace(/[\s\r\n]+/g, '');
-    
+
     // Ничего не осталось после удаления пробелов
     if (!testStr) {
       return false;
     }
-    
+
     // Регулярка для проверки символов Base64
     // Допустимые символы: A-Z, a-z, 0-9, +, /, = (для паддинга)
     // А также - и _ для URL-безопасных вариантов Base64
     const base64Regex = /^[A-Za-z0-9+/\-_]*={0,2}$/;
-    
+
     // Проверка соответствия формату Base64
     if (!base64Regex.test(testStr)) {
       return false;
     }
-    
+
     // Дополнительная проверка: длина строки должна быть кратна 4 или почти кратна (для паддинга)
     const remainder = testStr.length % 4;
     if (remainder !== 0) {
@@ -273,16 +308,16 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
         // Неверная длина, не может быть исправлена паддингом
         return false;
       }
-      
+
       // Для URL-безопасного Base64, заменяем - на + и _ на / перед проверкой
       testStr = testStr.replace(/-/g, '+').replace(/_/g, '/');
-      
+
       // Добавляем паддинг при необходимости
       while (testStr.length % 4 !== 0) {
         testStr += '=';
       }
     }
-    
+
     // Пробуем декодировать строку
     try {
       atob(testStr);
@@ -302,19 +337,22 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       this.inputBase64 = this.originalBase64;
     } else {
       // Определяем количество скрытых символов
-      this.hiddenSymbolsCount = this.originalBase64.length - this.maxDisplayLength;
-      
+      this.hiddenSymbolsCount =
+        this.originalBase64.length - this.maxDisplayLength;
+
       // Берем первую часть (1/3 от допустимой длины)
       const firstPartLength = Math.floor(this.maxDisplayLength / 3);
       const firstPart = this.originalBase64.substring(0, firstPartLength);
-      
+
       // Берем последнюю часть (2/3 от допустимой длины для лучшей читаемости конца)
-      const lastPartLength = Math.floor(this.maxDisplayLength * 2 / 3);
-      const secondPart = this.originalBase64.substring(this.originalBase64.length - lastPartLength);
-      
+      const lastPartLength = Math.floor((this.maxDisplayLength * 2) / 3);
+      const secondPart = this.originalBase64.substring(
+        this.originalBase64.length - lastPartLength
+      );
+
       // Формируем отображаемый текст - без вставки информации посередине
       this.displayBase64 = `${firstPart}...${secondPart}`;
-      
+
       // Для работы компонента сохраняем оригинал в inputBase64
       this.inputBase64 = this.originalBase64;
     }
@@ -325,41 +363,50 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
    */
   onFileTypeChange() {
     console.log('onFileTypeChange', this.selectedTypeOption);
-    
+
     if (this.selectedTypeOption) {
       this.detectedFileType = this.selectedTypeOption.extension;
-      
+
       // Обновляем имя файла с новым расширением
       this.updateFileName(this.detectedFileType);
-      
+
       // Получаем информацию о MIME-типах для выбранного расширения
-      this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(this.detectedFileType);
+      this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(
+        this.detectedFileType
+      );
     } else {
       // Если выбор сброшен, устанавливаем тип по умолчанию
       if (this.typeOptions.length > 0) {
         this.selectedTypeOption = this.typeOptions[0];
         this.detectedFileType = this.selectedTypeOption.extension;
-        this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(this.detectedFileType);
+        this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(
+          this.detectedFileType
+        );
         this.updateFileName(this.detectedFileType);
       }
     }
   }
-  
+
   /**
    * Обновляет имя файла с учетом указанного расширения
    */
   private updateFileName(extension: string | null): void {
-    console.log('updateFileName:', extension, 'current fileName:', this.fileName);
-    
+    console.log(
+      'updateFileName:',
+      extension,
+      'current fileName:',
+      this.fileName
+    );
+
     if (!extension) return;
-    
+
     // Если имя файла пустое, генерируем его
     if (!this.fileName || this.fileName.trim() === '') {
       this.fileName = `file${this.getCurrentDateTime()}.${extension}`;
       console.log('Generated fileName:', this.fileName);
       return;
     }
-    
+
     // Если имя файла уже содержит расширение, заменяем его
     if (this.fileName.includes('.')) {
       const nameWithoutExt = this.fileName.split('.').slice(0, -1).join('.');
@@ -378,7 +425,7 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
   onBase64Changed() {
     // Сбрасываем флаг ошибки
     this.invalidBase64 = false;
-    
+
     if (this.inputBase64) {
       try {
         // Очищаем строку от префикса data:*/*;base64, если он есть
@@ -386,7 +433,7 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
         if (base64String.includes('base64,')) {
           base64String = base64String.split('base64,')[1];
         }
-        
+
         // Проверяем на корректность Base64
         if (!this.isValidBase64(base64String)) {
           this.invalidBase64 = true;
@@ -396,41 +443,49 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
           this.mimeTypeInfo = [];
           return;
         }
-        
+
         // Получаем информацию о возможных типах файлов
         const fileTypeResult = this.fileTypeService.getFileTypes(base64String);
         console.log('fileTypeResult', JSON.stringify(fileTypeResult));
-        
+
         // Очищаем предыдущие опции
         this.typeOptions = [];
         this.selectedTypeOption = null;
-        
+
         // Создаем опции для выпадающего списка
-        if (fileTypeResult.detectedTypes && fileTypeResult.detectedTypes.length > 0) {
+        if (
+          fileTypeResult.detectedTypes &&
+          fileTypeResult.detectedTypes.length > 0
+        ) {
           // Копируем объекты типов как есть, без создания новых объектов
           // Это обеспечит правильное отображение в выпадающем списке
           this.typeOptions = [...fileTypeResult.detectedTypes];
-          
+
           // Выбираем тип по умолчанию
           if (fileTypeResult.defaultType) {
             // Находим объект в списке опций, соответствующий типу по умолчанию
             const defaultOption = this.typeOptions.find(
-              option => option.extension === fileTypeResult.defaultType?.extension
+              (option) =>
+                option.extension === fileTypeResult.defaultType?.extension
             );
-            
+
             if (defaultOption) {
               this.selectedTypeOption = defaultOption;
               this.detectedFileType = defaultOption.extension;
               console.log('Selected default option:', this.selectedTypeOption);
             }
-            
+
             // Обновляем информацию о MIME-типах
-            this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(this.detectedFileType);
+            this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(
+              this.detectedFileType
+            );
           } else if (this.typeOptions.length > 0) {
             // Если нет типа по умолчанию, выбираем первый элемент списка
             this.selectedTypeOption = this.typeOptions[0];
             this.detectedFileType = this.selectedTypeOption.extension;
-            this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(this.detectedFileType);
+            this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension(
+              this.detectedFileType
+            );
             console.log('Selected first option:', this.selectedTypeOption);
           } else {
             this.detectedFileType = null;
@@ -438,25 +493,25 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
             this.mimeTypeInfo = [];
           }
         }
-        
+
         // Если не удалось определить тип файла, добавляем бинарный вариант
         if (this.typeOptions.length === 0) {
           const binOption = {
             extension: 'bin',
             description: 'Binary File',
-            priority: 100
+            priority: 100,
           };
-          
+
           this.typeOptions.push(binOption);
           this.detectedFileType = 'bin';
           this.selectedTypeOption = binOption;
-          this.mimeTypeInfo = this.mimeTypeService.getMimeTypesForExtension('bin');
+          this.mimeTypeInfo =
+            this.mimeTypeService.getMimeTypesForExtension('bin');
           console.log('Added binary option:', this.selectedTypeOption);
         }
-        
+
         // Обновляем имя файла с выбранным расширением
         this.updateFileName(this.detectedFileType);
-        
       } catch (e) {
         console.error('Error processing base64:', e);
         this.detectedFileType = null;
@@ -480,17 +535,17 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Warning',
-        detail: 'Please enter a Base64 string'
+        detail: 'Please enter a Base64 string',
       });
       return;
     }
-    
+
     // Проверяем на корректность Base64
     if (this.invalidBase64) {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Invalid Base64 string. Please check your input.'
+        detail: 'Invalid Base64 string. Please check your input.',
       });
       return;
     }
@@ -510,7 +565,7 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Invalid Base64 string. Please check your input.'
+          detail: 'Invalid Base64 string. Please check your input.',
         });
         return;
       }
@@ -523,14 +578,16 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       }
 
       // Получаем расширение файла и соответствующий MIME-тип
-      let fileExtension = this.selectedTypeOption?.extension || this.detectedFileType;
+      let fileExtension =
+        this.selectedTypeOption?.extension || this.detectedFileType;
       if (!fileExtension && this.fileName.includes('.')) {
         const parts = this.fileName.split('.');
         fileExtension = parts[parts.length - 1];
       }
-      
+
       // Получаем MIME-тип для расширения
-      const mimeType = this.mimeTypeService.getMimeTypeByExtension(fileExtension);
+      const mimeType =
+        this.mimeTypeService.getMimeTypeByExtension(fileExtension);
 
       // Создаем Blob для файла с правильным MIME-типом
       const blob = new Blob([bytes], { type: mimeType });
@@ -538,7 +595,9 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       // Проверяем имя файла и добавляем расширение, если его нет
       let finalFileName = this.fileName;
       if (!finalFileName) {
-        finalFileName = `file${this.getCurrentDateTime()}${fileExtension ? '.' + fileExtension : '.bin'}`;
+        finalFileName = `file${this.getCurrentDateTime()}${
+          fileExtension ? '.' + fileExtension : '.bin'
+        }`;
       } else if (!finalFileName.includes('.')) {
         finalFileName += fileExtension ? '.' + fileExtension : '.bin';
       }
@@ -550,7 +609,7 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Invalid Base64 string. Please check your input.'
+        detail: 'Invalid Base64 string. Please check your input.',
       });
     }
   }
@@ -564,12 +623,12 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       const a = this.renderer.createElement('a');
       a.href = url;
       a.download = fileName;
-      
+
       // Добавляем элемент в DOM, вызываем клик и удаляем
       this.renderer.appendChild(this.document.body, a);
       a.click();
       //this.renderer.removeChild(this.document.body, a);
-      
+
       // // Очищаем ресурсы
       // setTimeout(() => {
       //   URL.revokeObjectURL(url);
@@ -578,14 +637,14 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'success',
         summary: 'Success',
-        detail: `File "${fileName}" downloaded successfully`
+        detail: `File "${fileName}" downloaded successfully`,
       });
     } catch (err) {
       console.error('Error downloading file:', err);
       this.messageService.add({
         severity: 'error',
         summary: 'Error',
-        detail: 'Failed to download file'
+        detail: 'Failed to download file',
       });
     }
   }
@@ -611,18 +670,19 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
    */
   pasteFromClipboard() {
     if (this.isBrowser) {
-      navigator.clipboard.readText()
-        .then(text => {
+      navigator.clipboard
+        .readText()
+        .then((text) => {
           this.originalBase64 = text;
           this.formatDisplayText();
           this.onBase64Changed();
         })
-        .catch(err => {
+        .catch((err) => {
           console.error('Failed to read clipboard contents: ', err);
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Failed to paste from clipboard. Please check permissions.'
+            detail: 'Failed to paste from clipboard. Please check permissions.',
           });
         });
     }
@@ -633,7 +693,8 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
    */
   loadSample() {
     // Пример Base64 PNG изображения
-    this.originalBase64 = 'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAnElEQVR42u3RAQ0AAAgDIN8/9K2hgXS7SkKmqmpqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqamUdF8UyAS1Mn8k4AAAAAElFTkSuQmCC';
+    this.originalBase64 =
+      'iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAnElEQVR42u3RAQ0AAAgDIN8/9K2hgXS7SkKmqmpqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqampqamUdF8UyAS1Mn8k4AAAAAElFTkSuQmCC';
     this.formatDisplayText();
     this.fileName = 'sample-image';
     this.onBase64Changed();
@@ -644,6 +705,11 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
    */
   private getCurrentDateTime(): string {
     const now = new Date();
-    return `-${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
+    return `-${now.getFullYear()}${(now.getMonth() + 1)
+      .toString()
+      .padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}${now
+      .getHours()
+      .toString()
+      .padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
   }
-} 
+}

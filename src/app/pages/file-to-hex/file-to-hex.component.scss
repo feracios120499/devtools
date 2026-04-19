@@ -1,0 +1,40 @@
+.upload-area {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s ease;
+
+  &:hover {
+    @apply border-primary;
+    color: var(--primary-color);
+  }
+}
+
+.loading-placeholder {
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+:host ::ng-deep {
+  // Textarea styling
+  .p-inputtextarea {
+    resize: vertical;
+    min-height: 200px;
+    font-family: 'Courier New', monospace;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .upload-area,
+  .loading-placeholder {
+    min-height: 150px;
+    padding: 1rem !important;
+  }
+}
+

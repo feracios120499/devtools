@@ -139,11 +139,38 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
         this.updateEditorTheme();
       });
     }
+
+    // Получаем данные из истории (history state) в конструкторе
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const receivedData = navigation.extras.state['data'] || '';
+      if (receivedData) {
+        this.inputCode = receivedData;
+        console.log('Data from navigation:', receivedData);
+      }
+    }
   }
 
   ngOnInit() {
-    // Start with empty input
-    this.inputCode = '';
+    // Альтернативный метод получения данных через history state
+    if (this.isBrowser) {
+      const state = history.state;
+      if (state?.data && !this.inputCode) {
+        this.inputCode = state.data;
+        console.log('Data from history state:', state.data);
+        // Конвертируем данные сразу после получения
+        this.convertHexToBase64();
+        // Очищаем state чтобы избежать повторного использования при обновлении
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    // Start with empty input if no data received
+    if (!this.inputCode) {
+      this.inputCode = '';
+    } else {
+      this.convertHexToBase64();
+    }
     
     // Загружаем сохраненные настройки
     this.loadUserPreferences();

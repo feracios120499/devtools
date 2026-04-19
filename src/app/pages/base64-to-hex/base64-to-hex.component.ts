@@ -1,23 +1,35 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
-import { isPlatformBrowser, isPlatformServer } from '@angular/common';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  ElementRef,
+  HostBinding,
+  HostListener,
+  Inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  ViewChild,
+} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
-import { Meta, Title } from '@angular/platform-browser';
-import { MessageService } from 'primeng/api';
 import { Router, RouterModule } from '@angular/router';
-
-import { ThemeService } from '../../services/theme.service';
-import { MonacoConfigService } from '../../services/monaco-config.service';
-import { PageTitleService } from '../../services/page-title.service';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
-import { UserPreferencesService, Base64ToHexSettings } from '../../services/user-preferences.service';
+
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
-import { SeoService, MetaData } from '../../services/seo.service';
-import { IconsModule } from '../../shared/modules/icons.module';
 import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
-  // Only declare Monaco type for type checking, don't use directly
+import { MonacoConfigService } from '../../services/monaco-config.service';
+import { PageTitleService } from '../../services/page-title.service';
+import { MetaData, SeoService } from '../../services/seo.service';
+import { ThemeService } from '../../services/theme.service';
+import { Base64ToHexSettings, UserPreferencesService } from '../../services/user-preferences.service';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
+import { IconsModule } from '../../shared/modules/icons.module';
+
+// Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
   editor: any;
@@ -44,39 +56,39 @@ interface HexFormatOption {
     PageHeaderComponent,
     IconsModule,
     AnchorHeadingDirective,
-    RouterModule
-],
+    RouterModule,
+  ],
   providers: [MessageService],
   templateUrl: './base64-to-hex.component.html',
-  styleUrl: './base64-to-hex.component.scss'
+  styleUrl: './base64-to-hex.component.scss',
 })
 export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
-  
+
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
   @ViewChild('inputEditorContainer') inputEditorContainer!: ElementRef;
   @ViewChild('outputEditorContainer') outputEditorContainer!: ElementRef;
-  
+
   // Тема редактора
   editorTheme: string = 'vs-dark'; // Default theme
-  
+
   // URL текущей страницы для хранения настроек
   private pageUrl: string = 'base64-to-hex';
-  
+
   // Опции форматирования hex
   hexFormatOptions: HexFormatOption[] = [
-    { 
-      label: 'Plain', 
-      value: 'plain', 
+    {
+      label: 'Plain',
+      value: 'plain',
       example: 'DEADBEEF',
-      formatter: (hex: string) => hex.toUpperCase() 
+      formatter: (hex: string) => hex.toUpperCase(),
     },
-    { 
-      label: 'With Dashes', 
-      value: 'dash', 
+    {
+      label: 'With Dashes',
+      value: 'dash',
       example: 'DE-AD-BE-EF',
       formatter: (hex: string) => {
         const pairs = [];
@@ -84,11 +96,11 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
           pairs.push(hex.substr(i, 2));
         }
         return pairs.join('-').toUpperCase();
-      }
+      },
     },
-    { 
-      label: 'With 0x Prefix', 
-      value: 'prefix', 
+    {
+      label: 'With 0x Prefix',
+      value: 'prefix',
       example: '0xDE 0xAD 0xBE 0xEF',
       formatter: (hex: string) => {
         const pairs = [];
@@ -96,11 +108,11 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
           pairs.push('0x' + hex.substr(i, 2));
         }
         return pairs.join(' ').toUpperCase();
-      }
+      },
     },
-    { 
-      label: 'With Colons', 
-      value: 'colon', 
+    {
+      label: 'With Colons',
+      value: 'colon',
       example: 'DE:AD:BE:EF',
       formatter: (hex: string) => {
         const pairs = [];
@@ -108,17 +120,17 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
           pairs.push(hex.substr(i, 2));
         }
         return pairs.join(':').toUpperCase();
-      }
+      },
     },
-    { 
-      label: 'Lowercase', 
-      value: 'lowercase', 
+    {
+      label: 'Lowercase',
+      value: 'lowercase',
       example: 'deadbeef',
-      formatter: (hex: string) => hex.toLowerCase() 
+      formatter: (hex: string) => hex.toLowerCase(),
     },
-    { 
-      label: 'With Spaces', 
-      value: 'spaces', 
+    {
+      label: 'With Spaces',
+      value: 'spaces',
       example: 'DE AD BE EF',
       formatter: (hex: string) => {
         const pairs = [];
@@ -126,24 +138,24 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
           pairs.push(hex.substr(i, 2));
         }
         return pairs.join(' ').toUpperCase();
-      }
-    }
+      },
+    },
   ];
-  
+
   // Default format selection
   selectedFormat: HexFormatOption = this.hexFormatOptions[0];
-  
+
   // Настройки для редакторов
   inputEditorOptions: any;
-  
+
   outputEditorOptions: any;
-  
+
   isBrowser: boolean = false;
-  
+
   // Полноэкранный режим
   isInputFullscreen: boolean = false;
   isOutputFullscreen: boolean = false;
-  
+
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
     private themeService: ThemeService,
@@ -154,12 +166,12 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     private seoService: SeoService,
     private monacoConfigService: MonacoConfigService
   ) {
-    console.log('Base64ToHexComponent')
+    console.log('Base64ToHexComponent');
     // Initialize editor options
     this.initializeEditorOptions();
 
     this.isBrowser = isPlatformBrowser(this.platformId);
-    
+
     // React to theme changes in the application, only in browser
     if (this.isBrowser) {
       effect(() => {
@@ -167,109 +179,143 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
         this.updateEditorTheme();
       });
     }
-    
+
     // Получаем текущий URL для хранения настроек
     if (this.isBrowser) {
       this.pageUrl = this.router.url;
     }
-    
+
     // Set page title
     this.pageTitleService.setTitle('Base64 to HEX Converter');
+
+    // Получаем данные из истории (history state) в конструкторе
+    const navigation = this.router.getCurrentNavigation();
+    if (navigation?.extras.state) {
+      const receivedData = navigation.extras.state['data'] || '';
+      if (receivedData) {
+        this.inputCode = receivedData;
+        console.log('Data from navigation:', receivedData);
+      }
+    }
   }
-  
+
   ngOnInit() {
-    // Start with empty input
-    this.inputCode = '';
-    
+    // Альтернативный метод получения данных через history state
+    if (this.isBrowser) {
+      const state = history.state;
+      if (state?.data && !this.inputCode) {
+        this.inputCode = state.data;
+        console.log('Data from history state:', state.data);
+        // Конвертируем данные сразу после получения
+        this.convertBase64ToHex();
+        // Очищаем state чтобы избежать повторного использования при обновлении
+        history.replaceState({}, document.title, window.location.pathname);
+      }
+    }
+
+    // Start with empty input if no data received
+    if (!this.inputCode) {
+      this.inputCode = '';
+    } else {
+      this.convertBase64ToHex();
+    }
     // Загружаем сохраненные настройки
     this.loadUserPreferences();
-    
+
     // SEO setup
     this.setupSeo();
   }
-  
+
   ngAfterViewInit() {
     // No initialization needed
   }
-  
+
   ngOnDestroy() {
     // Очищаем SEO элементы
     this.seoService.destroy();
   }
-  
+
   /**
    * Загружает пользовательские настройки из localStorage
    */
   private loadUserPreferences() {
     if (!this.isBrowser) return;
-    
-    const settings = this.userPreferencesService.loadPageSettings<Base64ToHexSettings>(this.pageUrl);
-    
+
+    const settings =
+      this.userPreferencesService.loadPageSettings<Base64ToHexSettings>(
+        this.pageUrl
+      );
+
     if (settings) {
       // Если есть сохраненный формат, находим его в опциях и устанавливаем
       if (settings.selectedFormatValue) {
-        const savedFormat = this.hexFormatOptions.find(option => option.value === settings.selectedFormatValue);
+        const savedFormat = this.hexFormatOptions.find(
+          (option) => option.value === settings.selectedFormatValue
+        );
         if (savedFormat) {
           this.selectedFormat = savedFormat;
         }
       }
     }
   }
-  
+
   /**
    * Сохраняет пользовательские настройки в localStorage
    */
   private saveUserPreferences() {
     if (!this.isBrowser) return;
-    
+
     const settings: Base64ToHexSettings = {
-      selectedFormatValue: this.selectedFormat.value
+      selectedFormatValue: this.selectedFormat.value,
     };
-    
+
     this.userPreferencesService.savePageSettings(this.pageUrl, settings);
   }
-  
+
   /**
    * Handles format option change
    */
   onFormatChange() {
     // Сохраняем выбранный формат
     this.saveUserPreferences();
-    
+
     // Повторная конвертация с новым форматом вывода
     this.convertBase64ToHex();
   }
-  
+
   /**
    * Copy formatted HEX to clipboard
    */
   copyToClipboard() {
     if (!this.isBrowser || !this.outputCode) return;
-    
-    navigator.clipboard.writeText(this.outputCode).then(() => {
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Copied!',
-        detail: 'HEX copied to clipboard',
-        life: 3000
+
+    navigator.clipboard
+      .writeText(this.outputCode)
+      .then(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Copied!',
+          detail: 'HEX copied to clipboard',
+          life: 3000,
+        });
+      })
+      .catch((err) => {
+        console.error('Failed to copy: ', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to copy to clipboard',
+          life: 3000,
+        });
       });
-    }).catch((err) => {
-      console.error('Failed to copy: ', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to copy to clipboard',
-        life: 3000
-      });
-    });
   }
-  
+
   /**
    * Download HEX as a file
    */
   downloadHex() {
     if (!this.isBrowser || !this.outputCode) return;
-    
+
     try {
       const blob = new Blob([this.outputCode], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
@@ -280,12 +326,12 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Downloaded!',
         detail: 'HEX file has been downloaded',
-        life: 3000
+        life: 3000,
       });
     } catch (error) {
       console.error('Failed to download: ', error);
@@ -293,38 +339,41 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
         severity: 'error',
         summary: 'Error',
         detail: 'Failed to download HEX file',
-        life: 3000
+        life: 3000,
       });
     }
   }
-  
+
   /**
    * Paste from clipboard
    */
   pasteFromClipboard() {
     if (!this.isBrowser) return;
-    
-    navigator.clipboard.readText().then((text) => {
-      this.inputCode = text;
-      this.convertBase64ToHex();
-      
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Pasted!',
-        detail: 'Text pasted from clipboard',
-        life: 3000
+
+    navigator.clipboard
+      .readText()
+      .then((text) => {
+        this.inputCode = text;
+        this.convertBase64ToHex();
+
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Pasted!',
+          detail: 'Text pasted from clipboard',
+          life: 3000,
+        });
+      })
+      .catch((err) => {
+        console.error('Error pasting from clipboard: ', err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to paste from clipboard',
+          life: 3000,
+        });
       });
-    }).catch((err) => {
-      console.error('Error pasting from clipboard: ', err);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Failed to paste from clipboard',
-        life: 3000
-      });
-    });
   }
-  
+
   /**
    * Load sample Base64 data
    */
@@ -332,7 +381,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputCode = 'SGVsbG8gV29ybGQh'; // "Hello World!" в Base64
     this.convertBase64ToHex();
   }
-  
+
   /**
    * Clear all input
    */
@@ -340,7 +389,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     this.inputCode = '';
     this.outputCode = '';
   }
-  
+
   /**
    * Перезагружает страницу
    */
@@ -349,7 +398,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       window.location.reload();
     }
   }
-  
+
   // Setup metadata for SEO. FAQ/HowTo mirror visible HTML content.
   private setupSeo() {
     const pageUrl = 'https://onlinewebdevtools.com/base64-to-hex';
@@ -430,41 +479,57 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.seoService.setupSeo(metaData);
   }
-  
+
   // Update editor settings when theme changes
   updateEditorTheme() {
     this.inputEditorOptions = {
-      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      ...this.monacoConfigService.getBaseEditorOptions(
+        this.editorTheme,
+        'plaintext'
+      ),
       wordWrap: 'on',
       wordWrapColumn: 80,
-      placeholder: 'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh'
+      placeholder:
+        'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh',
     };
     this.outputEditorOptions = {
-      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      ...this.monacoConfigService.getReadOnlyEditorOptions(
+        this.editorTheme,
+        'plaintext'
+      ),
       wordWrap: 'on',
       wordWrapColumn: 80,
-      placeholder: 'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421'
+      placeholder:
+        'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421',
     };
   }
-  
+
   /**
    * Initialize editor options
    */
   private initializeEditorOptions() {
     this.inputEditorOptions = {
-      ...this.monacoConfigService.getBaseEditorOptions(this.editorTheme, 'plaintext'),
+      ...this.monacoConfigService.getBaseEditorOptions(
+        this.editorTheme,
+        'plaintext'
+      ),
       wordWrap: 'on',
       wordWrapColumn: 80,
-      placeholder: 'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh'
+      placeholder:
+        'Paste or type your Base64 encoded data here...\n\nExample:\nSGVsbG8gV29ybGQh',
     };
     this.outputEditorOptions = {
-      ...this.monacoConfigService.getReadOnlyEditorOptions(this.editorTheme, 'plaintext'),
+      ...this.monacoConfigService.getReadOnlyEditorOptions(
+        this.editorTheme,
+        'plaintext'
+      ),
       wordWrap: 'on',
       wordWrapColumn: 80,
-      placeholder: 'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421'
+      placeholder:
+        'Converted HEX output will appear here...\n\nExample:\n48656c6c6f20576f726c6421',
     };
   }
-  
+
   /**
    * Converts Base64 input to hexadecimal
    */
@@ -473,11 +538,11 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       this.outputCode = '';
       return;
     }
-    
+
     try {
       // Декодируем Base64 в бинарные данные
       const binaryString = atob(this.inputCode.trim());
-      
+
       // Преобразуем бинарные данные в шестнадцатеричный формат
       let hexString = '';
       for (let i = 0; i < binaryString.length; i++) {
@@ -485,27 +550,28 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
         const hex = binaryString.charCodeAt(i).toString(16).padStart(2, '0');
         hexString += hex;
       }
-      
+
       // Применяем выбранный формат
       this.outputCode = this.selectedFormat.formatter(hexString);
-      
+
       // Clear any previous error messages
       this.messageService.clear();
     } catch (e) {
       console.error('Base64 conversion error:', e);
-      
+
       // Show error in the UI
       this.messageService.add({
         severity: 'error',
         summary: 'Invalid Base64',
-        detail: e instanceof Error ? e.message : 'The input is not valid Base64',
-        life: 5000
+        detail:
+          e instanceof Error ? e.message : 'The input is not valid Base64',
+        life: 5000,
       });
-      
+
       this.outputCode = 'Error: Invalid Base64 input';
     }
   }
-  
+
   /**
    * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
    */
@@ -515,7 +581,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;
       this.isOutputFullscreen = false;
-      
+
       // Обновляем размер редакторов
       setTimeout(() => {
         if (this.inputMonacoEditor?.editor) {
@@ -527,7 +593,7 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       }, 100);
     }
   }
-  
+
   /**
    * Toggle fullscreen mode for the specified editor
    */
@@ -536,20 +602,20 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (editorType === 'input') {
       this.isInputFullscreen = !this.isInputFullscreen;
-      
+
       if (this.isInputFullscreen) {
         // Если переключаем на полноэкранный режим для input, выключаем для output
         this.isOutputFullscreen = false;
       }
     } else {
       this.isOutputFullscreen = !this.isOutputFullscreen;
-      
+
       if (this.isOutputFullscreen) {
         // Если переключаем на полноэкранный режим для output, выключаем для input
         this.isInputFullscreen = false;
       }
     }
-    
+
     // Resize the editor after toggling fullscreen
     setTimeout(() => {
       if (editorType === 'input' && this.inputMonacoEditor?.editor) {
@@ -559,4 +625,4 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }, 100);
   }
-} 
+}

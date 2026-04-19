@@ -65,6 +65,16 @@ export const routes: Routes = [
     title: 'Base64 to File Converter | DevTools'
   },
   {
+    path: 'file-to-base64',
+    loadComponent: () => import('./pages/file-to-base64/file-to-base64.component').then(m => m.FileToBase64Component),
+    title: 'File to Base64 Converter | DevTools'
+  },
+  {
+    path: 'file-to-hex',
+    loadComponent: () => import('./pages/file-to-hex/file-to-hex.component').then(m => m.FileToHexComponent),
+    title: 'File to HEX Converter | DevTools'
+  },
+  {
     path: 'base64-to-hex',
     loadComponent: () => import('./pages/base64-to-hex/base64-to-hex.component').then(m => m.Base64ToHexComponent),
     providers: monacoProviders,

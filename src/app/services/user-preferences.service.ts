@@ -67,6 +67,20 @@ export interface SqlFormatterSettings extends PageSettings {
 }
 
 /**
+ * Интерфейс для настроек File to Base64
+ */
+export interface FileToBase64Settings extends PageSettings {
+  selectedFormatValue: string;
+}
+
+/**
+ * Интерфейс для настроек File to HEX
+ */
+export interface FileToHexSettings extends PageSettings {
+  selectedFormatValue: string;
+}
+
+/**
  * Сервис для сохранения и загрузки пользовательских настроек в localStorage.
  * Каждая страница идентифицируется своим URL путем.
  */
