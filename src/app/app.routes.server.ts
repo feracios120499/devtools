@@ -66,6 +66,10 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Prerender
   },
   {
+    path: 'asn1-viewer',
+    renderMode: RenderMode.Prerender
+  },
+  {
     path: 'sql-formatter',
     renderMode: RenderMode.Prerender
   },

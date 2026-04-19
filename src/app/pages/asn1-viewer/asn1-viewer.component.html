@@ -1,0 +1,355 @@
+<div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) is injected into <head> via SeoService -->
+
+  <app-page-header>Free online ASN.1 viewer, X.509 & PKCS decoder</app-page-header>
+
+  <div class="p-3">
+    <p>
+      This <strong>online ASN.1 viewer</strong> decodes DER/BER-encoded structures such as
+      <strong>X.509 certificates</strong>, <strong>CSRs (PKCS#10)</strong>,
+      <strong>private and public keys</strong> (PKCS#8, SPKI, PKCS#1, SEC1) and
+      <strong>PKCS#7 / CMS</strong> envelopes directly in your browser.
+    </p>
+    <p>
+      Accepts <strong>PEM</strong>, raw <strong>Base64</strong>, <strong>Hex</strong>, or a
+      binary <code class="text-primary">.der</code> / <code class="text-primary">.cer</code> /
+      <code class="text-primary">.crt</code> / <code class="text-primary">.csr</code> /
+      <code class="text-primary">.p7b</code> file upload. No server upload, no signup.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <!-- Input card -->
+    <div class="lg:col-span-12" id="input">
+      <div class="card p-3 surface-card shadow-sm flex flex-col">
+        <div class="flex justify-between items-center mb-2 flex-wrap gap-2">
+          <h3 class="text-xl font-medium text-800 m-0">ASN.1 Input</h3>
+          <div class="flex gap-2 flex-wrap">
+            <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
+               severity="contrast">
+              <i class="pi pi-code mr-1"></i>
+            </button>
+            <button pButton type="button" [outlined]="true" label="Paste" 
+              (click)="pasteFromClipboard()" severity="contrast">
+              <i class="pi pi-clipboard mr-1"></i>
+            </button>
+            <p-fileUpload #fileInput mode="basic" chooseLabel="Upload file" [auto]="true"
+              accept=".pem,.crt,.cer,.der,.csr,.p7b,.p7c,.p8,.key,.txt,.asc"
+              (uploadHandler)="onFileUpload($event)" [customUpload]="true"
+              chooseIcon="pi pi-upload"></p-fileUpload>
+            <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()"
+              severity="danger" >
+              <i class="pi pi-times mr-1"></i>
+            </button>
+          </div>
+        </div>
+
+        <textarea id="asn1_input" [(ngModel)]="inputText" (ngModelChange)="onInputChange()"
+          pInputTextarea class="w-full surface-border rounded font-mono" [rows]="8"
+          placeholder="Paste a PEM block, raw Base64, or hex-encoded ASN.1 data here..."></textarea>
+
+        @if (lastFileName) {
+          <div class="text-xs text-500 mt-2">
+            <i class="pi pi-file mr-1"></i>
+            Last uploaded: <span class="font-medium">{{ lastFileName }}</span>
+          </div>
+        }
+
+        @if (errorMessage) {
+          <div class="mt-2 p-2 rounded bg-red-50 border border-red-200 text-red-700 text-sm">
+            <i class="pi pi-exclamation-triangle mr-1"></i>{{ errorMessage }}
+          </div>
+        }
+
+        <div class="text-xs text-500 mt-2">
+          <i class="pi pi-info-circle mr-1"></i>
+          Supports PEM (one or more blocks), raw Base64, Hex (with or without <code>:</code>, spaces, <code>0x</code>), or binary file upload. Everything runs locally in your browser.
+        </div>
+      </div>
+    </div>
+
+    <!-- Decoded blocks -->
+    @for (block of decoded; track $index) {
+      <div class="lg:col-span-12" [id]="$index === 0 ? 'summary' : null">
+        <div class="card p-3 surface-card shadow-sm">
+          <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h3 class="text-xl font-medium text-800 m-0">{{ block.label }}</h3>
+              <p-tag [value]="block.detectedType" severity="info"></p-tag>
+              <span class="text-500 text-sm">{{ block.byteLength }} bytes</span>
+            </div>
+          </div>
+
+          @if (block.summaryGroups.length) {
+            <div class="flex flex-col gap-3">
+              @for (group of block.summaryGroups; track $index) {
+                @if (group.title) {
+                  <div class="asn1-summary-group rounded">
+                    <div class="asn1-summary-group-header">
+                      <i class="pi pi-user-edit mr-2"></i>
+                      <span class="font-semibold">{{ group.title }}</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                      @for (section of group.sections; track $index) {
+                        <ng-container
+                          *ngTemplateOutlet="sectionTpl; context: { $implicit: section }">
+                        </ng-container>
+                      }
+                    </div>
+                  </div>
+                } @else {
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    @for (section of group.sections; track $index) {
+                      <ng-container
+                        *ngTemplateOutlet="sectionTpl; context: { $implicit: section }">
+                      </ng-container>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          }
+
+          <ng-template #sectionTpl let-section>
+            <div class="asn1-summary-section p-3 rounded">
+              <div class="text-500 font-medium mb-2">{{ section.title }}</div>
+              @if (section.rows.length) {
+                <div class="flex flex-col gap-1">
+                  @for (row of section.rows; track $index) {
+                    <div class="asn1-summary-row flex gap-2 text-sm items-start">
+                      <div class="text-500 min-w-[10rem] shrink-0">{{ row.label }}</div>
+                      <div class="flex-1 min-w-0 break-all" [class.font-mono]="row.mono">
+                        {{ row.value }}
+                      </div>
+                      @if (row.value && !row.noCopy) {
+                        <button pButton type="button" icon="pi pi-copy"
+                          class="asn1-copy-btn p-button-sm p-button-text shrink-0"
+                          severity="secondary"
+                          (click)="copyToClipboard(row.value, row.label)"
+                          [attr.aria-label]="'Copy ' + row.label"
+                          title="Copy value">
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-sm text-500 italic">(empty)</div>
+              }
+            </div>
+          </ng-template>
+        </div>
+      </div>
+
+      <!-- ASN.1 tree -->
+      <div class="lg:col-span-12" [id]="$index === 0 ? 'tree' : null">
+        <div class="card p-3 surface-card shadow-sm">
+          <h3 class="text-xl font-medium text-800 m-0 mb-3">ASN.1 Structure</h3>
+          <div class="flex items-center gap-2 flex-wrap mb-3">
+            <p-autoComplete class="asn1-search flex-1 min-w-[16rem]"
+              [(ngModel)]="block.searchModel"
+              [suggestions]="block.searchSuggestions"
+              (completeMethod)="onTreeSearch(block, $event)"
+              (onSelect)="onTreeSearchSelect(block, $event)"
+              [completeOnFocus]="true"
+              [forceSelection]="false"
+              [minLength]="0"
+              [dropdown]="false"
+              field="label"
+              placeholder="Jump to offset or search by tag / OID…"
+              inputStyleClass="p-inputtext-sm w-full"
+              styleClass="w-full">
+              <ng-template let-item pTemplate="item">
+                <div class="flex flex-col text-xs leading-tight py-1">
+                  <span class="font-mono">{{ item.label }}</span>
+                </div>
+              </ng-template>
+            </p-autoComplete>
+            <button pButton type="button" [outlined]="true" label="Copy as JSON"
+              class="p-button-sm shrink-0"
+              (click)="copyTreeAsJson(block)" severity="contrast">
+              <i class="pi pi-copy mr-1"></i>
+            </button>
+          </div>
+
+          <div class="max-h-[70vh] overflow-auto rounded asn1-tree-wrapper">
+            <p-tree [value]="block.tree" styleClass="asn1-tree w-full"
+              (onNodeExpand)="onTreeNodeExpand($event)">
+              <ng-template let-node pTemplate="default">
+                <div class="flex items-center gap-2 flex-wrap"
+                  [class.asn1-node-highlight]="node.data?._highlight">
+                  <span>{{ node.label }}</span>
+                  @if (node.data) {
+                    <span class="text-xs text-500">
+                      (offset: {{ node.data.offset }}, length: {{ node.data.length }})
+                    </span>
+                  }
+                </div>
+              </ng-template>
+            </p-tree>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- SEO / informational content section -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is ASN.1?</h2>
+      <p class="mt-3">
+        ASN.1 (<strong>Abstract Syntax Notation One</strong>) is a standard notation used to describe the structure of data exchanged between computers. It is the foundation of virtually every cryptographic format you meet in practice: <strong>X.509 certificates</strong>, <strong>CSRs</strong>, <strong>PKCS#7 / CMS</strong>, <strong>PKCS#8</strong> private keys, <strong>LDAP</strong>, <strong>SNMP</strong>, Kerberos tickets and much more.
+      </p>
+      <p class="mt-3">
+        ASN.1 defines abstract types such as <code class="text-primary">SEQUENCE</code>, <code class="text-primary">SET</code>, <code class="text-primary">INTEGER</code>, <code class="text-primary">OBJECT IDENTIFIER</code>, <code class="text-primary">UTF8String</code>, <code class="text-primary">BIT STRING</code> and <code class="text-primary">OCTET STRING</code>. These abstract values are serialised using <strong>DER/BER</strong> and often wrapped in <strong>PEM</strong> text for transport.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>DER vs BER vs PEM</h2>
+      <p class="mt-3">
+        <strong>BER</strong> (Basic Encoding Rules) is the generic binary encoding of ASN.1 — it allows multiple valid encodings for the same abstract value. <strong>DER</strong> (Distinguished Encoding Rules) is a strict subset of BER that produces a unique, canonical encoding, which is essential for digital signatures. <strong>PEM</strong> is a text wrapper that Base64-encodes DER bytes and places them between <code class="text-primary">-----BEGIN ...-----</code> and <code class="text-primary">-----END ...-----</code> markers so they can travel safely through emails, config files and copy-paste workflows.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Supported structures</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>X.509 certificates</strong> (<code class="text-primary">CERTIFICATE</code>) — full decoding of TBS, subject, issuer, validity, SPKI and extensions (SAN, KU, EKU, BasicConstraints, SKI, AKI).</li>
+        <li><strong>Certificate Signing Requests</strong> (<code class="text-primary">CERTIFICATE REQUEST</code>, PKCS#10) — subject, public key and requested attributes.</li>
+        <li><strong>Private keys</strong> — PKCS#8 <code class="text-primary">PRIVATE KEY</code>, PKCS#1 <code class="text-primary">RSA PRIVATE KEY</code>, SEC1 <code class="text-primary">EC PRIVATE KEY</code>.</li>
+        <li><strong>Public keys</strong> — SPKI <code class="text-primary">PUBLIC KEY</code> and PKCS#1 <code class="text-primary">RSA PUBLIC KEY</code>.</li>
+        <li><strong>PKCS#7 / CMS</strong> (<code class="text-primary">pkcs7-signedData</code>, <code class="text-primary">pkcs7-envelopedData</code>) — content type, certificates and signer counts.</li>
+        <li><strong>Certificate Revocation Lists</strong> (<code class="text-primary">X509 CRL</code>) — issuer, update times and revoked entry counts.</li>
+      </ul>
+      <p class="mt-3">
+        Any other ASN.1 structure is still fully visible in the raw tree with OIDs resolved to human-readable names.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to use this ASN.1 viewer step-by-step</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Paste a PEM block (including the <code class="text-primary">-----BEGIN/END-----</code> markers), a raw Base64 string, or a hex dump into the input area. The tool auto-detects the format.</li>
+        <li>Alternatively click <strong>Upload file</strong> and pick a binary <code class="text-primary">.der</code>, <code class="text-primary">.cer</code>, <code class="text-primary">.crt</code>, <code class="text-primary">.csr</code> or <code class="text-primary">.p7b</code> file.</li>
+        <li>Review the <strong>detected type</strong> badge and the structured summary (subject, issuer, validity, public key, extensions).</li>
+        <li>Expand the <strong>ASN.1 tree</strong> to explore every tag, length and value. Embedded ASN.1 structures inside <code class="text-primary">OCTET STRING</code> / <code class="text-primary">BIT STRING</code> wrappers (such as certificate extension values) are automatically re-decoded.</li>
+        <li>Use <strong>Copy as JSON</strong> to copy the structured tree for documentation, bug reports or scripted post-processing.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>ASN.1 Viewer Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Full DER/BER parser with every Universal, Context, Application and Private tag class.</li>
+        <li>Auto-detection of PEM, Base64, Hex and binary file input.</li>
+        <li>High-level summary for X.509, PKCS#10, PKCS#8, SPKI, PKCS#7 / CMS and CRLs.</li>
+        <li>OID database with common RDN attributes, signature algorithms, X.509 extensions and EC named curves.</li>
+        <li>Automatic recursion into embedded ASN.1 structures inside <code class="text-primary">extnValue</code> octet strings and SPKI bit strings.</li>
+        <li>One-click copy of the decoded tree as JSON, plus expand/collapse controls.</li>
+        <li>Works offline in any modern browser — parsing is 100% client-side.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common use cases</h2>
+      <p class="mt-3">
+        Developers, DevOps and security engineers reach for an ASN.1 viewer when debugging TLS handshakes, auditing certificates issued by a private CA, validating CSR contents before sending them to a CA, inspecting S/MIME or code-signing certificates, decoding PKCS#7 bundles returned by CMS APIs, and understanding the exact layout of PKCS#8 private keys produced by <code class="text-primary">openssl genpkey</code> or Java keystores.
+      </p>
+      <p class="mt-3">
+        It is also a great learning aid: pair the decoded tree with
+        <a href="https://datatracker.ietf.org/doc/html/rfc5280" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 5280</a>
+        or
+        <a href="https://datatracker.ietf.org/doc/html/rfc5652" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 5652</a>
+        to see how the spec maps to real bytes.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is it safe to paste certificates or keys?</h2>
+      <p class="mt-3">
+        Yes — this tool is built with privacy as a top priority. All ASN.1 parsing runs entirely in your browser using JavaScript. Certificates, CSRs and keys are never uploaded, logged or stored on any server.
+      </p>
+      <p class="mt-3">
+        Even so, <strong>treat private keys as credentials</strong>. Never paste a production private key into any third-party tool, including this one. For sensitive debugging prefer short-lived test keys, and rotate anything that may have been exposed.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is ASN.1 and why do I need a viewer?</h3>
+        <p class="mt-1">ASN.1 (Abstract Syntax Notation One) is the formal notation used to describe the structure of X.509 certificates, PKCS and CMS messages, LDAP, SNMP and many other cryptographic formats. An ASN.1 viewer decodes the binary DER/BER encoding into a readable tree of tags, lengths and values so you can inspect certificates, CSRs and keys without installing OpenSSL.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between DER, BER and PEM?</h3>
+        <p class="mt-1">BER (Basic Encoding Rules) is the generic binary encoding of ASN.1. DER (Distinguished Encoding Rules) is a strict subset of BER used for digital signatures and certificates because it produces a unique canonical encoding. PEM is a text format that wraps DER bytes in Base64 between "-----BEGIN ..." and "-----END ..." markers so they can be safely pasted into emails, configuration files or cURL commands.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which formats does this ASN.1 viewer support?</h3>
+        <p class="mt-1">Paste PEM blocks (one or many), raw Base64 strings, hexadecimal dumps with or without separators, or upload a binary <code class="text-primary">.der</code>/<code class="text-primary">.cer</code>/<code class="text-primary">.crt</code>/<code class="text-primary">.csr</code>/<code class="text-primary">.p7b</code>/<code class="text-primary">.p8</code>/<code class="text-primary">.key</code> file. The tool auto-detects the input format and renders both the raw ASN.1 tree and a high-level summary for certificates, CSRs, keys and PKCS#7 envelopes.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is my data safe? Do you upload my certificate or private key?</h3>
+        <p class="mt-1">All parsing runs entirely in your browser via JavaScript — nothing is uploaded. That said, private keys are credentials: avoid pasting production private keys into any third-party tool, including this one. For sensitive debugging, use a copy of the key on a workstation you trust and rotate it afterwards if you are unsure.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can this tool replace openssl asn1parse, x509 -text or pkcs7 -print_certs?</h3>
+        <p class="mt-1">For inspection workflows, yes — this viewer shows the ASN.1 tree like <code class="text-primary">openssl asn1parse</code> and the decoded certificate fields like <code class="text-primary">openssl x509 -text</code>, but with a friendlier UI and OID resolution. It does not sign, issue or modify certificates; it is read-only.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which X.509 extensions are decoded?</h3>
+        <p class="mt-1">The summary table shows the common ones: BasicConstraints, KeyUsage, ExtendedKeyUsage, SubjectAltName, IssuerAltName, SubjectKeyIdentifier and AuthorityKeyIdentifier. All other extensions are still fully visible in the raw ASN.1 tree, with their OIDs resolved to human-readable names where possible.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What does "SEQUENCE", "SET" or "[0]" mean in the tree?</h3>
+        <p class="mt-1">These are ASN.1 tags. SEQUENCE and SET are constructed Universal tags that group child elements. Values like <code class="text-primary">[0]</code>, <code class="text-primary">[1]</code>, <code class="text-primary">[3]</code> are context-specific tags used for optional or implicit fields (for example <code class="text-primary">[3]</code> wraps the extensions block inside a TBSCertificate). Primitive tags like INTEGER, OBJECT IDENTIFIER, UTF8String and BIT STRING carry leaf values.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why does my certificate show notBefore/notAfter in UTC?</h3>
+        <p class="mt-1">X.509 Validity timestamps are encoded as <code class="text-primary">UTCTime</code> or <code class="text-primary">GeneralizedTime</code>, both of which represent absolute UTC moments. The viewer displays them in ISO-8601 UTC form so they are unambiguous regardless of your local timezone.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Related DevTools</h2>
+      <p class="mt-3">
+        Combine this ASN.1 viewer with other free utilities from the same suite:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 Encoder / Decoder</a> — to work with the body of PEM blocks manually.</li>
+        <li><a [routerLink]="'/hex'" class="text-primary hover:underline">Hex Encoder / Decoder</a> — to inspect the raw DER bytes.</li>
+        <li><a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 ↔ Hex Converter</a> — to convert between the two binary text forms.</li>
+        <li><a [routerLink]="'/jwt-decode'" class="text-primary hover:underline">JWT Decoder &amp; Verifier</a> — for JSON Web Tokens used alongside X.509 in many OAuth/OIDC stacks.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>ASN.1 Learning Resources</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc5280" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 5280 - Internet X.509 PKI Certificate and CRL Profile</a> — the primary specification for X.509 certificates.
+        </li>
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc5652" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 5652 - Cryptographic Message Syntax (CMS)</a> — the modern PKCS#7 specification.
+        </li>
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc5208" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 5208 - PKCS#8 Private-Key Information Syntax</a> — the specification for the modern private-key container.
+        </li>
+        <li>
+          <a href="https://letsencrypt.org/docs/a-warm-welcome-to-asn1-and-der/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">A Warm Welcome to ASN.1 and DER (Let's Encrypt)</a> — a friendly, practical introduction.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

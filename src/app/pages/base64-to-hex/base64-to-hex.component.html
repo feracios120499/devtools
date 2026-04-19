@@ -233,6 +233,11 @@
         <h3 class="text-base font-semibold">Does the tool support Base64URL encoding?</h3>
         <p class="mt-1">Standard RFC 4648 Base64 is supported. For URL-safe variants, replace <code>-</code> with <code>+</code> and <code>_</code> with <code>/</code> before pasting.</p>
       </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">I converted a PEM block to HEX — how do I decode the bytes?</h3>
+        <p class="mt-1">Pipe the HEX output into the <a [routerLink]="'/asn1-viewer'" class="text-primary hover:underline">ASN.1 Viewer &amp; X.509 / PKCS Decoder</a> to parse DER-encoded certificates, CSRs, PKCS#7/CMS envelopes and private keys into a readable tree.</p>
+      </div>
     </div>
 
     <div class="dt-info-item">

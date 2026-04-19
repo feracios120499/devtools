@@ -1,0 +1,109 @@
+/* Component-specific overrides for ASN.1 Viewer. Kept minimal — the page
+   relies on Tailwind utility classes and PrimeNG defaults for styling. */
+
+:host {
+  display: block;
+}
+
+/* Compact tree so that long certificate structures remain navigable. */
+::ng-deep app-asn1-viewer {
+  .asn1-tree .p-treenode-label {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    line-height: 1.25rem;
+  }
+
+  .asn1-tree .p-treenode {
+    padding: 0;
+  }
+
+  /* Theme-agnostic subtle border: 12% of the current text color. Falls back to
+     a neutral grey on browsers without color-mix(). */
+  --asn1-soft-border: rgba(127, 127, 127, 0.18);
+  --asn1-soft-border: color-mix(in srgb, currentColor 12%, transparent);
+  --asn1-soft-bg: rgba(127, 127, 127, 0.05);
+  --asn1-soft-bg: color-mix(in srgb, currentColor 4%, transparent);
+
+  /* Grouped summary card (e.g. per-signer block). */
+  .asn1-summary-group {
+    border: 1px solid var(--asn1-soft-border);
+    background-color: transparent;
+  }
+
+  .asn1-summary-group-header {
+    padding: 0.5rem 0.75rem;
+    background-color: var(--asn1-soft-bg);
+    border-bottom: 1px solid var(--asn1-soft-border);
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--text-color);
+    border-top-left-radius: inherit;
+    border-top-right-radius: inherit;
+  }
+
+  /* Individual section tile (labelled group of rows). */
+  .asn1-summary-section {
+    border: 1px solid var(--asn1-soft-border);
+    background-color: transparent;
+  }
+
+  /* Per-row copy button: hidden until the user hovers the row to avoid
+     cluttering the layout, but still keyboard-accessible via :focus-within. */
+  .asn1-summary-row .asn1-copy-btn {
+    opacity: 0;
+    transition: opacity 120ms ease-in-out;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0 !important;
+  }
+
+  .asn1-summary-row:hover .asn1-copy-btn,
+  .asn1-summary-row:focus-within .asn1-copy-btn {
+    opacity: 1;
+  }
+
+  .asn1-summary-row .asn1-copy-btn .p-button-icon {
+    font-size: 0.75rem;
+  }
+
+  /* Outer tree scroll container: soft, slightly visible border. */
+  .asn1-tree-wrapper {
+    border: 1px solid var(--asn1-soft-border);
+  }
+
+  /* Highlight the node that was jumped to via the search autocomplete.
+     Flashes a few times and fades out so the user can visually spot it
+     after scrolling — the animation is finite so no extra CD pass is
+     needed to clean it up. */
+  .asn1-node-highlight {
+    border-radius: 4px;
+    padding: 0 0.25rem;
+    animation: asn1-node-pulse 2.4s ease-in-out 1 forwards;
+  }
+
+  @keyframes asn1-node-pulse {
+    0% {
+      background-color: color-mix(in srgb, var(--primary-color, #3b82f6) 30%, transparent);
+      outline: 1px solid color-mix(in srgb, var(--primary-color, #3b82f6) 65%, transparent);
+    }
+    35% {
+      background-color: color-mix(in srgb, var(--primary-color, #3b82f6) 18%, transparent);
+      outline: 1px solid color-mix(in srgb, var(--primary-color, #3b82f6) 45%, transparent);
+    }
+    70% {
+      background-color: color-mix(in srgb, var(--primary-color, #3b82f6) 24%, transparent);
+      outline: 1px solid color-mix(in srgb, var(--primary-color, #3b82f6) 55%, transparent);
+    }
+    100% {
+      background-color: transparent;
+      outline: 1px solid transparent;
+    }
+  }
+
+  /* Compact autocomplete to match the surrounding small buttons. */
+  .asn1-search .p-autocomplete,
+  .asn1-search.p-autocomplete {
+    width: 100%;
+  }
+}

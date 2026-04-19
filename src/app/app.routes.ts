@@ -119,6 +119,11 @@ export const routes: Routes = [
     title: 'JWT Decoder and Verifier | DevTools'
   },
   {
+    path: 'asn1-viewer',
+    loadComponent: () => import('./pages/asn1-viewer/asn1-viewer.component').then(m => m.Asn1ViewerComponent),
+    title: 'ASN.1 Viewer & X.509 / PKCS Decoder | DevTools'
+  },
+  {
     path: 'sql-formatter',
     loadComponent: () => import('./pages/sql-formatter/sql-formatter.component').then(m => m.SqlFormatterComponent),
     providers: monacoProviders,

@@ -235,6 +235,14 @@ export class ToolsService {
       description: 'Decode and verify JWT tokens'
     },
     {
+      id: 'asn1-viewer',
+      label: 'ASN.1 Viewer',
+      icon: 'certificate',
+      routerLink: '/asn1-viewer',
+      category: 'MISC TOOLS',
+      description: 'Decode ASN.1 (DER/BER), X.509 certificates, CSR and PKCS structures'
+    },
+    {
       id: 'sql-formatter',
       label: 'SQL Formatter',
       icon: 'database',
