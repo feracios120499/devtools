@@ -1,20 +1,22 @@
 import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
 interface Monaco {
@@ -58,11 +60,14 @@ export interface JsonToEnvSettings extends PageSettings {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './json-to-env.component.html',
@@ -72,6 +77,10 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
   inputCode: string = '';
   outputCode: string = '';
+
+  // Literal code examples used in the SEO content (avoid Angular's ICU/interpolation parser)
+  readonly nestedJsonExample: string = '{"db":{"host":"localhost"}}';
+  readonly nestedDatabaseJsonExample: string = '{"database":{"host":"localhost"}}';
 
   @ViewChild('inputMonacoEditor') inputMonacoEditor: any;
   @ViewChild('outputMonacoEditor') outputMonacoEditor: any;
@@ -425,19 +434,104 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/json-to-env';
+    const shortDescription = 'Free online JSON to .env converter. Flatten nested JSON into environment variables, Docker Compose YAML, Kubernetes ConfigMaps and Azure App Settings in your browser.';
+
     const metaData: MetaData = {
-      OgTitle: 'JSON to ENV Converter | DevTools',
-      OgDescription: 'Free online JSON to ENV converter. Transform complex JSON structures into .env files, YAML, Docker Compose, and Kubernetes configurations.',
-      description: 'Free online tool to convert JSON to environment variables (.env), YAML, Docker Compose, or Kubernetes configurations. Perfect for simplifying configuration management across different environments and platforms.',
-      keywords: ['json to env', 'json to yaml', 'json converter', 'env file generator', 'docker env', 'kubernetes yaml', 'configuration converter', 'json to environment variables'],
+      OgTitle: 'JSON to .env Converter Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'json to env',
+        'json to .env',
+        'json to environment variables',
+        'json to env converter',
+        'env file generator',
+        'json to yaml',
+        'json to docker compose',
+        'json to kubernetes configmap',
+        'json to azure app settings',
+        'convert json to env online',
+        'flatten json to env',
+        'dotenv generator',
+        'json configuration converter',
+        '12 factor app config'
+      ],
       jsonLd: {
-        name: 'JSON to ENV Converter',
-        description: 'Free online tool for converting JSON to environment variables, Docker .env, or YAML formats',
-        url: 'https://onlinewebdevtools.com/json-to-env'
-      }
+        name: 'JSON to .env Converter Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Convert JSON to Docker .env files',
+          'Flatten nested JSON keys with configurable separator (: or __)',
+          'Automatic UPPER_SNAKE_CASE key conversion for POSIX environments',
+          'Export to Docker Compose, Kubernetes ConfigMap and Azure App Settings',
+          'Smart value quoting for strings, arrays, numbers and booleans',
+          'Client-side processing for privacy - no data leaves your browser',
+          'Copy to clipboard and download as .env or .yaml'
+        ]
+      },
+      faq: [
+        {
+          question: 'How are nested JSON keys handled?',
+          answer: 'Nested objects are flattened by joining each level of keys with the separator you pick (: or __). For example {"db":{"host":"localhost"}} becomes DB__HOST=localhost.'
+        },
+        {
+          question: 'How are JSON arrays converted?',
+          answer: 'Arrays are serialized to a quoted JSON string on a single line, for example TAGS="[\\"prod\\",\\"eu\\"]". This keeps the .env file shell-safe and lets you parse the value back with JSON.parse at runtime.'
+        },
+        {
+          question: 'Is it safe to convert JSON that contains secrets?',
+          answer: 'Yes - the conversion runs fully in your browser and nothing is sent to our servers. For production workloads you should still keep real secrets in a dedicated secret manager rather than in a plain .env file committed to git.'
+        },
+        {
+          question: 'How are booleans and numbers handled?',
+          answer: 'Booleans and numbers are written as plain literals without quotes (for example DEBUG=false, PORT=5432), so they can be loaded directly by dotenv and parsed as strings in POSIX shells.'
+        },
+        {
+          question: 'Can I convert to Docker Compose or Kubernetes format instead of a plain .env?',
+          answer: 'Yes. Switch the Output Format to YAML and pick a subformat: Docker, Compose, Kubernetes ConfigMap or Azure App Settings. The tool will emit a complete manifest you can drop into your deployment.'
+        },
+        {
+          question: 'Does the tool validate my input JSON?',
+          answer: 'Yes. If your input is not valid JSON the converter will show an error toast and keep the last valid output, so you can fix the syntax and continue where you left off.'
+        },
+        {
+          question: 'Is this JSON to .env tool free to use?',
+          answer: 'Completely free, no registration, no ads, no usage limits and no tracking. All processing happens locally in your browser.'
+        }
+      ],
+      howTo: {
+        name: 'How to convert JSON to .env online',
+        description: 'Transform a JSON configuration object into environment variables in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste JSON',
+            text: 'Paste your JSON configuration into the JSON Input editor, or click Sample to load an example. Invalid JSON is highlighted as you type.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Pick output style',
+            text: 'Choose an output format (Docker .env, Docker Compose, Kubernetes ConfigMap or Azure App Settings), a key separator (: or __) and whether to keep the original key case or convert to UPPER_SNAKE_CASE.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download .env',
+            text: 'Copy the generated environment variables to your clipboard or download them as a .env / .yaml file ready to use with Docker, Kubernetes or dotenv.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'JSON Tools', url: 'https://onlinewebdevtools.com/#json-tools' },
+        { name: 'JSON to ENV', url: pageUrl }
+      ]
     };
 
     this.seoService.setupSeo(metaData);

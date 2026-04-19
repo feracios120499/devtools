@@ -6,11 +6,18 @@ import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
 import { FileTypeService, FileTypeInfo } from '../../services/file-type.service';
 import { MimeTypeService, MimeTypeInfo } from '../../services/mime-type.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
+import { RouterModule } from '@angular/router';
 
 // Интерфейс TypeOption совпадает с FileTypeInfo для использования с p-select
 interface TypeOption extends FileTypeInfo {
@@ -22,8 +29,15 @@ interface TypeOption extends FileTypeInfo {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
-    PageHeaderComponent
+    ButtonModule,
+    FloatLabelModule,
+    InputTextModule,
+    SelectModule,
+    TextareaModule,
+    ToastModule,
+    PageHeaderComponent,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './hex-to-file.component.html',
@@ -82,21 +96,103 @@ export class HexToFileComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/hex-to-file';
+    const shortDescription = 'Free online HEX to File decoder. Convert hexadecimal strings back to downloadable binary files with automatic file type detection. 100% client-side, no upload.';
+
     const metaData: MetaData = {
-      OgTitle: 'HEX to File Converter | DevTools',
-      OgDescription: 'Free online HEX to File converter. Convert hexadecimal data back to downloadable files with automatic file type detection.',
-      description: 'Free online HEX to File converter. Convert hexadecimal data back to files. Download files from HEX strings with automatic file type detection. Supports various HEX formats including plain, dashed, space-separated, and more.',
-      keywords: ['hex to file', 'hex decoder', 'hex converter', 'convert hex to file', 'download file from hex', 'hex file converter', 'hex to binary'],
+      OgTitle: 'HEX to File Converter & Decoder Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'hex to file',
+        'hex to file converter',
+        'hex decoder',
+        'hex to binary',
+        'convert hex to file online',
+        'download file from hex',
+        'hex string to file',
+        'decode hex online',
+        'hex dump to file',
+        'hex file reconstruction'
+      ],
       jsonLd: {
-        name: 'HEX to File Converter',
-        description: 'Free online tool for converting hexadecimal data to downloadable files',
-        url: 'https://onlinewebdevtools.com/hex-to-file'
-      }
+        name: 'HEX to File Converter & Decoder Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Decode hexadecimal strings into downloadable binary files',
+          'Support for plain, dashed, colon, space, and 0x-prefixed HEX formats',
+          'Automatic file type detection via magic numbers (PNG, JPEG, PDF, ZIP, and more)',
+          'Custom filename with editable extension',
+          'MIME type suggestions for the detected format',
+          'Real-time HEX validation with clear error messages',
+          'Client-side processing for privacy and speed',
+          'One-click sample data and clipboard paste'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this HEX to File converter free to use?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you upload my HEX data to a server?',
+          answer: 'No, all decoding is done locally in your browser. Your HEX string and the resulting file never leave your device.'
+        },
+        {
+          question: 'Which HEX formats are supported?',
+          answer: 'Plain hex (DEADBEEF), dashed (DE-AD-BE-EF), colon-separated (DE:AD:BE:EF), space-separated (DE AD BE EF), and 0x-prefixed bytes are all accepted.'
+        },
+        {
+          question: 'How is the file type detected?',
+          answer: 'The decoder inspects the first bytes of your data (magic numbers / file signatures) and matches them against known formats such as PNG, JPEG, PDF, ZIP, MP4, and many others. If no match is found, the file is saved as a generic .bin file.'
+        },
+        {
+          question: 'Can I override the detected file extension?',
+          answer: 'Yes. You can edit the filename field and either pick a different type from the dropdown or type an explicit extension (for example report.pdf) before downloading.'
+        },
+        {
+          question: 'Can I decode very large HEX strings?',
+          answer: "Yes. The display is truncated for readability but the full input is always used when decoding. Practical limits depend on your browser's memory."
+        },
+        {
+          question: 'What happens if my HEX is invalid?',
+          answer: 'The tool validates the input in real time and shows a clear error if it contains non-hex characters or has an odd length. Fix the input and the decoder will re-enable the download.'
+        }
+      ],
+      howTo: {
+        name: 'How to decode HEX to a file online',
+        description: 'Convert a hexadecimal string back into a downloadable binary file in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste HEX',
+            text: 'Paste or type your hexadecimal string into the HEX input editor. Plain, dashed, colon, space, and 0x-prefixed formats are all accepted and validated in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure filename',
+            text: 'Review the auto-detected file type and adjust the filename or extension in the options section if you need a specific name or format.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Download file',
+            text: 'Click Convert & Download to generate the decoded binary file with the correct MIME type and save it directly from your browser.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'HEX to File', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

@@ -1,15 +1,15 @@
 <div class="dt-container">
-  <p-toast position="bottom-right"></p-toast>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
 
-  <app-page-header>Markdown Preview - Real-time markdown rendering</app-page-header>
+  <app-page-header>Markdown Preview - Free Online Markdown Editor & Live Renderer</app-page-header>
   <div class="p-3">
-    <p>This <strong>Markdown Preview</strong> tool allows you to write Markdown syntax on the left and see the rendered HTML output on the right in real-time.</p>
-    <p>Perfect for <strong>documentation writing</strong>, content creation, and previewing Markdown files before publishing.</p>
+    <p>This <strong>online Markdown preview</strong> tool lets you write Markdown syntax on the left and see instant rendered HTML on the right, with full support for <strong>CommonMark and GitHub Flavored Markdown (GFM)</strong>.</p>
+    <p>Perfect for <strong>README files, technical documentation, blog posts and notes</strong> - everything runs client-side in your browser with no uploads.</p>
   </div>
 
   <div class="dt-editors">
     <!-- Left column - Markdown Input -->
-    <div class="col flex flex-col h-full">
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">Markdown Input</h3>
@@ -17,18 +17,18 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="inputText" (ngModelChange)="onTextChange()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isFullscreen">
-            <div class="dt-editors-editor-actions">
+            <div class="dt-editors-editor-actions" id="options">
               <div class="flex justify-between p-2">
                 <div class="flex gap-3 align-items-center">
                   <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleMarkdown()"
@@ -68,67 +68,169 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
-                (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+            </div>
+            <app-monaco-editor-lazy #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
+              (ngModelChange)="onTextChange()" class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right column - HTML Preview -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col h-full">
+        <div class="flex justify-between items-center h-10">
+          <h3 class="text-xl font-medium text-800 m-0">HTML Preview</h3>
+          <div class="flex align-items-center">
+            @if (!isPreviewFullscreen && inputText) {
+              <button pButton type="button" (click)="togglePreviewFullscreen()"
+                severity="contrast" class="p-button-text p-button-sm">
+                <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+              </button>
+            }
+            @if (isPreviewFullscreen && inputText) {
+              <button pButton type="button" (click)="togglePreviewFullscreen()"
+                severity="contrast" class="p-button-text p-button-sm">
+                <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+              </button>
+            }
+          </div>
+        </div>
+        <div class="mb-1"></div>
+
+        <div class="dt-editors-editor" [class.fullscreen-editor]="isPreviewFullscreen">
+          @if (!inputText.trim()) {
+            <div class="text-center text-500 mt-4">
+              <i class="pi pi-file-edit text-2xl mb-2"></i>
+              <p>Start typing Markdown on the left to see the preview here</p>
+            </div>
+          }
+
+          @if (inputText.trim()) {
+            <div class="surface-border border-round h-full overflow-y-auto relative">
+              <!-- Sticky exit fullscreen button for preview -->
+              @if (isPreviewFullscreen) {
+                <i-tabler (click)="togglePreviewFullscreen()" name="arrows-minimize" class="icon-md preview-exit-fullscreen"></i-tabler>
+              }
+              <div [innerHTML]="renderedHtml" class="markdown-preview"></div>
             </div>
           }
         </div>
       </div>
+    </div>
+  </div>
 
-      <!-- Right column - HTML Preview -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col h-full">
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">HTML Preview</h3>
-            <div class="flex align-items-center">
-              @if (!isPreviewFullscreen && inputText) {
-                <button pButton type="button" (click)="togglePreviewFullscreen()"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-              }
-              @if (isPreviewFullscreen && inputText) {
-                <button pButton type="button" (click)="togglePreviewFullscreen()"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
-              }
-            </div>
-          </div>
-          <div class="mb-1"></div>
-
-          <div class="dt-editors-editor" [class.fullscreen-editor]="isPreviewFullscreen">
-            @if (!inputText.trim()) {
-              <div class="text-center text-500 mt-4">
-                <i class="pi pi-file-edit text-2xl mb-2"></i>
-                <p>Start typing Markdown on the left to see the preview here</p>
-              </div>
-            }
-
-            @if (inputText.trim()) {
-              <div class="surface-border border-round h-full overflow-y-auto relative">
-                <!-- Sticky exit fullscreen button for preview -->
-                @if (isPreviewFullscreen) {
-                  <i-tabler (click)="togglePreviewFullscreen()"  name="arrows-minimize" class="icon-md preview-exit-fullscreen"></i-tabler>
-                }
-                <div [innerHTML]="renderedHtml" class="markdown-preview"></div>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
+  <div class="dt-info mt-4 p-3">
+    <!-- 1. What is Markdown -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is Markdown?</h2>
+      <p class="mt-3">
+        Markdown is a lightweight, plain-text markup language created by John Gruber in 2004. It uses simple symbols like <code>#</code>, <code>*</code> and <code>-</code> to describe headings, emphasis and lists, and converts cleanly into valid HTML. Because Markdown files are just text, they are portable, diff-friendly and readable even before rendering - which is why GitHub, GitLab, Reddit, Stack Overflow, Discord and thousands of static-site generators use it as their default authoring format.
+      </p>
     </div>
 
-    <!-- Markdown Cheatsheet -->
-    <div id="markdown-cheatsheet" class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section">
-      <h4 class="text-xl font-semibold mb-3">Markdown Cheatsheet</h4>
+    <!-- 2. Why use a Markdown preview tool -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use a Markdown Preview Tool?</h2>
+      <p class="mt-3">
+        Writing Markdown is fast, but small syntax mistakes - an unclosed code fence, a missing blank line, a stray asterisk - can silently break the rendered output. A live <strong>Markdown previewer</strong> shows exactly what your text will look like on GitHub, a blog or a documentation site before you publish it. It also helps you experiment with tables, task lists, images and links without needing a full IDE or static-site build.
+      </p>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- 3. How to use this Markdown previewer -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Use This Markdown Previewer (Step-by-Step)</h2>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Paste or write Markdown</strong> in the left editor - or click <em>Sample</em> to load an example document.</li>
+        <li><strong>Watch the live preview</strong> render on the right as you type. Both CommonMark and GitHub Flavored Markdown are supported.</li>
+        <li><strong>Adjust the editor</strong> using the toolbar: paste from clipboard, copy your source, clear, or expand to fullscreen for focused writing.</li>
+        <li><strong>Copy the result</strong> - grab the Markdown source with the Copy button, or select the rendered HTML preview to reuse it in another tool.</li>
+      </ol>
+    </div>
+
+    <!-- 4. Why choose our Markdown previewer -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Markdown Previewer?</h2>
+      <p class="mt-3">
+        Our tool is built for developers and writers who want a distraction-free, privacy-respecting Markdown editor. Rendering happens entirely in your browser using the battle-tested <em>marked</em> parser with GFM enabled. You get a real Monaco editor with syntax highlighting, line numbers and word wrap - the same engine that powers Visual Studio Code - combined with an instant, side-by-side HTML preview that always stays in sync with your source.
+      </p>
+    </div>
+
+    <!-- 5. How Markdown rendering works -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Markdown Rendering Works</h2>
+      <p class="mt-3">
+        A Markdown renderer parses plain text into an abstract syntax tree (AST) and then serializes that tree as HTML. Modern parsers follow the <strong>CommonMark</strong> specification, which defines unambiguous rules for every construct, and extend it with <strong>GitHub Flavored Markdown (GFM)</strong> features such as tables, task lists, strikethrough and autolinks. Our previewer uses the <code>marked</code> library with <code>gfm: true</code> and <code>breaks: true</code>, so soft line breaks become <code>&lt;br&gt;</code> tags and GFM extensions render out of the box.
+      </p>
+    </div>
+
+    <!-- 6. Features -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><span class="text-primary font-medium">Live preview:</span> instant HTML rendering as you type, with zero lag.</li>
+        <li><span class="text-primary font-medium">Syntax highlighting:</span> Monaco editor highlights Markdown syntax and fenced code blocks.</li>
+        <li><span class="text-primary font-medium">CommonMark + GFM support:</span> tables, task lists, strikethrough, autolinks and fenced code.</li>
+        <li><span class="text-primary font-medium">Copy Markdown / HTML:</span> copy your source with one click, or select the rendered preview to copy HTML.</li>
+        <li><span class="text-primary font-medium">Paste from clipboard:</span> bring in Markdown from any source in a single click.</li>
+        <li><span class="text-primary font-medium">Sample content:</span> load a ready-made example to explore all features quickly.</li>
+        <li><span class="text-primary font-medium">Fullscreen mode:</span> distraction-free writing for both editor and preview.</li>
+        <li><span class="text-primary font-medium">Dark &amp; light themes:</span> the editor follows your DevTools theme automatically.</li>
+      </ul>
+    </div>
+
+    <!-- 7. Common use cases -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>README files</strong> for GitHub, GitLab and npm packages.</li>
+        <li><strong>Technical documentation</strong> - API references, architecture notes, runbooks.</li>
+        <li><strong>Blog posts and articles</strong> for static-site generators (Jekyll, Hugo, Gatsby, Next.js, Astro).</li>
+        <li><strong>Issue templates, pull request descriptions and chat messages</strong> on GitHub, GitLab or Discord.</li>
+        <li><strong>Personal notes, cheatsheets and knowledge bases</strong> (Obsidian, Logseq, Notion exports).</li>
+        <li><strong>Educational content</strong> - tutorials, exercises, lesson plans.</li>
+      </ul>
+    </div>
+
+    <!-- 8. Is it safe to preview Markdown online -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Preview Markdown Online?</h2>
+      <p class="mt-3">
+        Yes. This previewer runs 100% client-side: your Markdown never leaves your browser and is never uploaded to any server. The rendered HTML is injected through Angular's <code>DomSanitizer</code>, so the preview is executed inside a controlled context. Because parsing happens locally, the tool also works offline once the page is loaded, which makes it safe to use for confidential drafts, internal documentation and private notes.
+      </p>
+    </div>
+
+    <!-- 9. Why choose DevTools -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a free collection of focused, browser-based utilities for developers - no sign-up, no ads, no tracking of your content. Every tool is built around the same principles: instant load, client-side processing, clean UI and deep links between related utilities. The Markdown previewer sits alongside a JSON formatter, text diff checker, word counter, CSV viewer and dozens of other tools so you can chain them into a single workflow.
+      </p>
+    </div>
+
+    <!-- 10. Copy options and related tools -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Copy, Export &amp; Related Tools</h2>
+      <p class="mt-3">
+        When you're done editing, use the <strong>Copy</strong> button to grab your Markdown source to the clipboard, or select the rendered preview area to copy the generated HTML directly into a CMS, email or documentation platform. For more advanced workflows, combine the Markdown previewer with other DevTools:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><a [routerLink]="'/text-diff-checker'" class="text-primary hover:underline">Text Diff Checker</a> - compare two Markdown drafts side by side and spot every change.</li>
+        <li><a [routerLink]="'/word-counter'" class="text-primary hover:underline">Word Counter</a> - check length, reading time and character count for blog posts and articles.</li>
+        <li><a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON Formatter</a> - beautify JSON you might embed in code blocks or documentation.</li>
+      </ul>
+    </div>
+
+    <!-- 11. Markdown Cheatsheet -->
+    <div class="dt-info-item" id="markdown-cheatsheet">
+      <h2 class="text-xl text-primary" anchorHeading>Markdown Cheatsheet</h2>
+      <p class="mt-3">A quick reference for the most common Markdown syntax supported by this previewer:</p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3">
         <!-- Headers -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Headers</h5>
+          <h3 class="text-base font-semibold mb-2">Headers</h3>
           <div class="text-sm font-mono">
             <div># H1 Header</div>
             <div>## H2 Header</div>
@@ -139,7 +241,7 @@
 
         <!-- Text Formatting -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Text Formatting</h5>
+          <h3 class="text-base font-semibold mb-2">Text Formatting</h3>
           <div class="text-sm font-mono">
             <div>**Bold text**</div>
             <div>*Italic text*</div>
@@ -150,7 +252,7 @@
 
         <!-- Lists -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Lists</h5>
+          <h3 class="text-base font-semibold mb-2">Lists</h3>
           <div class="text-sm font-mono">
             <div>- Unordered list item</div>
             <div>- Another item</div>
@@ -161,7 +263,7 @@
 
         <!-- Links & Images -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Links & Images</h5>
+          <h3 class="text-base font-semibold mb-2">Links &amp; Images</h3>
           <div class="text-sm font-mono">
             <div>[Link text](https://example.com)</div>
             <div>![Alt text](image.jpg)</div>
@@ -170,7 +272,7 @@
 
         <!-- Code Blocks -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Code Blocks</h5>
+          <h3 class="text-base font-semibold mb-2">Code Blocks</h3>
           <div class="text-sm font-mono">
             <div>```javascript</div>
             <div>function example() {{'{'}} </div>
@@ -182,7 +284,7 @@
 
         <!-- Tables -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Tables</h5>
+          <h3 class="text-base font-semibold mb-2">Tables</h3>
           <div class="text-sm font-mono">
             <div>| Header 1 | Header 2 |</div>
             <div>|----------|----------|</div>
@@ -193,16 +295,16 @@
 
         <!-- Blockquotes -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Blockquotes</h5>
+          <h3 class="text-base font-semibold mb-2">Blockquotes</h3>
           <div class="text-sm font-mono">
-            <div>> This is a blockquote</div>
-            <div>> It can span multiple lines</div>
+            <div>&gt; This is a blockquote</div>
+            <div>&gt; It can span multiple lines</div>
           </div>
         </div>
 
         <!-- Horizontal Rule -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Horizontal Rule</h5>
+          <h3 class="text-base font-semibold mb-2">Horizontal Rule</h3>
           <div class="text-sm font-mono">
             <div>---</div>
             <div class="mt-2">or</div>
@@ -212,7 +314,7 @@
 
         <!-- Task Lists -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Task Lists</h5>
+          <h3 class="text-base font-semibold mb-2">Task Lists (GFM)</h3>
           <div class="text-sm font-mono">
             <div>- [x] Completed task</div>
             <div>- [ ] Incomplete task</div>
@@ -222,7 +324,7 @@
 
         <!-- Escaping -->
         <div class="cheatsheet-section">
-          <h5 class="text-lg font-medium text-700 mb-2">Escaping Characters</h5>
+          <h3 class="text-base font-semibold mb-2">Escaping Characters</h3>
           <div class="text-sm font-mono">
             <div>\*Escaped asterisk\*</div>
             <div>\\Escaped backslash\\</div>
@@ -232,92 +334,63 @@
       </div>
     </div>
 
-    <!-- Information Section -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-      <h4 class="text-xl font-semibold mb-2">About Markdown Preview</h4>
-      <p class="mb-2 text-sm">
-        This <strong>Markdown Preview</strong> tool provides real-time rendering of Markdown syntax into HTML.
-        Write your Markdown content on the left side and instantly see the formatted output on the right.
-      </p>
-      <p class="mb-2 text-sm">
-        <strong>Features:</strong>
-      </p>
-      <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-        <li><span class="text-primary">Real-time preview:</span> See instant HTML rendering as you type Markdown</li>
-        <li><span class="text-primary">Full Markdown support:</span> Headers, lists, code blocks, tables, links, and more</li>
-        <li><span class="text-primary">GitHub Flavored Markdown:</span> Support for GFM extensions and features</li>
-        <li><span class="text-primary">Monaco editor:</span> Professional code editor with syntax highlighting</li>
-        <li><span class="text-primary">Copy and paste support:</span> Easy content manipulation with clipboard integration</li>
-        <li><span class="text-primary">Sample content:</span> Load example Markdown to explore features</li>
-        <li><span class="text-primary">Fullscreen mode:</span> Focus on writing with fullscreen editor support</li>
-        <li><span class="text-primary">Privacy focused:</span> All rendering happens locally - no server upload</li>
-      </ul>
-      <p class="mb-2 text-sm">
-        <strong>Use cases:</strong> Documentation writing, README files, blog posts, technical writing,
-        content creation, and previewing Markdown files before publishing.
-      </p>
-      <p class="text-sm text-500">
-        <i class="pi pi-info-circle mr-1"></i> All Markdown rendering happens in your browser - your content is never sent to any server.
-      </p>
+    <!-- 12. FAQ -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this Markdown preview tool free to use?</h3>
+        <p class="mt-1">Yes. It's completely free, requires no sign-up and has no usage limits or ads.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store the Markdown I paste?</h3>
+        <p class="mt-1">No. All rendering happens locally in your browser - your Markdown is never uploaded to any server.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which Markdown flavor is supported?</h3>
+        <p class="mt-1">The previewer supports the full CommonMark specification plus GitHub Flavored Markdown (GFM) extensions such as tables, task lists, strikethrough and autolinks.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I copy the rendered HTML?</h3>
+        <p class="mt-1">Yes. Use the Copy button to save the Markdown source, or select the rendered preview area and copy it as HTML into any CMS, email client or documentation tool.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does it work offline?</h3>
+        <p class="mt-1">Yes. Once the page is loaded, the parser and editor run fully in your browser, so you can keep writing and previewing without an internet connection.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is the preview sanitized against XSS?</h3>
+        <p class="mt-1">The rendered HTML is injected through Angular's DomSanitizer and is only displayed inside your own browser tab. Because nothing is sent to a server and nothing is shared with other users, there is no cross-user XSS surface.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I use it for large documents?</h3>
+        <p class="mt-1">Yes. The Monaco editor and marked parser handle long README files and multi-thousand-line documents comfortably, limited only by your browser's memory.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Will the rendered HTML look the same on GitHub?</h3>
+        <p class="mt-1">Very close - this tool uses CommonMark + GFM, which is the same baseline GitHub uses. Minor visual differences may come from GitHub's own CSS and their server-side sanitizer, but the HTML structure matches.</p>
+      </div>
     </div>
 
-    <!-- Documentation and Writing Applications -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-      <h4 class="text-xl font-semibold mb-3">Documentation & Writing Applications</h4>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">Technical Documentation</h5>
-          <p class="mb-2 text-sm">
-            Essential for developers, technical writers, and documentation teams who need to create
-            and preview professional documentation in Markdown format.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Documentation Applications:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>README files for GitHub repositories</li>
-            <li>API documentation and guides</li>
-            <li>Software project documentation</li>
-            <li>Technical specifications and manuals</li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">Content Creation & Blogging</h5>
-          <p class="mb-2 text-sm">
-            Perfect for content creators, bloggers, and writers who use Markdown for
-            content management systems and static site generators.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>Blog posts and articles</li>
-            <li>Static site content (Jekyll, Hugo, Gatsby)</li>
-            <li>Educational materials and tutorials</li>
-            <li>Notes and knowledge management</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <h5 class="text-lg font-medium text-700 mb-2">Markdown Syntax Support</h5>
-        <p class="text-sm mb-2">
-          This <strong>Markdown Preview</strong> supports all standard Markdown syntax plus
-          GitHub Flavored Markdown extensions for enhanced formatting options.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Supported Features:</h6>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-          <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Headers (H1-H6)</span>
-          <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Lists & Tables</span>
-          <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Code blocks</span>
-          <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Links & Images</span>
-          <span class="px-2 py-1 bg-red-50 text-red-700 rounded">Bold & Italic</span>
-          <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Blockquotes</span>
-          <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Strikethrough</span>
-          <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Task lists</span>
-          <span class="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">Line breaks</span>
-        </div>
-      </div>
+    <!-- 13. Markdown Learning Resources -->
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Markdown Learning Resources</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><a href="https://commonmark.org/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">CommonMark.org</a> - the official CommonMark specification and interactive tutorial.</li>
+        <li><a href="https://github.github.com/gfm/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">GitHub Flavored Markdown Spec</a> - GFM's formal extension spec for tables, task lists and more.</li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/MDN/Writing_guidelines/Howto/Markdown_in_MDN" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">MDN: Markdown in MDN</a> - Mozilla's overview of Markdown usage and conventions.</li>
+        <li><a href="https://daringfireball.net/projects/markdown/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Daring Fireball: Markdown</a> - John Gruber's original Markdown specification.</li>
+        <li><a href="https://www.markdownguide.org/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">The Markdown Guide</a> - a comprehensive community reference with basic and extended syntax.</li>
+      </ul>
     </div>
   </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

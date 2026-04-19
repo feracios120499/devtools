@@ -5,23 +5,36 @@ import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { QRCodeComponent, QRCodeErrorCorrectionLevel } from 'angularx-qrcode';
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { SelectModule } from 'primeng/select';
+import { SliderModule } from 'primeng/slider';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService, UrlToQrSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 @Component({
   selector: 'app-url-to-qr',
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    ColorPickerModule,
+    SelectModule,
+    SliderModule,
+    TextareaModule,
+    ToastModule,
     QRCodeComponent,
-    PageHeaderComponent
+    PageHeaderComponent,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './url-to-qr.component.html',
@@ -150,21 +163,109 @@ export class UrlToQrComponent implements OnInit {
   }
 
   /**
-   * Setup metadata for SEO
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/url-to-qr';
+    const shortDescription = 'Free online URL to QR code generator. Create custom QR codes from any URL with adjustable size, colors and error correction. Runs entirely in your browser.';
+
     const metaData: MetaData = {
-      OgTitle: 'URL to QR Code Generator | DevTools',
-      OgDescription: 'Free online URL to QR Code generator. Create QR codes from any URL for easy mobile scanning with customizable options.',
-      description: 'Free online URL to QR Code generator tool. Create QR codes from any URL for easy mobile scanning. Customize size, colors, and error correction level. No registration required.',
-      keywords: ['URL to QR code', 'QR code generator', 'generate QR code from URL', 'URL QR code creator', 'QR code maker', 'custom QR code generator'],
+      OgTitle: 'URL to QR Code Generator Online | Free Custom QR Codes',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'URL to QR code',
+        'QR code generator',
+        'generate QR code from URL',
+        'URL QR code creator',
+        'QR code maker',
+        'custom QR code generator',
+        'online QR code generator',
+        'free QR code generator',
+        'QR code with logo',
+        'QR code with colors',
+        'QR code error correction',
+        'QR code download PNG'
+      ],
       jsonLd: {
-        name: 'URL to QR Code Generator',
-        description: 'Free online tool for generating QR codes from URLs',
-        url: 'https://onlinewebdevtools.com/url-to-qr'
-      }
+        name: 'URL to QR Code Generator Online | Free Custom QR Codes',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Generate QR codes from any URL or text',
+          'Adjustable size from 100 px to 500 px',
+          'Custom foreground and background colors',
+          'Four error-correction levels (L, M, Q, H)',
+          'Live preview with instant regeneration',
+          'One-click PNG download',
+          'Client-side processing for privacy',
+          'Offline-capable after initial page load'
+        ]
+      },
+      faq: [
+        {
+          question: 'What size should my QR code be?',
+          answer: 'For print, a safe rule is at least 2 cm x 2 cm (about 100 px at 300 DPI) when scanned from close range. For posters or billboards, increase the size proportionally to the scanning distance — roughly 1 cm of QR code for every 10 cm of distance.'
+        },
+        {
+          question: 'Can I customize the QR code style and colors?',
+          answer: 'Yes. You can choose any foreground and background color with the built-in color pickers. Just make sure there is enough contrast between the two colors — dark on light is the most reliable combination for scanners.'
+        },
+        {
+          question: 'Does the generator work offline?',
+          answer: 'Yes. All encoding and rendering runs in your browser via JavaScript, so once the page is loaded you can disconnect from the internet and continue generating QR codes.'
+        },
+        {
+          question: 'Which devices and apps can scan these QR codes?',
+          answer: 'Any modern smartphone camera (iOS 11+, Android 8+) and most third-party QR scanner apps. The codes follow the ISO/IEC 18004 specification, so they are universally compatible.'
+        },
+        {
+          question: 'What is the maximum amount of data I can encode?',
+          answer: 'A QR code supports up to 4,296 alphanumeric characters or 2,953 bytes in the largest version (40) with the lowest error-correction level (L). For URLs, this is more than enough for virtually any long link.'
+        },
+        {
+          question: 'Is it safe to use this online generator for private URLs?',
+          answer: 'Yes. Your input never leaves your browser because the entire QR generation happens client-side with JavaScript. We do not log, store or transmit any data you enter.'
+        },
+        {
+          question: 'Which error-correction level should I choose?',
+          answer: 'For most URLs, M (Medium, 15% recovery) is a good default. Use H (High, 30%) when the QR code might be dirty, damaged or needs a logo in the center; use L (Low) only when you need to pack the maximum amount of data in the smallest possible code.'
+        },
+        {
+          question: 'Can I download the QR code as SVG or only PNG?',
+          answer: 'The current export is PNG, rendered from a high-resolution canvas. Because PNG is lossless, it scales well for most use cases. SVG export is on the roadmap.'
+        }
+      ],
+      howTo: {
+        name: 'How to generate a QR code from a URL online',
+        description: 'Create a custom QR code from any URL or text in three steps, entirely in your browser.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Enter URL',
+            text: 'Paste your URL or any text into the input field. The QR code preview updates in real time as you type.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Customize style',
+            text: 'Adjust the size slider, pick foreground and background colors, and choose an error-correction level (L, M, Q or H) that matches your use case.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Download QR',
+            text: 'Click the Download button to save the generated QR code as a high-resolution PNG image, ready for print or digital use.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Image Tools', url: 'https://onlinewebdevtools.com/#image-tools' },
+        { name: 'URL to QR Code', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

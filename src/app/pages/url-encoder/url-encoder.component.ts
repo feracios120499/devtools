@@ -7,9 +7,19 @@ import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
+import { RouterModule } from '@angular/router';
 
 interface UrlComponent {
   name: string;
@@ -38,9 +48,19 @@ export class Nl2brPipe implements PipeTransform {
   imports: [
     CommonModule,
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    FloatLabelModule,
+    InputTextModule,
+    RadioButtonModule,
+    RippleModule,
+    TableModule,
+    TextareaModule,
+    ToastModule,
+    TooltipModule,
     Nl2brPipe,
-    PageHeaderComponent
+    PageHeaderComponent,
+    AnchorHeadingDirective,
+    RouterModule
   ],
   providers: [MessageService],
   templateUrl: './url-encoder.component.html',
@@ -91,21 +111,104 @@ export class UrlEncoderComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Setup metadata for SEO
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/url-encoder';
+    const shortDescription = 'Free online URL encoder and decoder. Percent-encode URLs and decode %XX sequences in your browser with no signup, no ads, no uploads.';
+
     const metaData: MetaData = {
-      OgTitle: 'URL Encoder and Decoder | DevTools',
-      OgDescription: 'Free online URL encoder and decoder tool. Encode and decode URLs, query parameters, and special characters for web development.',
-      description: 'Free online URL encoder and decoder. Easily encode and decode URLs and special characters to ensure proper format for web applications. Features include component-wise URL encoding/decoding, batch processing, and support for different encoding standards.',
-      keywords: ['url encoder', 'url decoder', 'url encoding', 'url decoding', 'encode special characters', 'decode url', 'url encode decode', 'url parameter encoder', 'uri encoder', 'web development tools'],
+      OgTitle: 'URL Encoder & Decoder Online - Percent-Encode URLs | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'url encoder',
+        'url decoder',
+        'url encoding',
+        'url decoding',
+        'percent encoding',
+        'encodeURIComponent online',
+        'decodeURIComponent online',
+        'encode special characters in url',
+        'decode url parameters',
+        'uri encoder',
+        'query string encoder',
+        'online url tool'
+      ],
       jsonLd: {
-        name: 'URL Encoder and Decoder',
-        description: 'Online tool to encode and decode URLs and special characters for web applications',
-        url: 'https://onlinewebdevtools.com/url-encoder'
-      }
+        name: 'URL Encoder & Decoder Online - Percent-Encode URLs | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Encode URLs and query parameters using percent-encoding (encodeURIComponent)',
+          'Decode percent-encoded URLs back to readable text',
+          'URL component inspector (protocol, host, port, path, query, fragment)',
+          'UTF-8 aware encoding and decoding of non-ASCII characters',
+          'One-click copy of the full result or individual URL components',
+          'Paste from clipboard and load sample URLs instantly',
+          'Client-side processing for privacy - no URL ever leaves your browser'
+        ]
+      },
+      faq: [
+        {
+          question: 'What is the difference between encodeURI and encodeURIComponent?',
+          answer: "encodeURI is meant for a complete URL and leaves reserved delimiters such as :/?#&= untouched. encodeURIComponent is meant for a single URL component (for example a query-string value) and also escapes those delimiters. This tool uses encodeURIComponent, which is the safe default when you are escaping user-provided values."
+        },
+        {
+          question: 'Which characters are considered reserved in a URL?',
+          answer: "Per RFC 3986 the reserved characters are :/?#[]@!$&'()*+,;=. Any other ASCII symbol outside the unreserved set (A-Z a-z 0-9 - . _ ~) must also be percent-encoded when used as data."
+        },
+        {
+          question: 'How are Unicode characters handled?',
+          answer: 'Non-ASCII characters are first encoded as UTF-8 bytes, then each byte is written as %XX. For example é becomes %C3%A9 and the emoji 😀 becomes %F0%9F%98%80.'
+        },
+        {
+          question: 'What is the difference between + and %20 for spaces?',
+          answer: 'In the application/x-www-form-urlencoded format (HTML form submissions) a space is encoded as +. In a generic URL path or query per RFC 3986 a space is encoded as %20. This tool produces %20, which is always safe; decoders accept either form.'
+        },
+        {
+          question: 'Is it safe to paste sensitive URLs here?',
+          answer: 'Yes. The tool runs entirely in your browser. Nothing you paste is uploaded, logged, or stored on any server.'
+        },
+        {
+          question: 'Why does my decoded URL still contain % characters?',
+          answer: 'That usually means the URL was encoded more than once (double-encoded). Run the decoder again on the result until no %XX sequences remain.'
+        },
+        {
+          question: 'Is this URL encoder free?',
+          answer: 'Yes - it is completely free with no registration, no ads, and no usage limits.'
+        }
+      ],
+      howTo: {
+        name: 'How to encode or decode URLs online',
+        description: 'Encode or decode a URL in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste URL or text',
+            text: 'Paste your URL or plain text into the Input URL field, or click Sample to load an example. Encoding runs in real time as you type.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Choose mode',
+            text: 'Select Encode URL to percent-encode special characters, or Decode URL to unescape an already encoded URL.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy encoded or decoded result',
+            text: 'Copy the result to your clipboard with a single click, or copy any individual parsed URL component (host, path, query) from the breakdown table.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'URL Encoder', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

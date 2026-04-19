@@ -1,7 +1,6 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MenuItem, MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
@@ -9,11 +8,16 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { SelectModule } from 'primeng/select';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
-import { Router } from '@angular/router';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
+import { Router, RouterModule } from '@angular/router';
 import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Интерфейсы для типизации
@@ -33,12 +37,17 @@ interface KeyCaseOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    RippleModule,
+    SelectModule,
+    SplitButtonModule,
+    TieredMenuModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective,
-    AnchorHeadingDirective
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './json-formatter.component.html',
@@ -182,22 +191,91 @@ export class JsonFormatterComponent implements OnInit, AfterViewInit, OnDestroy 
   }
 
   /**
-   * Настройка SEO-метаданных через SeoService
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/json-formatter';
+    const shortDescription = 'Format, beautify and validate JSON online. Free in-browser JSON beautifier with indentation, syntax check, and export. Try it instantly, no signup.';
+
     const metaData: MetaData = {
       OgTitle: 'JSON Formatter, Beautifier & Viewer Online | DevTool',
-      OgDescription: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
-      description: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
+      OgDescription: shortDescription,
+      description: shortDescription,
       keywords: ['JSON formatter', 'JSON beautifier', 'JSON viewer', 'format JSON online',
         'JSON validator', 'JSON lint', 'JSON pretty print', 'JSON editor',
         'online JSON tool', 'view JSON online', 'JSON highlighter', 'clean JSON',
         'JSON checker', 'beautify JSON'],
       jsonLd: {
         name: 'JSON Formatter, Beautifier & Viewer Online | DevTool',
-        description: 'Format, beautify and validate JSON online. This free DevTool lets you preview JSON with indentation, syntax checking, and export — fast and secure in your browser.',
-        url: 'https://onlinewebdevtools.com/json-formatter'
-      }
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'JSON formatting with customizable indentation',
+          'Real-time JSON syntax validation',
+          'Key case transformation (camelCase, snake_case, PascalCase, kebab-case)',
+          'Copy to clipboard and download as .json',
+          'Client-side processing for privacy',
+          'Dark and light editor themes'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this JSON formatter free to use?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you store my JSON data?',
+          answer: 'No, all processing is done locally in your browser. Your data never touches our servers.'
+        },
+        {
+          question: 'Can I format large JSON files?',
+          answer: "Yes, the tool handles large JSON documents efficiently, limited only by your browser's memory."
+        },
+        {
+          question: 'Does the tool validate JSON syntax?',
+          answer: 'Absolutely. It provides real-time syntax validation and error highlighting according to JSON standards.'
+        },
+        {
+          question: "What's the difference between a JSON formatter and a JSON validator?",
+          answer: 'A JSON formatter beautifies the structure with indentation and line breaks for readability, while a JSON validator checks that the syntax conforms to the JSON specification. This tool does both in a single pass.'
+        },
+        {
+          question: 'Does the tool support JSON5 or comments (JSONC)?',
+          answer: 'The formatter follows the strict RFC 7159 / RFC 8259 JSON specification, so inline comments and JSON5 extensions are not supported. Remove comments before formatting if your input contains them.'
+        },
+        {
+          question: 'Can I transform key names while formatting?',
+          answer: 'Yes. Use the key case dropdown to convert all keys to camelCase, snake_case, PascalCase or kebab-case while preserving the data structure.'
+        }
+      ],
+      howTo: {
+        name: 'How to format and validate JSON online',
+        description: 'Beautify and validate JSON in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste or type your JSON',
+            text: 'Paste your JSON into the Input editor, or click the Sample button to load an example. Syntax is validated in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure formatting options',
+            text: 'Choose indentation (2 or 4 spaces) and an optional key case transformation such as camelCase or snake_case.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the result',
+            text: 'Copy the formatted JSON to your clipboard, download it as a .json file, or send it to another DevTool such as JSON to XML or JSON Query.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'JSON Tools', url: 'https://onlinewebdevtools.com/#json-tools' },
+        { name: 'JSON Formatter', url: pageUrl }
+      ]
     };
 
     this.seoService.setupSeo(metaData);

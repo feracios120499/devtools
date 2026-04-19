@@ -1,19 +1,23 @@
 import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
-import { Router, ActivatedRoute, Navigation } from '@angular/router';
+import { Router, ActivatedRoute, Navigation, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Интерфейс для опций стилей ключей
 interface KeyCaseOption {
@@ -27,11 +31,16 @@ interface KeyCaseOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    FloatLabelModule,
+    InputTextModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './json-to-xml.component.html',
@@ -298,19 +307,102 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO-метаданных через SeoService
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/json-to-xml';
+    const shortDescription = 'Convert JSON to XML online for free. Client-side JSON to XML converter with a customizable root element, key-case transformation, syntax-highlighted editors, copy, and download. No signup required.';
+
     const metaData: MetaData = {
-      OgTitle: 'JSON to XML Converter | DevTools',
-      OgDescription: 'Convert JSON data to XML format with this free online tool. Features customizable root element and easy download options.',
-      description: 'Free JSON to XML converter tool. Convert JSON data to XML format with customizable root element name. Easy to use with copy, paste, and download features.',
-      keywords: ['JSON to XML converter', 'XML converter', 'JSON converter', 'XML transformation', 'data conversion', 'JSON to XML online', 'convert JSON to XML', 'XML generator', 'json to xml', 'jsontoxml', 'json xml converter', 'json to xml converter', 'json to xml online', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'json to xml online converter', 'jsontoxml'],
+      OgTitle: 'JSON to XML Converter Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'JSON to XML converter',
+        'convert JSON to XML',
+        'JSON to XML online',
+        'JSON to XML tool',
+        'online JSON to XML',
+        'JSON XML converter',
+        'JSON to XML transformation',
+        'XML generator from JSON',
+        'JSON to XML formatter',
+        'JSON to XML with root element',
+        'free JSON to XML converter',
+        'jsontoxml'
+      ],
       jsonLd: {
-        name: 'JSON to XML Converter',
-        description: 'Free online tool for converting JSON data to XML format',
-        url: 'https://onlinewebdevtools.com/json-to-xml'
-      }
+        name: 'JSON to XML Converter Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Convert JSON to well-formed XML in the browser',
+          'Customizable XML root element name',
+          'Key case transformation (camelCase, snake_case, PascalCase, kebab-case)',
+          'Pretty-printed indentation for readable XML output',
+          'Syntax-highlighted Monaco editors for JSON and XML',
+          'Copy to clipboard and download as .xml',
+          'Client-side processing for privacy (no data upload)'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this JSON to XML converter free to use?',
+          answer: 'Yes, it is completely free with no registration, ads, or usage limits.'
+        },
+        {
+          question: 'Do you store my JSON or XML data?',
+          answer: 'No. All conversion happens locally in your browser, so your data never touches our servers.'
+        },
+        {
+          question: 'Can I customize the XML root element name?',
+          answer: 'Yes. Use the Root name field above the output editor to set any valid XML root element name.'
+        },
+        {
+          question: 'How are JSON arrays converted to XML?',
+          answer: 'Each item in a JSON array becomes a repeated sibling XML element that shares the same tag name, which is the standard way to represent collections in XML.'
+        },
+        {
+          question: 'How are null values handled?',
+          answer: 'JSON null values are emitted as self-closing XML elements with the xsi:nil="true" attribute.'
+        },
+        {
+          question: 'Can I transform key names while converting?',
+          answer: 'Yes. Use the key case dropdown to convert all element names to camelCase, snake_case, PascalCase, or kebab-case while preserving the data structure.'
+        },
+        {
+          question: 'Can I convert large JSON files?',
+          answer: "Yes. The tool handles large JSON documents efficiently, limited only by your browser's available memory."
+        }
+      ],
+      howTo: {
+        name: 'How to convert JSON to XML online',
+        description: 'Transform JSON into well-formed XML in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste JSON',
+            text: 'Paste your JSON into the Input editor, or click the Sample button to load an example. Syntax is validated in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Choose options',
+            text: 'Set the XML root element name and optionally pick a key case transformation such as camelCase or snake_case.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download XML',
+            text: 'Copy the generated XML to your clipboard or download it as a .xml file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'JSON Tools', url: 'https://onlinewebdevtools.com/#json-tools' },
+        { name: 'JSON to XML', url: pageUrl }
+      ]
     };
 
     this.seoService.setupSeo(metaData);

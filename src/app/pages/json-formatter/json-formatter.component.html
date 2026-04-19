@@ -1,32 +1,32 @@
 <div class="dt-container">
-  <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
 
-  <app-page-header>Tool for formatting, validating and improving JSON code readability</app-page-header>
+  <app-page-header>Free online JSON formatter, validator and beautifier</app-page-header>
   <div class="p-3">
     <p>This <strong>online JSON formatter and validator</strong> beautifies JSON code with proper indentation and validates syntax errors.</p>
     <p>Quickly <strong>format JSON</strong> and <strong>validate JSON syntax</strong> in your browser with no server upload.</p>
   </div>
 
-  <div class="dt-editors">
-    <!-- Левая колонка - Input JSON -->
+  <div class="dt-editors" id="input">
+    <!-- Left column - Input JSON -->
     <div class="col flex flex-col h-full">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок с фиксированной высотой -->
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <span class="text-xl font-medium text-800 m-0">Input JSON</span>
         </div>
-        <!-- Отступ для дропдауна -->
+        <!-- Spacing for dropdown -->
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="inputCode" (ngModelChange)="formatJson()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -63,21 +63,21 @@
               </div>
               <hr>
               </div>
-              <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-                (ngModelChange)="formatJson()" class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+              <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+                (ngModelChange)="formatJson()" class="w-full h-full">
+              </app-monaco-editor-lazy>
             </div>
           }
         </div>
       </div>
 
-      <!-- Правая колонка - Formatted JSON -->
-      <div class="col flex flex-col h-full">
+      <!-- Right column - Formatted JSON -->
+      <div class="col flex flex-col h-full" id="output">
         <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок с фиксированной высотой -->
+          <!-- Header with fixed height -->
           <div class="flex justify-between items-center h-10">
             <span class="text-xl font-medium text-800 m-0">Formatted JSON</span>
-            <div class="flex gap-2 items-center">
+            <div class="flex gap-2 items-center" id="options">
 
               <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
                 (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
@@ -101,18 +101,18 @@
             </div>
           </div>
 
-          <!-- Отступ для дропдауна -->
+          <!-- Spacing for dropdown -->
           <div class="mb-1"></div>
 
           <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
+          @if (false) {
             <textarea [(ngModel)]="outputCode" readonly
               class="w-full p-2 surface-100 font-mono flex-1">
             </textarea>
           }
 
           <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
+          @if (true) {
             <div
               class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
               [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
@@ -172,9 +172,9 @@
               </div>
               <hr>
               </div>
-              <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+              <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+                class="w-full h-full">
+              </app-monaco-editor-lazy>
             </div>
           }
         </div>
@@ -212,19 +212,42 @@
 
       <div class="dt-info-item">
         <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
-        <p class="mt-3"><strong>Is this JSON formatter free to use?</strong><br>
-        Yes, it's completely free with no registration, ads, or usage limits.
-      </p>
-      <p class="mt-3"><strong>Do you store my JSON data?</strong><br>
-      No, all processing is done locally in your browser. Your data never touches our servers.
-    </p>
-    <p class="mt-3"><strong>Can I format large JSON files?</strong><br>
-    Yes, the tool handles large JSON documents efficiently, limited only by your browser's memory.
-  </p>
-  <p class="mt-3"><strong>Does the tool validate JSON syntax?</strong><br>
-  Absolutely. It provides real-time syntax validation and error highlighting according to JSON standards.
-</p>
-</div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Is this JSON formatter free to use?</h3>
+          <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Do you store my JSON data?</h3>
+          <p class="mt-1">No, all processing is done locally in your browser. Your data never touches our servers.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Can I format large JSON files?</h3>
+          <p class="mt-1">Yes, the tool handles large JSON documents efficiently, limited only by your browser's memory.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Does the tool validate JSON syntax?</h3>
+          <p class="mt-1">Absolutely. It provides real-time syntax validation and error highlighting according to JSON standards.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">What's the difference between a JSON formatter and a JSON validator?</h3>
+          <p class="mt-1">A JSON formatter beautifies the structure with indentation and line breaks for readability, while a JSON validator checks that the syntax conforms to the JSON specification. This tool does both in a single pass.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Does the tool support JSON5 or comments (JSONC)?</h3>
+          <p class="mt-1">The formatter follows the strict RFC 7159 / RFC 8259 JSON specification, so inline comments and JSON5 extensions are not supported. Remove comments before formatting if your input contains them.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Can I transform key names while formatting?</h3>
+          <p class="mt-1">Yes. Use the key case dropdown to convert all keys to camelCase, snake_case, PascalCase or kebab-case while preserving the data structure.</p>
+        </div>
+      </div>
 
 <div class="dt-info-item">
   <h2 class="text-xl text-primary" anchorHeading>How Does JSON Beautification Work?</h2>
@@ -282,7 +305,11 @@
     After formatting your JSON, you can instantly copy the result to your clipboard or download it as a `.json` file. This is particularly useful for sharing formatted data with team members, preparing files for deployment, or creating readable documentation from complex API responses.
   </p>
   <p class="mt-3">
-    The tool also supports easy data transfer to other DevTools utilities like JSON to XML converter, JSON to ENV converter, and JSON Query Explorer, creating a seamless workflow for data transformation tasks.
+    The tool also supports easy data transfer to other DevTools utilities like the
+    <a [routerLink]="'/json-to-xml'" class="text-primary hover:underline">JSON to XML converter</a>,
+    <a [routerLink]="'/json-to-env'" class="text-primary hover:underline">JSON to ENV converter</a>, and
+    <a [routerLink]="'/json-query'" class="text-primary hover:underline">JSON Query Explorer</a>,
+    creating a smooth workflow for data transformation tasks.
   </p>
 </div>
 

@@ -1,382 +1,349 @@
 <div class="dt-container">
-  <app-page-header>Tool for converting SVG graphics to React components</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online SVG to React Component converter with TypeScript support</app-page-header>
   <div class="p-3">
-    <p>This <strong>online SVG to React converter</strong> transforms SVG graphics into optimized React components with TypeScript support.</p>
-    <p>Quickly <strong>convert SVG to React</strong> and <strong>generate React components</strong> in your browser with no server upload.</p>
+    <p>This <strong>online SVG to React converter</strong> transforms SVG graphics into optimized, reusable React components in your browser.</p>
+    <p>Quickly <strong>convert SVG to JSX</strong> and <strong>generate TypeScript React components</strong> with props injection, automatic attribute casing and JSX transforms — no server upload required.</p>
   </div>
 
   <!-- Component Settings Section -->
-  <div class="mt-2 p-3 border-round-lg surface-card shadow-sm surface-border">
+  <div class="mt-2 p-3 border-round-lg surface-card shadow-sm surface-border" id="options">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Имя компонента -->
+      <!-- Component name -->
       <div class="p-field">
         <label for="componentName" class="block mb-2 font-medium">Component Name</label>
         <input id="componentName" type="text" pInputText [(ngModel)]="componentName"
           (ngModelChange)="onSettingsChange()" class="w-full p-inputtext">
+      </div>
+
+      <!-- Component options -->
+      <div class="flex flex-col gap-3 p-3">
+        <div class="p-field-checkbox flex align-items-center">
+          <p-checkbox [(ngModel)]="useTypescript" [binary]="true" inputId="useTypescript"
+            (onChange)="onSettingsChange()">
+          </p-checkbox>
+          <label for="useTypescript" class="ml-2">Use TypeScript (.tsx)</label>
         </div>
 
-        <!-- Опции компонента -->
-        <div class="flex flex-col gap-3 p-3">
-          <div class="p-field-checkbox flex align-items-center">
-            <p-checkbox [(ngModel)]="useTypescript" [binary]="true" inputId="useTypescript"
-              (onChange)="onSettingsChange()">
-            </p-checkbox>
-            <label for="useTypescript" class="ml-2">Use TypeScript (.tsx)</label>
-          </div>
+        <div class="p-field-checkbox flex align-items-center">
+          <p-checkbox [(ngModel)]="useProps" [binary]="true" inputId="useProps" (onChange)="onSettingsChange()">
+          </p-checkbox>
+          <label for="useProps" class="ml-2">Add common props (width, height, color)</label>
+        </div>
 
-          <div class="p-field-checkbox flex align-items-center">
-            <p-checkbox [(ngModel)]="useProps" [binary]="true" inputId="useProps" (onChange)="onSettingsChange()">
-            </p-checkbox>
-            <label for="useProps" class="ml-2">Add common props (width, height, color)</label>
-          </div>
-
-          <div class="p-field-checkbox flex align-items-center">
-            <p-checkbox [(ngModel)]="useArrowFunction" [binary]="true" inputId="useArrowFunction"
-              (onChange)="onSettingsChange()">
-            </p-checkbox>
-            <label for="useArrowFunction" class="ml-2">Use arrow function</label>
-          </div>
+        <div class="p-field-checkbox flex align-items-center">
+          <p-checkbox [(ngModel)]="useArrowFunction" [binary]="true" inputId="useArrowFunction"
+            (onChange)="onSettingsChange()">
+          </p-checkbox>
+          <label for="useArrowFunction" class="ml-2">Use arrow function</label>
         </div>
       </div>
     </div>
-    <div class="dt-editors">
-      <!-- Левая колонка - SVG Input -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок с фиксированной высотой -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">SVG Input</h3>
-          </div>
+  </div>
 
-          <!-- Отступ для дропдауна -->
-          <div class="mb-1"></div>
+  <div class="dt-editors">
+    <!-- Left column - SVG Input -->
+    <div class="col flex flex-col h-full" id="input">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">SVG Input</span>
+        </div>
 
-          <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
-            <textarea [(ngModel)]="svgCode" (ngModelChange)="onSvgCodeChange()"
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
+        <!-- Spacing -->
+        <div class="mb-1"></div>
 
-          <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                      (click)="pasteSvgFromClipboard()" severity="contrast">
-                      <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Sample" (click)="loadExampleSvg()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="code" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Clear" (click)="clearSvg()" severity="danger"
-                      class="p-button-sm">
-                      <i-tabler name="trash" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isInputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('input')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isInputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('input')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="svgCode" (ngModelChange)="onSvgCodeChange()"
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteSvgFromClipboard()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Sample" (click)="loadExampleSvg()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="code" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearSvg()" severity="danger"
+                    class="p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
                 </div>
-                <hr>
+                <div class="flex align-items-center">
+                  @if (!isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
                 </div>
-                <ngx-monaco-editor #inputMonacoEditor [(ngModel)]="svgCode" [options]="svgEditorOptions"
-                  (ngModelChange)="onSvgCodeChange()" class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
               </div>
-            }
-          </div>
-        </div>
-
-        <!-- Правая колонка - React Component -->
-        <div class="col flex flex-col h-full">
-          <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-            <!-- Заголовок с фиксированной высотой -->
-            <div class="flex justify-between items-center h-10">
-              <h3 class="text-xl font-medium text-800 m-0">React Component</h3>
+              <hr>
             </div>
-
-            <!-- Отступ для дропдауна -->
-            <div class="mb-1"></div>
-
-            <!-- Fallback textarea for server-side rendering -->
-            @if (!isBrowser) {
-              <textarea [(ngModel)]="reactCode" readonly
-                class="w-full p-2 surface-100 font-mono flex-1">
-              </textarea>
-            }
-
-            <!-- Monaco editor for browser environment -->
-            @if (isBrowser) {
-              <div
-                class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-                [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-                <div class="dt-editors-editor-actions">
-                  <div class="flex justify-between p-2">
-                    <div class="flex gap-3 align-items-center">
-                      <button pButton type="button" [outlined]="true" label="Copy" (click)="copyReactCode()"
-                        class="p-button-sm" severity="contrast">
-                        <i-tabler name="copy" class="icon-sm"></i-tabler>
-                      </button>
-                      <button pButton type="button" [outlined]="true" label="Download" (click)="downloadReactComponent()"
-                        class="p-button-sm" severity="contrast">
-                        <i-tabler name="download" class="icon-sm"></i-tabler>
-                      </button>
-                    </div>
-                    <div class="flex align-items-center">
-                      @if (!isOutputFullscreen) {
-                        <button pButton type="button" (click)="toggleFullscreen('output')"
-                          severity="contrast" class="p-button-text p-button-sm">
-                          <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                        </button>
-                      }
-                      @if (isOutputFullscreen) {
-                        <button pButton type="button" (click)="toggleFullscreen('output')"
-                          severity="contrast" class="p-button-text p-button-sm">
-                          <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                        </button>
-                      }
-                    </div>
-                  </div>
-                  <hr>
-                  </div>
-                  <ngx-monaco-editor #outputMonacoEditor [(ngModel)]="reactCode" [options]="reactEditorOptions"
-                    class="w-full h-full" monacoScrollFix>
-                  </ngx-monaco-editor>
-                </div>
-              }
-            </div>
+            <app-monaco-editor-lazy #inputMonacoEditor [(ngModel)]="svgCode" [options]="svgEditorOptions"
+              (ngModelChange)="onSvgCodeChange()" class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
-        </div>
-
-        <!-- Information Section -->
-        <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-          <h4 class="text-xl font-semibold mb-2">About This Tool</h4>
-
-          <p class="mb-2 text-sm">
-            This tool converts SVG code into reusable React components with support for TypeScript, props, and different
-            function styles.
-          </p>
-
-          <p class="mb-2 text-sm">
-            <strong>Features:</strong>
-          </p>
-
-          <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-            <li><strong>SVG conversion:</strong> Transforms any valid SVG into a React component</li>
-            <li><strong>TypeScript support:</strong> Generates properly typed components with interfaces for props</li>
-            <li><strong>Customization:</strong> Configure component name, props, and function style</li>
-            <li><strong>Attribute conversion:</strong> Automatically converts HTML attributes to JSX format (kebab-case to
-          camelCase)</li>
-          <li><strong>Styling support:</strong> Handles inline styles and converts them to React style objects</li>
-          <li><strong>Best practices:</strong> Creates components following React best practices</li>
-        </ul>
-
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your code is never sent to any
-          server.
-        </p>
+        }
       </div>
-
-      <!-- React Development and Component Libraries -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">React Development & Component Libraries</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Component Library Development</h5>
-            <p class="mb-2 text-sm">
-              Essential for React developers, component library maintainers, and UI/UX engineers
-              building scalable icon systems and reusable SVG components for design systems.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Library Development Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Design system icon component generation</li>
-              <li>Storybook component documentation</li>
-              <li>NPM package component libraries</li>
-              <li>Theme-aware SVG component creation</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Modern React Development Workflows</h5>
-            <p class="mb-2 text-sm">
-              Critical for frontend developers, React specialists, and JavaScript engineers
-              working with modern React patterns, hooks, and TypeScript-first development approaches.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Development Workflow Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>TypeScript React component scaffolding</li>
-              <li>Functional component with hooks pattern</li>
-              <li>Props interface auto-generation</li>
-              <li>JSX attribute transformation automation</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Icon & Graphics Management Systems</h5>
-          <p class="text-sm mb-2">
-            This SVG to React converter streamlines workflows for design teams, frontend architects,
-            and UI developers managing large-scale icon libraries and graphics assets.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Graphics Management Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Icon libraries</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Logo components</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Illustration assets</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Brand graphics</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">UI iconography</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Interactive SVGs</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Frontend Development and UI Systems -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Frontend Development & UI Systems</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Design System Implementation</h5>
-            <p class="mb-2 text-sm">
-              Essential for design system engineers, frontend architects, and UI developers
-              implementing consistent visual languages and scalable component architectures.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Design System Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Atomic design component creation</li>
-              <li>Tokenized design system implementation</li>
-              <li>Cross-platform component consistency</li>
-              <li>Accessibility-compliant icon components</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Performance & Bundle Optimization</h5>
-            <p class="mb-2 text-sm">
-              Critical for performance engineers, build tool specialists, and frontend optimization experts
-              working with efficient asset loading and bundle size optimization strategies.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Optimization Strategies:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Tree-shakable icon component libraries</li>
-              <li>Lazy-loaded SVG component strategies</li>
-              <li>Bundle size optimization techniques</li>
-              <li>Runtime SVG component generation</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Enterprise Frontend Architecture</h5>
-          <p class="text-sm mb-2">
-            This converter supports enterprise frontend teams, technical leads,
-            and platform engineers building maintainable, scalable React applications at scale.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Enterprise Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Micro-frontends</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Monorepo packages</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">CI/CD integration</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Component testing</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Documentation systems</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Version management</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Standards and React Best Practices -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Technical Standards & React Best Practices</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">React Component Standards & Patterns</h5>
-            <p class="mb-2 text-sm">
-              Following React community standards and established patterns ensures maintainable,
-              testable, and performant component architectures that align with ecosystem best practices.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">React Standards:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Functional component patterns with hooks</li>
-              <li>Props interface TypeScript definitions</li>
-              <li>React.memo optimization strategies</li>
-              <li>Component composition over inheritance</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">SVG & JSX Transformation Standards</h5>
-            <p class="mb-2 text-sm">
-              Understanding SVG-to-JSX transformation rules, attribute mapping conventions,
-              and React-specific optimizations ensures cross-browser compatibility and performance.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Transformation Standards:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>HTML-to-JSX attribute conversion (kebab-case to camelCase)</li>
-              <li>SVG namespace and React compatibility</li>
-              <li>Inline style object transformation</li>
-              <li>Event handler prop forwarding patterns</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">TypeScript Integration & Type Safety</h5>
-          <p class="text-sm mb-2">
-            Modern React development requires strict TypeScript integration,
-            comprehensive type definitions, and compile-time safety to prevent runtime errors and enhance developer experience.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">TypeScript Considerations:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Interface definitions</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Generic constraints</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Prop validation</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Type inference</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">JSX intrinsics</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Component typing</span>
-          </div>
-
-          <p class="text-sm mt-3 text-600">
-            <strong>Development Note:</strong> Generated components follow strict TypeScript patterns
-            with explicit prop interfaces, ensuring type safety and enhanced IDE support.
-          </p>
-        </div>
-
-        <p class="text-sm mt-3">
-          For React component best practices, visit
-          <a href="https://react.dev/learn/thinking-in-react" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">React Official Documentation</a>
-          and for TypeScript React patterns, see
-          <a href="https://react-typescript-cheatsheet.netlify.app/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">React TypeScript Cheatsheet</a>.
-        </p>
-      </div>
-
-      <!-- Toast component -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+
+    <!-- Right column - React Component -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">React Component</span>
+        </div>
+
+        <!-- Spacing -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="reactCode" readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyReactCode()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadReactComponent()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+            </div>
+            <app-monaco-editor-lazy #outputMonacoEditor [(ngModel)]="reactCode" [options]="reactEditorOptions"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is SVG to React Conversion?</h2>
+      <p class="mt-3">
+        SVG to React conversion is the process of turning raw SVG markup into a reusable React component. Instead of inlining the same SVG in multiple places, you get a single JSX component that can be imported anywhere, themed through props, and treeshaken by your bundler. This approach is widely adopted by modern design systems, component libraries and icon sets.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Convert SVG to a React Component?</h2>
+      <p class="mt-3">
+        Wrapping SVG in a React component gives you strong typing, prop-driven styling (size, color, stroke), and composability with other components. You avoid copy-pasting large SVG blobs, gain consistent accessibility patterns, and can dynamically pass <code>className</code>, event handlers and ARIA attributes. It also plays nicely with server components, tree shaking and on-demand code splitting.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Convert SVG to a React Component</h2>
+      <p class="mt-3">
+        Using this converter is straightforward and takes three steps:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Paste your SVG</strong> — drop raw SVG markup into the input editor, or click <em>Sample</em> to try a demo icon.</li>
+        <li><strong>Configure output</strong> — set the component name, toggle TypeScript (.tsx) vs JSX (.jsx), and enable common props such as <code>width</code>, <code>height</code>, <code>fill</code> and <code>stroke</code>.</li>
+        <li><strong>Copy or download</strong> — grab the generated component straight from the output editor and drop it into your project.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our SVG to React Converter?</h2>
+      <p class="mt-3">
+        Our converter runs 100% in your browser — no files, no SVG markup and no generated code ever leave your machine. It produces clean, idiomatic React components that follow community conventions: <code>SVGProps&lt;SVGSVGElement&gt;</code> for TypeScript typing, camelCase JSX attributes, props spreading via <code>{{ jsxSpreadPropsExample }}</code>, and optional arrow-function or default-export syntaxes.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How the SVG to JSX Conversion Works</h2>
+      <p class="mt-3">
+        Behind the scenes, the tool parses your SVG and performs several transformations to produce valid React code:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Attribute casing</strong> — kebab-case SVG attributes (<code>stroke-width</code>, <code>stroke-linecap</code>, <code>fill-rule</code>) are rewritten to camelCase JSX equivalents (<code>strokeWidth</code>, <code>strokeLinecap</code>, <code>fillRule</code>).</li>
+        <li><strong>className remapping</strong> — HTML-style <code>class</code> attributes become <code>className</code>, and <code>for</code> becomes <code>htmlFor</code> to match React's conventions.</li>
+        <li><strong>Inline style conversion</strong> — <code>style="color: red"</code> strings are converted into React style objects (<code>{{ jsxStyleExample }}</code>) with camelCase keys.</li>
+        <li><strong>Props injection</strong> — when props are enabled, <code>stroke</code>, <code>fill</code>, <code>width</code> and <code>height</code> are bound to component props and <code>{{ jsxSpreadPropsExample }}</code> is spread onto the root <code>&lt;svg&gt;</code> element.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>SVG to React Component Features</h2>
+      <p class="mt-3">
+        The converter ships with the options most developers actually need, without hidden complexity:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Custom component name</strong> — choose any valid identifier (e.g. <code>IconArrowRight</code>) and it is used in both the declaration and the default export.</li>
+        <li><strong>TypeScript vs JSX</strong> — generate a typed <code>.tsx</code> component with a <code>Props</code> interface extending <code>SVGProps&lt;SVGSVGElement&gt;</code>, or a plain <code>.jsx</code> function component.</li>
+        <li><strong>Comment stripping</strong> — XML comments from tools like Figma or Illustrator are removed from the output automatically.</li>
+        <li><strong>One-click copy and download</strong> — copy the component to your clipboard or download it as a <code>.tsx</code>/<code>.jsx</code> file named after your component.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        The tool is designed around real workflows used by frontend engineers and design system teams:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Icon systems</strong> — bulk-convert exported icons from Figma, Sketch or Illustrator into typed React components for your icon library.</li>
+        <li><strong>Design tokens &amp; theming</strong> — bind <code>stroke</code> and <code>fill</code> to props so a single component can render in any theme color or CSS variable.</li>
+        <li><strong>Component &amp; UI libraries</strong> — produce tree-shakable components ready to publish to npm, Storybook or a monorepo package.</li>
+        <li><strong>Marketing &amp; product UI</strong> — turn brand illustrations, logos and decorative graphics into reusable, accessible React elements.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Convert SVG to React Online?</h2>
+      <p class="mt-3">
+        Yes. This converter is a fully client-side tool — your SVG source code and the generated component stay inside your browser tab. Nothing is uploaded to a backend, logged, or shared with third parties, which makes it safe for internal icons, proprietary illustrations and NDA-covered assets.
+      </p>
+      <p class="mt-3">
+        Because there is no network round trip, conversion is also instant: paste an SVG, tweak the options, and the component is regenerated in real time.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a free, ad-free suite of developer utilities built by developers for developers. Our SVG to React Component converter is designed for focused, distraction-free work: clean UI, a proper Monaco editor for both input and output, and keyboard-friendly fullscreen modes. It sits alongside dozens of other tools in our toolkit, so you can move between formatting JSON, tweaking images and generating components without ever leaving the browser.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Copy &amp; Related Tools</h2>
+      <p class="mt-3">
+        Once you are happy with the generated component, copy it to the clipboard or download it as a ready-to-use <code>.tsx</code>/<code>.jsx</code> file named after your component. The output editor is powered by Monaco, so you get syntax highlighting and fullscreen review before exporting.
+      </p>
+      <p class="mt-3">
+        If you also work with images and encoded assets, these DevTools pair nicely with this converter:
+        <a [routerLink]="'/image-format-converter'" class="text-primary hover:underline">Image Format Converter</a>,
+        <a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 Encoder/Decoder</a>, and
+        <a [routerLink]="'/url-encoder'" class="text-primary hover:underline">URL Encoder/Decoder</a>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this SVG to React converter free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload or store my SVG files?</h3>
+        <p class="mt-1">No. All parsing and code generation happens locally in your browser — your SVG markup and the generated component never touch our servers.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I generate TypeScript (.tsx) components?</h3>
+        <p class="mt-1">Yes. Enable "Use TypeScript" to get a typed component with a <code>Props</code> interface that extends <code>SVGProps&lt;SVGSVGElement&gt;</code> and defaults for width, height, fill and stroke.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the tool convert SVG attributes to valid JSX?</h3>
+        <p class="mt-1">Absolutely. Kebab-case attributes like <code>stroke-width</code> are rewritten to <code>strokeWidth</code>, <code>class</code> becomes <code>className</code>, and inline <code>style</code> strings are turned into React style objects.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I pass custom props like color or size to the generated component?</h3>
+        <p class="mt-1">Yes. With props enabled, <code>width</code>, <code>height</code>, <code>fill</code> and <code>stroke</code> become component props, and <code>{{ jsxSpreadPropsExample }}</code> is spread onto the root <code>&lt;svg&gt;</code> so you can forward any standard SVG attribute.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I use the output in Next.js or React Server Components?</h3>
+        <p class="mt-1">Yes. The generated component is a plain React function component with no runtime dependencies, so it works in Next.js (App or Pages Router), Vite, CRA, Remix and React Server Components.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What about complex SVGs with gradients, masks or filters?</h3>
+        <p class="mt-1">The converter preserves the full SVG tree, including <code>&lt;defs&gt;</code>, gradients, masks, clip-paths and filters. It only rewrites attributes and syntax — the visual output remains identical to the source SVG.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>SVG &amp; React Learning Resources</h2>
+      <p class="mt-3">
+        To go deeper on React components, JSX and SVG, these official resources are the best starting point:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/SVG" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN SVG Reference
+          </a> - Comprehensive reference for SVG elements, attributes and best practices from MDN Web Docs.
+        </li>
+        <li>
+          <a href="https://react.dev/reference/react-dom/components/common" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            React: Common DOM Props &amp; JSX Attributes
+          </a> - Official React documentation on JSX attribute naming (camelCase), className, style objects and event handlers.
+        </li>
+        <li>
+          <a href="https://react-svgr.com/docs/what-is-svgr/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            SVGR Documentation
+          </a> - The de-facto community toolchain for transforming SVGs into React components, with CLI, webpack and Node APIs.
+        </li>
+        <li>
+          <a href="https://react-typescript-cheatsheet.netlify.app/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            React TypeScript Cheatsheet
+          </a> - Community-maintained guide to typing React components, props and SVG elements in TypeScript.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>

@@ -7,7 +7,7 @@
   <p>Quickly <strong>convert Base64 to hexadecimal</strong> in your browser with no server upload.</p>
 </div>
 <!-- Основной контейнер с редакторами -->
-<div class="dt-editors">
+<div class="dt-editors" id="input">
   <!-- Левая колонка - Input Base64 -->
   <div class="col flex flex-col h-full">
     <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
@@ -19,14 +19,14 @@
       <div class="mb-1"></div>
 
       <!-- Fallback textarea for server-side rendering -->
-      @if (!isBrowser) {
+      @if (false) {
         <textarea [(ngModel)]="inputCode" (ngModelChange)="convertBase64ToHex()"
           class="w-full p-2 surface-100 font-mono flex-1">
         </textarea>
       }
 
       <!-- Monaco editor for browser environment -->
-      @if (isBrowser) {
+      @if (true) {
         <div
           class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
           [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -63,21 +63,21 @@
             </div>
             <hr>
             </div>
-            <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-              (ngModelChange)="convertBase64ToHex()" class="w-full h-full" monacoScrollFix>
-            </ngx-monaco-editor>
+            <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+              (ngModelChange)="convertBase64ToHex()" class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
         }
       </div>
     </div>
 
     <!-- Правая колонка - HEX Output -->
-    <div class="col flex flex-col h-full">
+    <div class="col flex flex-col h-full" id="output">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
           <span class="text-xl font-medium text-800 m-0">HEX Output</span>
-          <div class="flex gap-2 items-center">
+          <div class="flex gap-2 items-center" id="options">
             <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
               (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
               [panelStyleClass]="'same-width-panel'" appendTo="body">
@@ -98,14 +98,14 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="outputCode" readonly
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
@@ -138,9 +138,9 @@
               </div>
               <hr>
               </div>
-              <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+              <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+                class="w-full h-full">
+              </app-monaco-editor-lazy>
             </div>
           }
         </div>
@@ -199,16 +199,61 @@
     <p class="mt-3">Our <strong class="text-primary">online Base64 to HEX converter</strong> performs this conversion locally in your browser, with
   options for spacing, prefix styles, case formatting, and more — no data is sent to any server.</p>
 
-  <h3 class="text-lg text-primary mt-4" anchorHeading>Learn More</h3>
-  <ul class="mt-3 list-disc pl-5 mb-2 space-y-2">
-    <li><a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Base64 on
-    Wikipedia</a></li>
-    <li><a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">Hexadecimal
-    Format</a></li>
-    <li>Start converting now using our <a href="/base64-to-hex" class="text-blue-600 underline font-semibold">Base64 to HEX converter</a> — it’s fast, free, and private.</li>
-  </ul>
-</div>
-</div>
-<!-- Toast component -->
-<p-toast position="bottom-right"></p-toast>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this Base64 to HEX converter free?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store my Base64 data?</h3>
+        <p class="mt-1">No, all decoding and conversion runs locally in your browser. Your data never leaves the page.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What formats can I output HEX in?</h3>
+        <p class="mt-1">Six: Plain, With Dashes, With 0x Prefix, With Colons, Lowercase, and With Spaces. Pick one from the format dropdown.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What happens if my Base64 is invalid?</h3>
+        <p class="mt-1">The tool shows an inline error toast via the browser's <code>atob</code> validation. Fix padding (<code>=</code>) or invalid characters and it will convert instantly.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I convert HEX back to Base64?</h3>
+        <p class="mt-1">Yes — use the reverse tool: <a [routerLink]="'/hex-to-base64'" class="text-primary hover:underline">HEX to Base64 converter</a>.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the tool support Base64URL encoding?</h3>
+        <p class="mt-1">Standard RFC 4648 Base64 is supported. For URL-safe variants, replace <code>-</code> with <code>+</code> and <code>_</code> with <code>/</code> before pasting.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Base64 and HEX Learning Resources</h2>
+      <p class="mt-3">To deepen your understanding of Base64 and hexadecimal encoding, here are curated external resources:</p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 4648</a> - The official Base16, Base32 and Base64 data encoding specification
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Base64 on Wikipedia</a> - History, alphabet variants and common use cases
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">Hexadecimal on Wikipedia</a> - Positional numeral system and byte representation
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/atob" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">MDN atob()</a> - The browser API this tool uses to decode Base64
+        </li>
+      </ul>
+    </div>
+  </div>
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
 </div>

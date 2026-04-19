@@ -7,13 +7,17 @@ import { MessageService } from 'primeng/api';
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService } from '../../services/user-preferences.service';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { RouterModule } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Интерфейс для сохранения настроек страницы
 export interface SvgToReactSettings {
@@ -28,11 +32,15 @@ export interface SvgToReactSettings {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
-    MonacoEditorModule,
+    ButtonModule,
+    CheckboxModule,
+    InputTextModule,
+    ToastModule,
+    MonacoEditorLazyComponent,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './svg-to-react-component.component.html',
@@ -40,6 +48,10 @@ export interface SvgToReactSettings {
 })
 export class SvgToReactComponentComponent implements OnInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
+
+  // Literal code examples used in SEO content (avoid Angular's ICU/interpolation parser)
+  readonly jsxStyleExample: string = 'style={{ color: "red" }}';
+  readonly jsxSpreadPropsExample: string = '{...props}';
 
   // Настройки компонента
   componentName: string = 'SvgIcon';
@@ -151,21 +163,105 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/svg-to-react-component';
+    const shortDescription = 'Convert SVG to React components online. Free in-browser SVG to JSX/TSX converter with TypeScript typings, props injection, attribute casing and instant copy or download.';
+
     const metaData: MetaData = {
-      OgTitle: 'SVG to React Component Converter | DevTools',
-      OgDescription: 'Free online SVG to React Component converter. Convert SVG files or code into ready-to-use React components with customizable options.',
-      description: 'Free online tool to convert SVG files or code snippets into React components. Create optimized React components from SVGs with customizable options like TypeScript support, props passing, and styling controls. Perfect for React developers working with SVG icons and graphics.',
-      keywords: ['svg to react', 'react svg component', 'convert svg to react', 'svg react converter', 'react component generator', 'svg component converter', 'svg in react', 'react icon component', 'svg to jsx', 'react svg transformation'],
+      OgTitle: 'SVG to React Component Converter (TSX & JSX) Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'svg to react',
+        'svg to react component',
+        'svg to jsx',
+        'svg to tsx',
+        'react svg component generator',
+        'convert svg to react',
+        'svgr online',
+        'svg react converter',
+        'react icon component',
+        'typescript svg component',
+        'svg to react online',
+        'jsx from svg'
+      ],
       jsonLd: {
-        name: 'SVG to React Component Converter',
-        description: 'Online tool to convert SVG code to reusable React components',
-        url: 'https://onlinewebdevtools.com/svg-to-react-component'
-      }
+        name: 'SVG to React Component Converter (TSX & JSX) Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Convert SVG markup to React (TSX or JSX) components',
+          'TypeScript typings via SVGProps<SVGSVGElement>',
+          'Automatic kebab-case to camelCase JSX attribute conversion',
+          'class → className and inline style-object transformation',
+          'Optional props injection for width, height, fill and stroke',
+          'Arrow function or default-export component styles',
+          'Copy to clipboard and download as .tsx or .jsx',
+          'Client-side only — SVGs never leave your browser'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this SVG to React converter free to use?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you upload or store my SVG files?',
+          answer: 'No. All parsing and code generation happens locally in your browser — your SVG markup and the generated component never touch our servers.'
+        },
+        {
+          question: 'Can I generate TypeScript (.tsx) components?',
+          answer: 'Yes. Enable "Use TypeScript" to get a typed component with a Props interface that extends SVGProps<SVGSVGElement> and defaults for width, height, fill and stroke.'
+        },
+        {
+          question: 'Does the tool convert SVG attributes to valid JSX?',
+          answer: 'Absolutely. Kebab-case attributes like stroke-width are rewritten to strokeWidth, class becomes className, and inline style strings are turned into React style objects.'
+        },
+        {
+          question: 'Can I pass custom props like color or size to the generated component?',
+          answer: 'Yes. With props enabled, width, height, fill and stroke become component props, and {...props} is spread onto the root <svg> so you can forward any standard SVG attribute.'
+        },
+        {
+          question: 'Can I use the output in Next.js or React Server Components?',
+          answer: 'Yes. The generated component is a plain React function component with no runtime dependencies, so it works in Next.js (App or Pages Router), Vite, CRA, Remix and React Server Components.'
+        },
+        {
+          question: 'What about complex SVGs with gradients, masks or filters?',
+          answer: 'The converter preserves the full SVG tree, including <defs>, gradients, masks, clip-paths and filters. It only rewrites attributes and syntax — the visual output remains identical to the source SVG.'
+        }
+      ],
+      howTo: {
+        name: 'How to convert SVG to a React component online',
+        description: 'Turn any SVG into a reusable React component in three steps, fully in your browser.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste your SVG',
+            text: 'Paste raw SVG markup into the SVG Input editor, or click the Sample button to load a demo icon. Conversion happens in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure the component',
+            text: 'Set the component name, choose TypeScript (.tsx) or JSX (.jsx), and toggle common props such as width, height, fill and stroke.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the component',
+            text: 'Copy the generated React component to your clipboard or download it as a ready-to-use .tsx or .jsx file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+        { name: 'SVG to React Component', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

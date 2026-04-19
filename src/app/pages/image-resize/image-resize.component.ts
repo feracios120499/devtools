@@ -2,13 +2,18 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Hos
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 interface ResizeSettings {
   width: number;
@@ -23,9 +28,15 @@ interface ResizeSettings {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    CheckboxModule,
+    InputNumberModule,
+    RippleModule,
+    ToastModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './image-resize.component.html',
@@ -87,25 +98,90 @@ export class ImageResizeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    // Cleanup
+    this.seoService.destroy();
   }
 
   /**
-   * Setup SEO for the page
+   * Setup SEO for the page. FAQ/HowTo mirror visible HTML content.
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/image-resize';
+    const shortDescription = 'Free online image resize tool. Upload images via drag and drop, resize with custom dimensions, maintain aspect ratio option. Rotate, download and copy resized images.';
+
     const metaData: MetaData = {
       OgTitle: 'Image Resize | DevTools',
-      OgDescription: 'Free online image resize tool. Resize images with custom width and height, maintain aspect ratio, rotate, download and copy resized images.',
-      description: 'Free online image resize tool. Upload images via drag and drop, resize with custom dimensions, maintain aspect ratio option. Rotate, download and copy resized images. Perfect for web optimization and image processing.',
+      OgDescription: shortDescription,
+      description: shortDescription,
       keywords: ['image resize', 'image resizer', 'resize image online', 'image dimensions', 'image scaling', 'image width height', 'aspect ratio', 'image rotate'],
       jsonLd: {
         name: 'Image Resize',
-        description: 'Online tool to resize images with custom dimensions and aspect ratio control',
-        url: 'https://onlinewebdevtools.com/image-resize'
-      }
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Drag & drop image upload (PNG, JPG, GIF, WebP)',
+          'Custom width/height in pixels up to 10000×10000',
+          'Aspect ratio lock for proportional resizing',
+          'Rotate images in 90° increments',
+          'Real-time canvas preview',
+          'Download as PNG or copy to clipboard',
+          'Fully client-side — images never leave your browser'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this image resizer free?',
+          answer: "Yes, it's completely free with no registration, ads or usage limits."
+        },
+        {
+          question: 'Do you store my images?',
+          answer: 'No. All processing happens locally in your browser via the Canvas API. Your images never leave your device.'
+        },
+        {
+          question: 'Which image formats are supported?',
+          answer: 'PNG, JPG, JPEG, GIF and WebP for upload. Output is always produced as a PNG to preserve sharpness.'
+        },
+        {
+          question: 'How do I keep the aspect ratio?',
+          answer: 'Toggle the "Lock aspect ratio" checkbox. Then editing width or height automatically adjusts the other dimension to match the original proportions.'
+        },
+        {
+          question: 'Can I resize very large images?',
+          answer: "Yes — up to 10000×10000px. The only real limit is your browser's available memory."
+        },
+        {
+          question: 'Does resizing reduce image quality?',
+          answer: 'Downscaling preserves quality well, while upscaling inherently loses sharpness because there is no original pixel data to invent. Start with the largest source available.'
+        }
+      ],
+      howTo: {
+        name: 'How to resize an image online',
+        description: 'Change an image width and height in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Upload an image',
+            text: 'Drag and drop an image onto the upload area or click to pick a file. PNG, JPG, GIF and WebP are supported.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Set new dimensions',
+            text: 'Type the target width and height in pixels. Lock the aspect ratio to adjust both proportionally from one value.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Download the resized image',
+            text: 'Preview the result and click Download to save a PNG, or Copy to place the image on your clipboard.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Image Tools', url: 'https://onlinewebdevtools.com/#image-tools' },
+        { name: 'Image Resize', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

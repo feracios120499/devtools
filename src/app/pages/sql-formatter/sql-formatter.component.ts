@@ -1,7 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { MessageService } from 'primeng/api';
 import { format } from 'sql-formatter';
 
@@ -10,10 +10,13 @@ import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { UserPreferencesService, SqlFormatterSettings } from '../../services/user-preferences.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { RouterModule } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Interfaces for typing
 interface IndentationOption {
@@ -31,11 +34,14 @@ interface LanguageOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './sql-formatter.component.html',
@@ -147,18 +153,97 @@ export class SqlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
     this.saveUserPreferences();
   }
 
+  /**
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
+   */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/sql-formatter';
+    const shortDescription = 'Format and beautify SQL queries online. Free in-browser SQL formatter with MySQL, PostgreSQL, Oracle and SQL Server support, configurable indentation and keyword case. No signup.';
+
     const metaData: MetaData = {
-      OgTitle: 'SQL Formatter | DevTools',
-      OgDescription: 'Format and beautify SQL queries with syntax highlighting, multiple database support, and customizable indentation.',
-      description: 'Online SQL formatter and beautifier. Format SQL queries with proper indentation, syntax highlighting, and support for multiple database dialects including MySQL, PostgreSQL, SQLite.',
-      keywords: ['SQL formatter', 'SQL beautifier', 'SQL syntax', 'MySQL formatter', 'PostgreSQL formatter', 'SQL query formatter', 'SQL code formatter', 'SQL pretty print', 'SQL indent', 'SQL format online', 'SQL code beautifier', 'SQL query beautifier', 'SQL formatting tool', 'SQL code formatting', 'SQLite formatter', 'SQL Server formatter', 'Oracle SQL formatter', 'format SQL online', 'beautify SQL online', 'SQL syntax highlighter'],
+      OgTitle: 'SQL Formatter, Beautifier & Pretty Printer Online | DevTool',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'SQL formatter', 'SQL beautifier', 'format SQL online', 'beautify SQL online',
+        'SQL pretty print', 'SQL query formatter', 'SQL code formatter', 'SQL indent',
+        'MySQL formatter', 'PostgreSQL formatter', 'Oracle SQL formatter', 'SQL Server formatter',
+        'SQLite formatter', 'MariaDB formatter', 'BigQuery formatter',
+        'SQL syntax highlighter', 'online SQL tool', 'SQL query beautifier', 'clean SQL', 'SQL lint'
+      ],
       jsonLd: {
-        name: 'SQL Formatter - Format and Beautify SQL Queries',
-        description: 'Free online SQL formatter tool to beautify and format SQL queries with syntax highlighting and multiple database dialect support.',
-        url: 'https://onlinewebdevtools.com/sql-formatter'
-      }
+        name: 'SQL Formatter, Beautifier & Pretty Printer Online | DevTool',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'SQL formatting with dialect-aware tokenizer (MySQL, PostgreSQL, SQLite, MariaDB, BigQuery)',
+          'Upper-case keyword conversion for consistent readability',
+          'Configurable indentation: 2 spaces, 4 spaces or tabs',
+          'Monaco editor with syntax highlighting and full-screen mode',
+          'Copy to clipboard and download as .sql file',
+          'Client-side processing - queries never leave your browser'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this SQL formatter free to use?',
+          answer: 'Yes, it is completely free with no registration, ads or usage limits.'
+        },
+        {
+          question: 'Do you store my SQL queries?',
+          answer: 'No. All formatting happens locally in your browser - your queries never touch our servers.'
+        },
+        {
+          question: 'Which SQL dialects are supported?',
+          answer: 'You can format Standard SQL, MySQL, PostgreSQL, SQLite, MariaDB and BigQuery queries. Vendor-specific syntax from Oracle and SQL Server that follows ANSI SQL is also handled.'
+        },
+        {
+          question: 'Does the tool change my query logic?',
+          answer: 'No. The formatter only rewrites whitespace, indentation and keyword case. The tokens, identifiers and query semantics are preserved exactly as written.'
+        },
+        {
+          question: 'Can I format very large SQL scripts?',
+          answer: "Yes, the tool handles long multi-statement scripts efficiently. Performance is only limited by your browser's memory."
+        },
+        {
+          question: 'Can I choose tabs instead of spaces?',
+          answer: "Yes. Use the indentation dropdown to pick 2 spaces, 4 spaces or tabs to match your team's style guide."
+        },
+        {
+          question: 'Does the formatter upper-case SQL keywords?',
+          answer: 'Yes. Reserved keywords such as SELECT, FROM, WHERE and JOIN are automatically converted to upper case for consistency and readability.'
+        }
+      ],
+      howTo: {
+        name: 'How to format SQL queries online',
+        description: 'Beautify SQL queries in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste your SQL',
+            text: 'Paste your SQL query into the Input editor, or click the Sample button to load an example. The Monaco editor provides syntax highlighting as you type.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Pick dialect and indentation',
+            text: 'Choose the SQL dialect (MySQL, PostgreSQL, SQLite, MariaDB or BigQuery) and an indent size (2 spaces, 4 spaces or tabs) from the options dropdowns.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy the formatted SQL',
+            text: 'The formatted query appears in the Output editor. Copy it to your clipboard or download it as a .sql file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+        { name: 'SQL Formatter', url: pageUrl }
+      ]
     };
+
     this.seoService.setupSeo(metaData);
   }
 

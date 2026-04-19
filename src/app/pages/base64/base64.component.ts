@@ -19,10 +19,11 @@ import { ThemeService } from '../../services/theme.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 
 // Monaco editor
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-base64',
@@ -36,10 +37,11 @@ import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-
     TooltipModule,
     ToastModule,
     RadioButtonModule,
-    MonacoEditorModule,
+    MonacoEditorLazyComponent,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './base64.component.html',
@@ -175,21 +177,104 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
   }
   
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/base64';
+    const shortDescription = 'Free online Base64 encoder and decoder. Convert text to Base64 or decode Base64 back to readable text instantly in your browser. UTF-8 safe, no upload, copy and download included.';
+
     const metaData: MetaData = {
-      OgTitle: 'Base64 Encoder and Decoder | DevTools',
-      OgDescription: 'Free online Base64 encoder and decoder. Convert text to Base64 or decode Base64 strings back to readable text. Includes copy and download features.',
-      description: 'Free online Base64 encoder and decoder tool. Easily convert text to Base64 encoding or decode Base64 strings back to readable text. Perfect for data encoding needs, email attachments, and more.',
-      keywords: ['base64 encoder', 'base64 decoder', 'base64 converter', 'online base64 tool', 'text to base64', 'base64 to text'],
+      OgTitle: 'Base64 Encoder and Decoder Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'base64 encoder',
+        'base64 decoder',
+        'base64 converter',
+        'online base64 tool',
+        'text to base64',
+        'base64 to text',
+        'encode base64',
+        'decode base64',
+        'base64 online',
+        'utf-8 base64',
+        'base64 encode decode',
+        'base64 utility'
+      ],
       jsonLd: {
-        name: 'Base64 Encoder and Decoder',
-        description: 'Online tool to encode and decode text to and from Base64 format',
-        url: 'https://onlinewebdevtools.com/base64'
-      }
+        name: 'Base64 Encoder and Decoder Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Encode plain text to Base64',
+          'Decode Base64 strings back to text',
+          'UTF-8 safe handling of Unicode, emoji and CJK input',
+          'One-click copy, paste and download',
+          'Preloaded sample data for quick testing',
+          'Monaco editor with fullscreen and word wrap',
+          'Client-side processing for privacy'
+        ]
+      },
+      faq: [
+        {
+          question: 'Why does a Base64 string sometimes end with one or two "=" characters?',
+          answer: 'The = characters are padding. Base64 output length must be a multiple of 4, so when the input byte length is not a multiple of 3, one or two = are appended to indicate how many bytes were padded.'
+        },
+        {
+          question: 'What is the difference between standard Base64 and URL-safe Base64?',
+          answer: 'URL-safe Base64 (RFC 4648 §5) uses - and _ instead of + and / so the result can be used in URLs, filenames and JWTs without further percent-encoding.'
+        },
+        {
+          question: 'Does this tool support Unicode text (emoji, Cyrillic, CJK)?',
+          answer: 'Yes. The encoder UTF-8 encodes your text before calling btoa(), and the decoder reverses that, so arbitrary Unicode input works correctly.'
+        },
+        {
+          question: 'Is there a maximum size I can encode or decode?',
+          answer: "There is no hard limit set by the tool. Practical size is bounded by your browser's memory — strings of several megabytes are handled smoothly on modern machines."
+        },
+        {
+          question: 'How is Base64 different from HEX encoding?',
+          answer: 'Both represent binary data as text. HEX uses 16 characters and produces output that is 2× the input length; Base64 uses 64 characters and produces output that is ~1.33× the input length, making it more compact for transmission.'
+        },
+        {
+          question: 'Is it safe to paste sensitive data here?',
+          answer: 'All encoding/decoding happens locally in your browser — no data is sent to our servers. That said, Base64 is not encryption. Do not rely on Base64 to protect secrets; use proper cryptography for confidentiality.'
+        },
+        {
+          question: 'Why do I sometimes get an error when decoding?',
+          answer: 'Decoding fails when the input contains characters outside the Base64 alphabet, has incorrect padding, or mixes URL-safe and standard variants. Check that the string only contains A–Z a–z 0–9 + / = (or - _ for URL-safe).'
+        }
+      ],
+      howTo: {
+        name: 'How to encode and decode Base64 online',
+        description: 'Convert between plain text and Base64 in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste text or Base64',
+            text: 'Paste your plain text or Base64 string into the Input editor, or click the Sample button to load an example.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Toggle mode',
+            text: 'Choose Encode from Text to Base64 or Decode from Base64 to Text using the mode toggle.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download',
+            text: 'Copy the result to your clipboard or download it as a .txt file for later use.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'Base64', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

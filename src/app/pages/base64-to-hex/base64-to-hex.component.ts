@@ -1,16 +1,17 @@
 import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService, Base64ToHexSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
@@ -36,12 +37,14 @@ interface HexFormatOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective,
-    AnchorHeadingDirective
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './base64-to-hex.component.html',
@@ -347,20 +350,84 @@ export class Base64ToHexComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   
-  // Setup metadata for SEO
+  // Setup metadata for SEO. FAQ/HowTo mirror visible HTML content.
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/base64-to-hex';
+    const shortDescription = 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.';
+
     const metaData: MetaData = {
       OgTitle: 'Base64 to HEX Converter | Free & Fast Online Tool – DevTools',
-      OgDescription: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
-      description: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
-      keywords: ['base64 to hex', 'hex to base64', 'base64 converter', 'hex converter', 'encoding converter', 'base64 decode', 'hexadecimal converter', 'base64 to hex converter', 'hex to base64 converter'],
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: ['base64 to hex', 'hex to base64', 'base64 converter', 'hex converter', 'encoding converter', 'base64 decode', 'hexadecimal converter', 'base64 to hex converter'],
       jsonLd: {
         name: 'Base64 to HEX Converter',
-        description: 'Convert Base64 to HEX online for free. Fast, secure tool with customizable formatting: spacing, prefixes, case styles, and more.',
-        url: 'https://onlinewebdevtools.com/base64-to-hex'
-      }
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Decodes standard RFC 4648 Base64 input',
+          'Six HEX output formats (plain, dashes, 0x prefix, colons, lowercase, spaces)',
+          'Copy to clipboard and download as .hex file',
+          'Client-side processing for privacy',
+          'Fullscreen editor mode',
+          'Remembers your preferred format in local storage'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this Base64 to HEX converter free?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you store my Base64 data?',
+          answer: 'No, all decoding and conversion runs locally in your browser. Your data never leaves the page.'
+        },
+        {
+          question: 'What formats can I output HEX in?',
+          answer: 'Six: Plain, With Dashes, With 0x Prefix, With Colons, Lowercase, and With Spaces. Pick one from the format dropdown.'
+        },
+        {
+          question: 'What happens if my Base64 is invalid?',
+          answer: "The tool shows an inline error toast via the browser's atob validation. Fix padding (=) or invalid characters and it will convert instantly."
+        },
+        {
+          question: 'Can I convert HEX back to Base64?',
+          answer: 'Yes — use the reverse tool: HEX to Base64 converter at /hex-to-base64.'
+        },
+        {
+          question: 'Does the tool support Base64URL encoding?',
+          answer: 'Standard RFC 4648 Base64 is supported. For URL-safe variants, replace - with + and _ with / before pasting.'
+        }
+      ],
+      howTo: {
+        name: 'How to convert Base64 to HEX online',
+        description: 'Decode Base64 and view it as hexadecimal in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste or type your Base64',
+            text: 'Paste your Base64 string into the Input editor, or click Sample to load an example.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Choose HEX output format',
+            text: 'Pick an output style: plain, dashes, 0x prefix, colons, lowercase or spaces.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the HEX',
+            text: 'Copy the result to your clipboard or download it as a .hex file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'Base64 to HEX', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

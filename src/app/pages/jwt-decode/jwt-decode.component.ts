@@ -1,20 +1,23 @@
 import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, DOCUMENT } from '@angular/core';
 import { CommonModule, isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService, JwtDecodeSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -35,11 +38,15 @@ interface SignatureAlgorithm {
   imports: [
     CommonModule, 
     FormsModule, 
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    CheckboxModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
   ],
   providers: [MessageService],
   templateUrl: './jwt-decode.component.html',
@@ -47,7 +54,10 @@ interface SignatureAlgorithm {
 })
 export class JwtDecodeComponent implements OnInit, AfterViewInit, OnDestroy {
   @HostBinding('class') class = 'dt-page';
-  
+
+  // Literal code examples used in SEO content (avoid Angular's ICU/interpolation parser)
+  readonly jwtHeaderExample: string = '{ "alg": "HS256", "typ": "JWT" }';
+
   // JWT input
   jwtToken: string = '';
   
@@ -555,21 +565,108 @@ export class JwtDecodeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   /**
-   * Sets up SEO for the page
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/jwt-decode';
+    const shortDescription = 'Decode and verify JWT tokens online. Free in-browser JWT decoder and HMAC signature verifier for HS256, HS384 and HS512. No signup, no upload.';
+
     const metaData: MetaData = {
-      OgTitle: 'JWT Decoder and Verifier | DevTools',
-      OgDescription: 'Free online JWT decoder and verifier. Decode and verify JSON Web Tokens, inspect header and payload data.',
-      description: 'Free online JWT decoder and verifier tool. Easily decode JWT tokens, inspect header and payload data, and verify signatures with various algorithms including HS256, RS256, and more.',
-      keywords: ['jwt decoder', 'jwt verifier', 'json web token', 'decode jwt', 'verify jwt', 'jwt inspector', 'jwt token'],
+      OgTitle: 'JWT Decoder, Verifier & Inspector Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'JWT decoder',
+        'JWT verifier',
+        'JSON Web Token decoder',
+        'decode JWT online',
+        'verify JWT signature',
+        'JWT inspector',
+        'JWT parser',
+        'HS256 verifier',
+        'JWT claims viewer',
+        'online JWT tool',
+        'JWT debugger',
+        'JWT token decoder'
+      ],
       jsonLd: {
-        name: 'JWT Decoder and Verifier',
-        description: 'Online tool for decoding and verifying JSON Web Tokens (JWT)',
-        url: 'https://onlinewebdevtools.com/jwt-decode'
-      }
+        name: 'JWT Decoder, Verifier & Inspector Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Decode JWT header, payload and signature',
+          'Verify HMAC signatures (HS256, HS384, HS512)',
+          'Support for Base64-encoded secret keys',
+          'Automatic algorithm detection from the token header',
+          'Inspect registered claims (iss, sub, aud, exp, iat) and custom claims',
+          'Copy decoded header or payload to clipboard',
+          'Client-side processing for privacy'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this JWT decoder free to use?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you store my JWT tokens or secrets?',
+          answer: 'No, all decoding and signature verification is performed locally in your browser. Your tokens and secret keys never touch our servers.'
+        },
+        {
+          question: 'Which JWT signature algorithms can be verified in the browser?',
+          answer: 'HMAC algorithms HS256, HS384 and HS512 are supported for signature verification directly in the browser. Asymmetric algorithms such as RS256 or ES256 can still be decoded, but their signatures must be verified on a server that has access to the public key.'
+        },
+        {
+          question: 'How do I verify a JWT signature?',
+          answer: 'Paste the JWT into the input field, then enter the matching secret key in the verification panel. The algorithm is auto-detected from the token header, and a green "Signature Verified" badge confirms the token has not been tampered with.'
+        },
+        {
+          question: 'What do claims like iss, sub, aud, exp and iat mean?',
+          answer: 'These are standard registered JWT claims defined in RFC 7519: iss (issuer), sub (subject / user ID), aud (audience), exp (expiration time as a Unix timestamp) and iat (issued-at time). Tokens may also include custom claims specific to your application.'
+        },
+        {
+          question: 'Can I decode an expired JWT?',
+          answer: 'Yes. Decoding a JWT only reads its header and payload, so expired tokens are fully decodable. Signature verification is independent of the exp claim — your application is responsible for rejecting expired tokens at authentication time.'
+        },
+        {
+          question: 'Is it safe to paste a JWT into an online decoder?',
+          answer: 'All processing in this tool happens client-side, so tokens are not uploaded. Still, treat JWTs as credentials — avoid pasting production tokens or production secret keys into any third-party tool, and rotate any key that may have been exposed.'
+        },
+        {
+          question: "What's the difference between signing a JWT and encrypting it (JWS vs JWE)?",
+          answer: 'A signed JWT (JWS, RFC 7515) is integrity-protected but its payload is only Base64URL-encoded, not encrypted — anyone can read it. An encrypted JWT (JWE, RFC 7516) keeps the payload confidential. This tool works with signed JWTs, which are the most common format used in authentication.'
+        }
+      ],
+      howTo: {
+        name: 'How to decode and verify a JWT online',
+        description: 'Decode a JSON Web Token and optionally verify its HMAC signature directly in your browser.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste JWT',
+            text: 'Paste your JWT into the input field, or click the Sample button to load an example token. The tool automatically splits it into header, payload and signature.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Review decoded parts',
+            text: 'Inspect the decoded header (algorithm, token type, key id) and optionally verify the HMAC signature by entering the matching secret key and selecting an HS256, HS384 or HS512 algorithm.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or inspect',
+            text: 'Review the decoded payload claims (sub, iss, aud, exp, iat) in the JSON viewer and copy the header or payload to the clipboard for documentation, debugging or sharing with your team.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+        { name: 'JWT Decoder', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

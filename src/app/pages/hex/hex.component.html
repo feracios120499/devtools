@@ -1,12 +1,14 @@
 <div class="dt-container">
-  <app-page-header>Tool for converting text to HEX format and HEX to readable text</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online HEX encoder and decoder - Convert text to hexadecimal</app-page-header>
   <div class="p-3">
-    <p>This <strong>online HEX encoder and decoder</strong> supports multiple formatting options and allows you to convert text to hexadecimal.</p>
-    <p>Quickly <strong>convert text to HEX</strong> or <strong>decode HEX to text</strong> in your browser with no server upload.</p>
+    <p>This <strong>online HEX encoder and decoder</strong> converts text to hexadecimal and back with multiple formatting options, all in your browser.</p>
+    <p>Quickly <strong>convert text to HEX</strong> or <strong>decode HEX to text</strong> - no signup, no upload, 100% client-side.</p>
   </div>
 
-  <!-- Блок переключателей операций -->
-  <div class="mb-3 px-3 flex items-center">
+  <!-- Encode / decode mode toggle -->
+  <div class="mb-3 px-3 flex items-center" id="options">
     <div class="flex items-center gap-3">
       <p-radioButton [(ngModel)]="activeTab" inputId="encode" name="operation" [value]="1" (onClick)="switchMode()"></p-radioButton>
       <label for="encode">Encode from Text to HEX</label>
@@ -16,20 +18,17 @@
     </div>
   </div>
 
-  <!-- Основной контейнер с редакторами -->
+  <!-- Main editors container -->
   <div class="dt-editors">
-    <!-- Левая колонка - Input Text -->
-    <div class="col flex flex-col h-full">
+    <!-- Left column - Input -->
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Input Text' : 'Input HEX' }}</h3>
         </div>
-        <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
 
-        <!-- Textarea для серверного рендеринга -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea
             [(ngModel)]="inputCode"
             (ngModelChange)="processText()"
@@ -37,8 +36,7 @@
           </textarea>
         }
 
-        <!-- Monaco editor для браузера -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -74,260 +72,281 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor
-                #inputMonacoEditor
-                [options]="inputEditorOptions"
-                [(ngModel)]="inputCode"
-                (ngModelChange)="processText()"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+            </div>
+            <app-monaco-editor-lazy
+              #inputMonacoEditor
+              [options]="inputEditorOptions"
+              [(ngModel)]="inputCode"
+              (ngModelChange)="processText()"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Right column - Output -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <div class="flex justify-between items-center h-10">
+          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h3>
+          <!-- HEX format selector (visible only in encode mode) -->
+          @if (activeTab == 1) {
+            <div class="flex gap-2 items-center">
+              <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
+                (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
+                [panelStyleClass]="'same-width-panel'" appendTo="body">
+                <ng-template pTemplate="selectedItem">
+                  <div class="flex align-items-center">
+                    <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
+                  </div>
+                </ng-template>
+                <ng-template let-option pTemplate="item">
+                  <div class="flex align-items-center">
+                    <span>{{option.label}} ({{option.example}})</span>
+                  </div>
+                </ng-template>
+              </p-select>
             </div>
           }
         </div>
-      </div>
+        <div class="mb-1"></div>
 
-      <!-- Правая колонка - Output Text -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h3>
-            <!-- Выпадающий список с форматами для режима кодирования текста в HEX -->
-            @if (activeTab == 1) {
-              <div class="flex gap-2 items-center">
-                <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
-                  (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
-                  [panelStyleClass]="'same-width-panel'" appendTo="body">
-                  <ng-template pTemplate="selectedItem">
-                    <div class="flex align-items-center">
-                      <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
-                    </div>
-                  </ng-template>
-                  <ng-template let-option pTemplate="item">
-                    <div class="flex align-items-center">
-                      <span>{{option.label}} ({{option.example}})</span>
-                    </div>
-                  </ng-template>
-                </p-select>
+        @if (false) {
+          <textarea
+            [(ngModel)]="outputCode"
+            readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
+                    [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
               </div>
-            }
-          </div>
-          <!-- Отступ для дропдауна -->
-          <div class="mb-1"></div>
-
-          <!-- Textarea для серверного рендеринга -->
-          @if (!isBrowser) {
-            <textarea
+              <hr>
+            </div>
+            <app-monaco-editor-lazy
+              #outputMonacoEditor
+              [options]="outputEditorOptions"
               [(ngModel)]="outputCode"
-              readonly
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
-
-          <!-- Monaco editor для браузера -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
-                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                      <i-tabler name="download" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <hr>
-                </div>
-                <ngx-monaco-editor
-                  #outputMonacoEditor
-                  [options]="outputEditorOptions"
-                  [(ngModel)]="outputCode"
-                  class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
-              </div>
-            }
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
-        </div>
+        }
       </div>
-
-      <!-- Информационный раздел -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About HEX Encoding</h4>
-        <p class="mb-2 text-sm">
-          Hexadecimal (HEX) is a base-16 numeral system used to represent binary data in a human-readable format. Each hexadecimal digit represents 4 bits (half a byte), so a byte can be represented by two hexadecimal digits.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>When to use HEX encoding:</strong>
-          HEX encoding is commonly used in programming and computer science for various purposes, including:
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><span class="text-primary">Binary data representation:</span> For viewing and editing binary files in a readable format</li>
-          <li><span class="text-primary">Color codes:</span> In web development for defining colors (e.g., #FF5733)</li>
-          <li><span class="text-primary">Memory addresses:</span> For displaying memory addresses in debugging</li>
-          <li><span class="text-primary">Binary protocols:</span> For analyzing and documenting network and binary protocols</li>
-          <li><span class="text-primary">Cryptography:</span> For representing cryptographic values like hashes and keys</li>
-        </ul>
-        <p class="mb-2 text-sm">
-          <strong>Supported HEX formats for decoding:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
-          <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
-          <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
-          <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
-          <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
-        </ul>
-        <p class="text-sm">
-          Learn more about hexadecimal encoding at
-          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-          and character encoding at
-          <a href="https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN TextEncoder</a>.
-        </p>
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> All encoding and decoding is performed locally in your browser - your data never leaves your device.
-        </p>
-      </div>
-
-      <!-- Development and System Administration Use Cases -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Development & System Administration Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">System Programming & Debugging</h5>
-            <p class="mb-2 text-sm">
-              Essential for low-level programming, system debugging, and analyzing binary data structures
-              in operating systems and embedded systems development.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">System Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Analyze memory dumps and core files</li>
-              <li>Debug binary file formats and protocols</li>
-              <li>Examine hardware register values</li>
-              <li>Process firmware and BIOS data</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Network & Security Analysis</h5>
-            <p class="mb-2 text-sm">
-              Critical for network protocol analysis, cybersecurity investigations, and forensic data examination
-              where binary data needs to be inspected in readable format.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Security Tasks:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Network packet payload analysis</li>
-              <li>Malware binary examination</li>
-              <li>Digital forensics evidence processing</li>
-              <li>Cryptographic hash verification</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Web Development & Data Processing</h5>
-          <p class="text-sm mb-2">
-            This HEX encoder/decoder is valuable for web developers working with binary data,
-            character encoding issues, and data format conversions in modern web applications.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Web Development Scenarios:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Color code conversion</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file analysis</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Unicode debugging</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Protocol development</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data validation</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Encoding conversion</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Standards and Programming Languages -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Programming Languages & Technical Standards</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
-            <p class="mb-2 text-sm">
-              Hexadecimal encoding is universally supported across programming languages
-              with built-in functions and libraries for conversion operations.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>JavaScript: parseInt(), toString(16), Buffer.from()</li>
-              <li>Python: hex(), bytes.fromhex(), codecs.encode()</li>
-              <li>Java: Integer.toHexString(), Hex.encodeHexString()</li>
-              <li>C/C++: sprintf(), sscanf(), std::hex</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Industry Standards & Formats</h5>
-            <p class="mb-2 text-sm">
-              Hexadecimal representation follows established industry standards for
-              data interchange, file formats, and protocol specifications.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Standard Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>ASCII/Unicode character codes (U+0041)</li>
-              <li>RGB color values in CSS (#FF5733)</li>
-              <li>MAC addresses (00:1B:44:11:3A:B7)</li>
-              <li>Binary file signatures and magic numbers</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Hex Dump Analysis & Binary Tools</h5>
-          <p class="text-sm mb-2">
-            This tool complements traditional hex dump utilities like hexdump, xxd, and od,
-            providing a browser-based solution for hexadecimal data analysis and conversion.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Related Tools & Commands:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">hexdump -C</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">xxd -p</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">od -x</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">objdump</span>
-          </div>
-        </div>
-
-        <p class="text-sm mt-3">
-          For comprehensive hexadecimal documentation, visit
-          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-          and for character encoding standards, refer to
-          <a href="https://www.unicode.org/standard/standard.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Unicode Standard</a>.
-        </p>
-      </div>
-
-      <!-- Toast -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+  </div>
+
+  <!-- SEO / informational content -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is Hexadecimal Encoding?</h2>
+      <p class="mt-3">
+        Hexadecimal (HEX) is a base-16 numeral system that uses 16 distinct symbols: 0-9 to represent values zero to nine, and A-F (or a-f) to represent values ten to fifteen. Each hexadecimal digit represents exactly 4 bits (a "nibble"), so a single byte of binary data is expressed as two HEX digits.
+      </p>
+      <p class="mt-3">
+        HEX encoding converts arbitrary text or binary data into a compact, human-readable string that can be safely transmitted, stored in text files, and embedded in source code without worrying about non-printable characters or encoding issues.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use a HEX Encoder / Decoder?</h2>
+      <p class="mt-3">
+        Working with raw binary data is error-prone because most bytes are not printable characters. A HEX encoder transforms any string or byte sequence into a deterministic ASCII representation, while a HEX decoder restores the original content from that representation.
+      </p>
+      <p class="mt-3">
+        Developers rely on HEX conversion for debugging network packets, analyzing memory dumps, inspecting cryptographic hashes, handling CSS color codes, and encoding binary payloads for JSON, XML, or URL transport.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Encode and Decode HEX Online (Step by Step)</h2>
+      <p class="mt-3">
+        Using our HEX tool is fast and requires no installation:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li>Select <strong>Encode from Text to HEX</strong> or <strong>Decode from HEX to Text</strong>.</li>
+        <li>Paste or type your input into the left editor, or click <strong>Sample</strong> to load an example.</li>
+        <li>If encoding, pick a HEX output format (plain, dashes, colons, 0x prefix, spaces, or lowercase).</li>
+        <li>The result appears instantly in the right editor; copy it to your clipboard or download it as a text file.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our HEX Tool?</h2>
+      <p class="mt-3">
+        Our HEX encoder and decoder runs entirely in your browser - there are no server uploads, no accounts, and no rate limits. The tool supports multiple real-world HEX formats at once, handles Unicode characters correctly, and gives you an instant preview as you type.
+      </p>
+      <p class="mt-3">
+        The Monaco-powered editor adds syntax-aware editing, fullscreen mode, and convenient paste/copy/download actions, making this a practical replacement for command-line utilities like <code>xxd</code>, <code>hexdump</code>, or <code>od</code>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How HEX Encoding Works</h2>
+      <p class="mt-3">
+        Every character in the input has a numeric Unicode code point. The encoder reads each code point, splits it into 4-bit nibbles, and converts each nibble to one hexadecimal digit using <code>Number.prototype.toString(16)</code>. The digits are padded so that each byte is always represented by exactly 2 HEX characters (for example, <code>A</code> &rarr; <code>41</code>, space &rarr; <code>20</code>).
+      </p>
+      <p class="mt-3">
+        Decoding is the reverse: the HEX string is normalized (separators and <code>0x</code> prefixes are stripped), then every pair of digits is parsed with <code>parseInt(pair, 16)</code> and converted back to the original character via <code>String.fromCharCode</code>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features of the HEX Encoder / Decoder</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Bidirectional <strong>encode / decode mode toggle</strong> with a single click.</li>
+        <li>Multiple HEX output formats: <code>Plain</code>, <code>With Dashes</code>, <code>With 0x Prefix</code>, <code>With Colons</code>, <code>With Spaces</code>, and <code>Lowercase</code>.</li>
+        <li>Automatic normalization of input separators when decoding (spaces, dashes, colons, line breaks, <code>0x</code> prefixes).</li>
+        <li>Paste from clipboard, copy result, and download as a plain-text file.</li>
+        <li>Real-time processing with Monaco editor, fullscreen mode, and dark / light themes.</li>
+        <li>100% client-side - your data never leaves the browser.</li>
+        <li>Settings (mode and format) are remembered between visits.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Web development:</strong> reading and generating CSS color codes such as <code>#FF5733</code>.</li>
+        <li><strong>Debugging:</strong> analyzing memory dumps, core files, and hex-dumped binary structures.</li>
+        <li><strong>Networking:</strong> inspecting raw packets and binary protocol payloads in readable form.</li>
+        <li><strong>Cryptography:</strong> working with hashes, signatures, keys, and IVs expressed as HEX.</li>
+        <li><strong>Unicode:</strong> examining Unicode code points such as <code>U+0041</code> or UTF-8 byte sequences.</li>
+        <li><strong>Data interchange:</strong> embedding binary data inside JSON, XML, URLs, or source code.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Use Online?</h2>
+      <p class="mt-3">
+        Yes. All encoding and decoding happens locally in your browser using JavaScript - nothing is sent over the network, there are no analytics of your payload, and no copy of your data is stored on any server.
+      </p>
+      <p class="mt-3">
+        This makes the tool suitable for handling sensitive data such as cryptographic keys, internal logs, or proprietary payloads. You can even use it fully offline after the page has loaded.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a free, ad-free suite of online utilities built for developers, DevOps engineers, and technical writers. Every tool is designed to be fast, privacy-respecting, and focused on a single task done well.
+      </p>
+      <p class="mt-3">
+        The HEX encoder/decoder shares the same Monaco-based editor, themes, and UX patterns as the rest of the suite, so switching between formatters, converters, and inspectors feels seamless.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Copy and Related Tools</h2>
+      <p class="mt-3">
+        After encoding or decoding, you can copy the result to your clipboard with a single click or download it as a plain-text file for later use, sharing, or version control.
+      </p>
+      <p class="mt-3">
+        This tool also works well alongside other DevTools utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><a [routerLink]="'/hex-to-file'" class="text-primary hover:underline">HEX to File</a> - turn HEX strings into downloadable binary files.</li>
+        <li><a [routerLink]="'/hex-to-base64'" class="text-primary hover:underline">HEX to Base64</a> - convert hexadecimal data directly into Base64.</li>
+        <li><a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 to HEX</a> - go the other way when working with binary payloads.</li>
+        <li><a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 Encoder / Decoder</a> - encode and decode plain text with Base64.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this HEX encoder and decoder free to use?</h3>
+        <p class="mt-1">Yes, the tool is completely free with no registration, no ads, and no usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between uppercase and lowercase HEX?</h3>
+        <p class="mt-1">Uppercase (<code>DEADBEEF</code>) and lowercase (<code>deadbeef</code>) HEX represent exactly the same bytes. Case is purely cosmetic, but some protocols and APIs require one specific style, so this tool lets you choose.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the HEX decoder support Unicode characters?</h3>
+        <p class="mt-1">Yes. The encoder writes each character's Unicode code point as HEX digits, and the decoder reconstructs the original string, so standard Unicode text round-trips correctly.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is there a maximum input size?</h3>
+        <p class="mt-1">There is no hard limit set by the tool; performance is bound only by your browser's memory. Inputs of several megabytes are handled without issue on modern devices.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between HEX and Base64 encoding?</h3>
+        <p class="mt-1">HEX uses 16 symbols and produces 2 characters per byte, while Base64 uses 64 symbols and produces roughly 4 characters per 3 bytes. Base64 is more compact, but HEX is easier to read digit-by-digit and is preferred for debugging, hashes, and memory dumps.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to paste sensitive data into this tool?</h3>
+        <p class="mt-1">Yes. All processing runs locally in your browser using JavaScript - your input is never uploaded, logged, or shared with any server.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which HEX input formats are accepted when decoding?</h3>
+        <p class="mt-1">The decoder accepts plain HEX (<code>DEADBEEF</code>), dash-separated (<code>DE-AD-BE-EF</code>), colon-separated (<code>DE:AD:BE:EF</code>), space-separated (<code>DE AD BE EF</code>), and <code>0x</code>-prefixed (<code>0xDE 0xAD 0xBE 0xEF</code>) forms. Separators and prefixes are stripped automatically.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>HEX Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of hexadecimal encoding and its role in modern computing, here are authoritative external references:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia: Hexadecimal
+          </a> - Overview of the base-16 numeral system, notation, and history.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toString" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN: Number.prototype.toString
+          </a> - Reference for converting JavaScript numbers to arbitrary bases, including base 16.
+        </li>
+        <li>
+          <a href="https://www.unicode.org/ucd/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Unicode Character Database
+          </a> - Official data behind Unicode code points commonly expressed in HEX.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

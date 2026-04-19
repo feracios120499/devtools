@@ -1,29 +1,35 @@
-import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
+﻿import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { BadgeModule } from 'primeng/badge';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { diff_match_patch, DIFF_EQUAL, DIFF_DELETE, DIFF_INSERT } from 'diff-match-patch';
+import { RouterModule } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 @Component({
   selector: 'app-text-compare',
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    BadgeModule,
+    ButtonModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './text-compare.component.html',
@@ -259,19 +265,96 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
     this.seoService.destroy();
   }
 
+  /**
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
+   */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/text-diff-checker';
+    const shortDescription = 'Free online text diff checker. Compare two texts side by side with inline, character-level highlighting of insertions, deletions and modifications - 100% in your browser.';
+
     const metaData: MetaData = {
-      OgTitle: 'Text Diff Checker - Online Text Compare Tool | DevTools',
-      OgDescription: 'Free online text diff checker tool. Compare two text files side by side with highlighted differences and detailed diff view.',
-      description: 'Text diff checker and compare tool online. Highlight differences between two texts, view side-by-side comparison, and analyze changes with detailed diff visualization. Free text compare utility.',
-      keywords: ['text diff checker', 'text compare', 'text diff', 'file comparison', 'text difference', 'side by side comparison', 'text analysis', 'diff tool'],
+      OgTitle: 'Text Diff Checker - Compare Text Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: ['text diff checker', 'text compare', 'compare text online', 'text diff',
+        'diff tool', 'diff viewer', 'compare two texts', 'text difference',
+        'side by side diff', 'inline diff', 'online diff checker', 'text comparison tool',
+        'file comparison', 'code diff online'],
       jsonLd: {
-        name: 'Text Diff Checker - Online Text Compare Tool',
-        description: 'Online text diff checker to compare and diff text files with highlighted differences',
-        url: 'https://onlinewebdevtools.com/text-diff-checker'
-      }
+        name: 'Text Diff Checker - Compare Text Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Side-by-side comparison of Original and Modified texts',
+          'Inline character-level highlighting of insertions and deletions',
+          'Whole-line change markers for quickly locating modifications',
+          'Monaco-powered editors with syntax highlighting and line numbers',
+          'Fullscreen editing mode for each side with Esc to exit',
+          'Sample data loader and one-click Copy / Paste / Clear actions',
+          'Dark and light editor themes',
+          'Client-side processing for privacy - no data leaves your browser'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this Text Diff Checker free to use?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'Do you store the texts I compare?',
+          answer: 'No. All diff computation happens locally in your browser - your original and modified texts never leave your machine.'
+        },
+        {
+          question: 'What diff algorithm does this tool use?',
+          answer: "The tool uses Google's diff-match-patch library, a Myers-style diff implementation with semantic cleanup that produces readable character-level and line-level diffs."
+        },
+        {
+          question: 'Can I compare source code and configuration files?',
+          answer: 'Yes. The Monaco-powered editors handle code, JSON, YAML, XML, Markdown, and any plain text. Just paste both versions and the differences are highlighted automatically.'
+        },
+        {
+          question: 'Can I compare large text files?',
+          answer: "Yes. The tool handles large documents efficiently, limited mainly by your browser's available memory. For very large files, splitting them into smaller sections often improves readability of the diff."
+        },
+        {
+          question: 'How are insertions and deletions highlighted?',
+          answer: 'Deleted content is highlighted in the Original (left) editor, inserted content is highlighted in the Modified (right) editor, and modified lines are additionally marked with whole-line backgrounds for quick scanning.'
+        },
+        {
+          question: 'Does it work offline?',
+          answer: 'Once the page has loaded, comparison runs entirely in your browser, so you can keep using it even on restricted or offline networks.'
+        }
+      ],
+      howTo: {
+        name: 'How to compare two texts online',
+        description: 'Find differences between two texts in three steps using the Text Diff Checker.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste the Original text',
+            text: 'Paste your original text into the left editor, or click the Sample button to load an example.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Paste the Modified text and pick mode',
+            text: 'Paste the updated version into the right editor and use the toolbar actions (Sample, Paste, Clear, Fullscreen) to configure how you view the comparison.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Review the highlighted differences',
+            text: 'Review inline character-level and whole-line diffs in both editors, and check the Comparison Results summary for the total number of changes detected.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+        { name: 'Text Diff Checker', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

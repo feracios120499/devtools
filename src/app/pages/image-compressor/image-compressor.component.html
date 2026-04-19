@@ -1,193 +1,323 @@
 <div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
 
-  <!-- Toast component -->
-  <p-toast position="bottom-right"></p-toast>
-  <app-page-header>Compress images with quality control and reduce file sizes</app-page-header>
+  <app-page-header>Free online image compressor – reduce JPEG &amp; WebP size with quality control</app-page-header>
   <div class="p-3">
-    <p>This <strong>image compression tool</strong> allows you to reduce image file sizes while maintaining visual
-  quality.</p>
-  <p>Simply <strong>drag and drop an image</strong> or click to upload, adjust the compression quality using the
-  slider, and get your optimized image.
-  <strong>Quality control</strong> works for JPEG and WebP formats.
-</p>
-</div>
-
-<!-- Compression Settings -->
-@if (isImageLoaded) {
-  <div class="p-2">
-    <h4 class="text-lg font-medium text-700 mb-3">Compression Settings</h4>
-    <div class="dt-border p-4">
-      <div class="flex flex-col gap-4">
-        <!-- Quality Input -->
-        <div class="flex flex-col p-3">
-          <label for="quality" class="text-sm font-medium text-700 mb-2">
-            Quality: {{compressionSettings.quality}}/100
-          </label>
-          <p-inputNumber
-            inputId="quality"
-            [(ngModel)]="compressionSettings.quality"
-            [min]="1"
-            [max]="100"
-            [step]="1"
-            [showButtons]="true"
-            suffix="%"
-            (ngModelChange)="onQualityChange()"
-            class="w-full">
-          </p-inputNumber>
-          <div class="text-xs text-500 mt-2">
-            Lower values = smaller file size, higher values = better quality
-          </div>
-        </div>
-      </div>
-    </div>
+    <p>This <strong>online image compressor</strong> reduces JPEG and WebP file sizes directly in your browser with a real-time quality slider and before/after size comparison.</p>
+    <p>Compress photos for faster websites, lighter emails and social media uploads using our <strong>free image compression tool</strong> – no upload, no signup, 100% client-side.</p>
   </div>
-}
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-  <!-- Left column - Image upload and original canvas -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
-
-        @if (isImageLoaded && isBrowser) {
-          <div class="flex text-sm gap-2">
-            <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
-              class="p-button-outlined" (click)="openFileDialog()">
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- File upload area -->
-      @if (!isImageLoaded && isBrowser) {
-        <div
-          class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
-          [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
-          (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
-          (click)="openFileDialog()">
-          <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
-          <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
-          <p class="text-sm text-600 mb-3">or click to select from your device</p>
-          <p class="text-xs text-500">Supports: JPEG, WebP</p>
-        </div>
-      }
-
-      <!-- Loading message for SSR -->
-      @if (!isBrowser) {
-        <div class="loading-placeholder text-center p-6 surface-ground border-round">
-          <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
-          <p class="text-sm text-600 m-0">Loading image compression tool...</p>
-        </div>
-      }
-
-      <!-- Original Canvas area -->
-      @if (isBrowser) {
-        <div class="canvas-container relative">
-          <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
-            <h4 class="text-lg font-medium text-700 mb-2">Original Image</h4>
-            <canvas #originalCanvas class="border rounded"></canvas>
-            <div class="mt-2 text-sm text-600">
-              File size: {{formatFileSize(compressionSettings.originalSize)}}
+  <!-- Compression Settings -->
+  @if (isImageLoaded) {
+    <div class="p-2" id="options">
+      <h4 class="text-lg font-medium text-700 mb-3">Compression Settings</h4>
+      <div class="dt-border p-4">
+        <div class="flex flex-col gap-4">
+          <!-- Quality Input -->
+          <div class="flex flex-col p-3">
+            <label for="quality" class="text-sm font-medium text-700 mb-2">
+              Quality: {{compressionSettings.quality}}/100
+            </label>
+            <p-inputNumber
+              inputId="quality"
+              [(ngModel)]="compressionSettings.quality"
+              [min]="1"
+              [max]="100"
+              [step]="1"
+              [showButtons]="true"
+              suffix="%"
+              (ngModelChange)="onQualityChange()"
+              class="w-full">
+            </p-inputNumber>
+            <div class="text-xs text-500 mt-2">
+              Lower values = smaller file size, higher values = better quality. Format is auto-detected from upload (JPEG or WebP).
             </div>
           </div>
         </div>
-      }
-
-      <!-- Hidden file input -->
-      @if (isBrowser) {
-        <input #fileInput type="file" accept="image/jpeg,image/webp" class="hidden"
-          (change)="onFileSelected($event)">
-      }
+      </div>
     </div>
-  </div>
+  }
 
-  <!-- Right column - Compressed image and controls -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-medium text-800 mb-3">Compressed Image</h3>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left column - Image upload and original canvas -->
+    <div class="col flex flex-col" id="input">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+
+          @if (isImageLoaded && isBrowser) {
+            <div class="flex text-sm gap-2">
+              <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
+                class="p-button-outlined" (click)="openFileDialog()">
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- File upload area -->
+        @if (!isImageLoaded && isBrowser) {
+          <div
+            class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+            [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+            (click)="openFileDialog()">
+            <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+            <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
+            <p class="text-sm text-600 mb-3">or click to select from your device</p>
+            <p class="text-xs text-500">Supports: JPEG, WebP</p>
+          </div>
+        }
+
+        <!-- Loading message for SSR -->
+        @if (false) {
+          <div class="loading-placeholder text-center p-6 surface-ground border-round">
+            <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+            <p class="text-sm text-600 m-0">Loading image compression tool...</p>
+          </div>
+        }
+
+        <!-- Original Canvas area -->
+        @if (true) {
+          <div class="canvas-container relative">
+            <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
+              <h4 class="text-lg font-medium text-700 mb-2">Original Image</h4>
+              <canvas #originalCanvas class="border rounded"></canvas>
+              <div class="mt-2 text-sm text-600">
+                File size: {{formatFileSize(compressionSettings.originalSize)}}
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Hidden file input -->
+        @if (true) {
+          <input #fileInput type="file" accept="image/jpeg,image/webp" class="hidden"
+            (change)="onFileSelected($event)">
+        }
+      </div>
+    </div>
+
+    <!-- Right column - Compressed image and controls -->
+    <div class="col flex flex-col" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Compressed Image</h3>
+          @if (isImageLoaded && isBrowser) {
+            <div class="flex text-sm gap-2">
+              <button pButton pRipple type="button" label="Download" icon="pi pi-download" severity="contrast"
+                class="p-button-outlined" (click)="downloadImage()">
+              </button>
+              <button pButton pRipple type="button" label="Copy" icon="pi pi-copy" severity="contrast"
+                class="p-button-outlined" (click)="copyImage()">
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Compressed Canvas -->
         @if (isImageLoaded && isBrowser) {
-          <div class="flex text-sm gap-2">
-            <button pButton pRipple type="button" label="Download" icon="pi pi-download" severity="contrast"
-              class="p-button-outlined" (click)="downloadImage()">
-            </button>
-            <button pButton pRipple type="button" label="Copy" icon="pi pi-copy" severity="contrast"
-              class="p-button-outlined" (click)="copyImage()">
-            </button>
+          <div class="canvas-container mb-4">
+            <div class="canvas-wrapper dt-border p-3">
+              <h4 class="text-lg font-medium text-700 mb-2">Preview</h4>
+              <canvas #compressedCanvas class="border rounded"></canvas>
+              <div class="mt-2 flex flex-col gap-1 text-sm text-600">
+                <div>Compressed size: {{formatFileSize(compressionSettings.compressedSize)}}</div>
+                @if (getCompressionRatio() > 0) {
+                  <div class="text-green-600 font-medium">
+                    Saved {{getCompressionRatio()}}% ({{formatFileSize(compressionSettings.originalSize -
+                    compressionSettings.compressedSize)}})
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Default instructions for SSR or when no image -->
+        @if (!isBrowser || !isImageLoaded) {
+          <div
+            class="text-center p-4 surface-ground dt-border resize-info-container-upload">
+            <div>
+              <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
+            </div>
+            <p class="text-lg font-medium text-700 mb-2">Upload an image to start compressing</p>
+            <p class="text-sm text-600">Adjust quality settings and download your optimized image</p>
           </div>
         }
       </div>
-
-      <!-- Compressed Canvas -->
-      @if (isImageLoaded && isBrowser) {
-        <div class="canvas-container mb-4">
-          <div class="canvas-wrapper dt-border p-3">
-            <h4 class="text-lg font-medium text-700 mb-2">Preview</h4>
-            <canvas #compressedCanvas class="border rounded"></canvas>
-            <div class="mt-2 flex flex-col gap-1 text-sm text-600">
-              <div>Compressed size: {{formatFileSize(compressionSettings.compressedSize)}}</div>
-              @if (getCompressionRatio() > 0) {
-                <div class="text-green-600 font-medium">
-                  Saved {{getCompressionRatio()}}% ({{formatFileSize(compressionSettings.originalSize -
-                  compressionSettings.compressedSize)}})
-                </div>
-              }
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Default instructions for SSR or when no image -->
-      @if (!isBrowser || !isImageLoaded) {
-        <div
-          class="text-center p-4 surface-ground dt-border resize-info-container-upload">
-          <div>
-            <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
-          </div>
-          <p class="text-lg font-medium text-700 mb-2">Upload an image to start compressing</p>
-          <p class="text-sm text-600">Adjust quality settings and download your optimized image</p>
-        </div>
-      }
     </div>
   </div>
-</div>
 
-<!-- Information section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-  <h4 class="text-xl font-semibold mb-2">About Image Compressor</h4>
-  <p class="mb-2 text-sm">
-    Image Compressor is a powerful tool that reduces image file sizes while maintaining visual quality.
-    Simply upload an image and adjust the compression quality to get the perfect balance between file size and image
-    quality.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>How it works:</strong>
-    Upload an image via drag and drop or file selection. Use the quality input field to control compression level.
-    Preview your compressed image in real-time with size comparison and download or copy when ready.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>Key features:</strong>
-  </p>
-  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-    <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
-    <li><span class="text-primary">Quality Control:</span> Adjust compression quality from 1-100 for optimal results
-  </li>
-  <li><span class="text-primary">JPEG & WebP Support:</span> Optimized compression for modern web formats</li>
-  <li><span class="text-primary">Real-time Preview:</span> See compressed image and file size instantly</li>
-  <li><span class="text-primary">Size Comparison:</span> View original vs compressed file sizes with savings
-percentage</li>
-<li><span class="text-primary">Download & Copy:</span> Download compressed image or copy to clipboard</li>
-<li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
-</li>
-</ul>
-<p class="text-sm">
-  Perfect for web developers, graphic designers, content creators, and anyone who needs to optimize images for web
-  use.
-  Learn more about image compression at
-  <a href="https://en.wikipedia.org/wiki/Image_compression" target="_blank" rel="noopener noreferrer"
-  class="text-blue-600 underline hover:text-blue-800">Wikipedia Image Compression</a>.
-</p>
-</div>
+  <!-- SEO information section with 12 dt-info-item blocks -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is Image Compression?</h2>
+      <p class="mt-3">
+        Image compression is the process of reducing an image's file size by removing redundant or perceptually insignificant data while keeping visual quality as close to the original as possible. For the web, smaller images mean faster page loads, lower bandwidth costs and better user experience, especially on mobile networks and Core Web Vitals metrics such as Largest Contentful Paint (LCP).
+      </p>
+    </div>
 
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use an Image Compressor?</h2>
+      <p class="mt-3">
+        Unoptimized JPEG and WebP files often carry far more data than needed to display them crisply on typical screens. An image compressor lets you shrink photos and screenshots before publishing them, attaching them to an email, or uploading them to a CMS. Compressed images improve SEO, reduce hosting and CDN traffic, and help your site pass Core Web Vitals and Google PageSpeed Insights checks.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Compress Images Online (Step-by-Step)</h2>
+      <p class="mt-3">
+        Using this compressor takes only a few seconds:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Upload</strong> – drag and drop a JPEG or WebP image into the upload area, or click it to pick a file from your device.</li>
+        <li><strong>Configure</strong> – move the quality slider (1–100) to find the best trade-off between file size and visual quality. The preview and size counters update live.</li>
+        <li><strong>Download</strong> – click Download to save the compressed image, or Copy to put it directly on your clipboard.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Compressor?</h2>
+      <p class="mt-3">
+        Our image compressor runs entirely in your browser using the HTML canvas API. Your files never leave your device, there are no server uploads, no queues, no watermarks and no signup. It's a fast, private, free tool that works equally well on desktop, tablet and mobile, and handles high-resolution photos without limits other than your device's memory.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Image Compression Works</h2>
+      <p class="mt-3">
+        There are two families of compression: <strong>lossless</strong> (PNG, lossless WebP) which reconstructs the exact original pixels, and <strong>lossy</strong> (JPEG, lossy WebP, AVIF) which discards data the human eye is less sensitive to in exchange for dramatically smaller files.
+      </p>
+      <p class="mt-3">
+        This tool uses the browser's JPEG and WebP encoders via <code>canvas.toBlob()</code> and <code>canvas.toDataURL()</code>. The quality slider maps to the encoder's <em>quality parameter</em> (0.01–1.00), which controls the aggressiveness of the DCT / VP8 quantization. AVIF typically compresses even better than WebP at the same quality, while JPEG remains the most compatible format across email and social media.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><span class="text-primary">Quality slider</span> – fine-tune compression from 1 to 100 with instant feedback.</li>
+        <li><span class="text-primary">Format auto-pick</span> – keeps your original JPEG or WebP format for maximum compatibility.</li>
+        <li><span class="text-primary">Drag-and-drop upload</span> – drop a file anywhere on the upload area or click to browse.</li>
+        <li><span class="text-primary">Live preview</span> – compare the compressed canvas with the original side by side.</li>
+        <li><span class="text-primary">Before/after size</span> – see the original size, compressed size and the exact percentage saved.</li>
+        <li><span class="text-primary">Download &amp; copy</span> – save to disk or copy the compressed image straight to the clipboard.</li>
+        <li><span class="text-primary">Client-side processing</span> – 100% private, no upload, works offline after the first load.</li>
+        <li><span class="text-primary">Responsive UI</span> – optimised layout for desktop, tablet and mobile devices.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        A good image compressor is useful in many everyday situations:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Web performance</strong> – shrink hero images, product photos and blog illustrations to improve page speed and Core Web Vitals (LCP, CLS, INP).</li>
+        <li><strong>Email attachments</strong> – keep attachments below strict mailbox limits (e.g. 25 MB for Gmail).</li>
+        <li><strong>Social media</strong> – meet size recommendations for Instagram, Twitter/X, LinkedIn and Facebook without losing obvious quality.</li>
+        <li><strong>E-commerce catalogues</strong> – optimise large galleries of product photos for faster browsing.</li>
+        <li><strong>Documentation &amp; screenshots</strong> – compress screenshots before embedding them in Markdown, Confluence or Notion pages.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Compress Images Online?</h2>
+      <p class="mt-3">
+        Yes. Unlike many online compressors that upload your files to a server, this tool is fully client-side: compression is performed locally by your browser with the HTML5 <code>canvas.toBlob()</code> API. Your images never travel over the network, are never stored and are not visible to us or any third party. This makes the tool safe for confidential screenshots, product renders, medical photos and anything else you'd rather not share.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is an ad-free, zero-tracking collection of web utilities built by developers for developers. Our image compressor is tightly integrated with other image utilities, loads instantly, respects your privacy, and is designed for serious day-to-day use. We continually tune encoder parameters and UX details so the tool stays fast and reliable as browsers and formats evolve.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Export and Related Tools</h2>
+      <p class="mt-3">
+        Once compressed, you can download the image as a JPEG or WebP file, or copy it directly to your clipboard to paste into chat apps, design tools or documents. For more advanced workflows, chain this tool with other DevTools utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/image-resize'" class="text-primary hover:underline">Image Resizer</a> – change image dimensions before or after compression.
+        </li>
+        <li>
+          <a [routerLink]="'/image-format-converter'" class="text-primary hover:underline">Image Format Converter</a> – convert between PNG, JPEG, WebP and AVIF.
+        </li>
+        <li>
+          <a [routerLink]="'/image-color-picker'" class="text-primary hover:underline">Image Color Picker</a> – extract HEX, RGB or HSL colours from any pixel.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this image compressor free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, watermarks or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload my images to a server?</h3>
+        <p class="mt-1">No. All compression happens locally in your browser using the HTML canvas API. Your images never leave your device.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which image formats are supported?</h3>
+        <p class="mt-1">The tool accepts JPEG and WebP input and outputs in the same format. For PNG or AVIF conversion, use our Image Format Converter.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the best quality setting for web images?</h3>
+        <p class="mt-1">For most photos a quality between 70 and 85 is a good balance: noticeable file size reduction with little visible loss. Graphics with sharp edges may need a higher value.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Will compression reduce the image resolution?</h3>
+        <p class="mt-1">No. The compressor keeps the original width and height; it only re-encodes the image at a lower quality. To change dimensions, use the Image Resizer tool.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I compress many images at once?</h3>
+        <p class="mt-1">Currently the tool processes one image at a time to keep the UI simple and predictable. You can quickly re-upload additional files one after another.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why is my compressed file not much smaller?</h3>
+        <p class="mt-1">If the source image is already heavily compressed (for example, a photo downloaded from social media), there may be little redundancy left to remove. Try a lower quality value or a different format such as WebP.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does compression affect image metadata (EXIF)?</h3>
+        <p class="mt-1">Yes. Re-encoding with the canvas API strips most EXIF metadata, which is generally desirable for web publishing and privacy.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Image Compression Learning Resources</h2>
+      <p class="mt-3">
+        To learn more about image formats, compression techniques and optimisation best practices, explore these high-quality external resources:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN – Image file type and format guide</a> - In-depth reference to JPEG, PNG, WebP, AVIF and other image formats on the web.
+        </li>
+        <li>
+          <a href="https://web.dev/fast/#optimize-your-images" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">web.dev – Optimize your images</a> - Practical guidance from Google on choosing formats, setting quality and serving responsive images.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Image_compression" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia – Image compression</a> - Overview of lossless and lossy compression algorithms and their trade-offs.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
 </div>

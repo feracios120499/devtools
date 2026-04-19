@@ -1,43 +1,44 @@
-<div class="flex flex-col w-full h-full">
-  <app-page-header>Tool for generating QR codes from URLs and text</app-page-header>
+<div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online URL to QR code generator &mdash; create custom QR codes instantly</app-page-header>
   <div class="p-3">
-    <p>This <strong>online QR code generator</strong> creates customizable QR codes from URLs, text, and other data with various styling options.</p>
-    <p>Quickly <strong>generate QR codes</strong> and <strong>create custom QR codes</strong> in your browser with no server upload.</p>
+    <p>This <strong>online URL to QR code generator</strong> creates customizable QR codes from any URL, text or contact data with full privacy.</p>
+    <p>Quickly <strong>generate QR codes from URLs</strong> and <strong>create custom QR codes</strong> in your browser with no server upload.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1 qr-code-body">
-    <!-- Левая колонка - Input & Options -->
+    <!-- Left column - Input & Options -->
     <div class="col flex flex-col h-full">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-        <!-- Заголовок с фиксированной высотой -->
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">Input URL</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-            class="p-button-text p-button-sm"></button>
+              class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
-            class="p-button-text p-button-sm"></button>
+              class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
-            class="p-button-text p-button-sm"></button>
+              class="p-button-text p-button-sm"></button>
           </div>
         </div>
 
         <!-- URL input -->
-        <div class="p-fluid w-full mt-3">
-          <textarea class="w-full" id="url_input" rows="3" cols="30" pTextarea [autoResize]="true" placeholder="Enter URL"
-            [(ngModel)]="inputUrl"
-          (ngModelChange)="generateQrCode()"></textarea>
+        <div class="p-fluid w-full mt-3" id="input">
+          <textarea class="w-full" id="url_input" rows="3" cols="30" pTextarea [autoResize]="true"
+            placeholder="Enter URL" [(ngModel)]="inputUrl" (ngModelChange)="generateQrCode()"></textarea>
         </div>
 
         <!-- QR code options -->
-        <div class="mt-4">
+        <div class="mt-4" id="options">
           <h5 class="text-lg font-medium text-800 mb-3">QR Code Options</h5>
 
           <!-- Size -->
           <div class="field mb-3">
             <label for="qr_size" class="block text-sm font-medium mb-1">Size (px)</label>
             <p-slider [(ngModel)]="qrSize" [min]="100" [max]="500" [step]="25" class="w-full"
-            (onChange)="onQrSizeChange()"></p-slider>
+              (onChange)="onQrSizeChange()"></p-slider>
             <div class="text-xs text-right mt-1">{{qrSize}}px</div>
           </div>
 
@@ -45,9 +46,8 @@
           <div class="field mb-3">
             <label for="error_correction" class="block text-sm font-medium mb-1">Error Correction Level</label>
             <p-select [options]="correctionLevelOptions" [(ngModel)]="errorCorrectionLevel"
-              optionLabel="label" optionValue="value"
-              styleClass="w-full"
-            (onChange)="onErrorCorrectionLevelChange()"></p-select>
+              optionLabel="label" optionValue="value" styleClass="w-full"
+              (onChange)="onErrorCorrectionLevelChange()"></p-select>
           </div>
 
           <!-- Colors -->
@@ -55,28 +55,28 @@
             <div class="field">
               <label for="dark_color" class="block text-sm font-medium mb-1">Foreground Color</label>
               <p-colorPicker [(ngModel)]="darkColor" [inline]="false" [appendTo]="'body'" format="hex"
-              (onChange)="onColorChange()"></p-colorPicker>
+                (onChange)="onColorChange()"></p-colorPicker>
             </div>
 
             <div class="field">
               <label for="light_color" class="block text-sm font-medium mb-1">Background Color</label>
               <p-colorPicker [(ngModel)]="lightColor" [inline]="false" [appendTo]="'body'" format="hex"
-              (onChange)="onColorChange()"></p-colorPicker>
+                (onChange)="onColorChange()"></p-colorPicker>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Правая колонка - QR Code Result -->
+    <!-- Right column - QR Code Result -->
     <div class="col flex flex-col">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
-        <!-- Заголовок с фиксированной высотой -->
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden" id="output">
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">QR Code Result</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadQrCode()"
-            [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
+              [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
           </div>
         </div>
 
@@ -95,7 +95,7 @@
                 [elementType]="'canvas'"
                 (qrCodeURL)="onChangeQRCodeURL($event)"
                 [title]="'QR Code for ' + inputUrl"
-              id="qrCodeCanvas"></qrcode>
+                id="qrCodeCanvas"></qrcode>
             </div>
           }
           @if (!inputUrl) {
@@ -109,209 +109,196 @@
     </div>
   </div>
 
-  <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border">
-    <h4 class="text-xl font-semibold mb-2">About QR Codes</h4>
-    <p class="mb-2 text-sm">
-      QR (Quick Response) codes are two-dimensional barcodes that can be scanned by smartphone cameras to quickly access URLs, contact information, or other data.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Error correction levels:</strong>
-    </p>
-    <ul class="text-sm ml-3 mb-2">
-      <li><strong>L (Low):</strong> 7% of data can be restored if damaged</li>
-      <li><strong>M (Medium):</strong> 15% of data can be restored if damaged</li>
-      <li><strong>Q (Quartile):</strong> 25% of data can be restored if damaged</li>
-      <li><strong>H (High):</strong> 30% of data can be restored if damaged</li>
-    </ul>
-    <p class="text-sm">
-      Higher error correction levels make the QR code more resilient but also more complex (more dense).
-    </p>
-  </div>
-
-  <!-- Marketing and Digital Campaign Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Marketing & Digital Campaign Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Digital Marketing & Advertising Campaigns</h5>
-        <p class="mb-2 text-sm">
-          Essential for digital marketers, campaign managers, and advertising specialists
-          creating omnichannel experiences that bridge physical and digital touchpoints.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Campaign Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Print-to-digital campaign integration</li>
-          <li>Event marketing and registration links</li>
-          <li>Product packaging direct-to-landing page</li>
-          <li>Interactive outdoor advertising campaigns</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Social Media & Content Marketing</h5>
-        <p class="mb-2 text-sm">
-          Critical for social media managers, content creators, and influencer marketing specialists
-          maximizing engagement and seamless cross-platform user experiences.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Social Media Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Instagram Story and post engagement</li>
-          <li>YouTube video description quick links</li>
-          <li>Podcast show notes and resource access</li>
-          <li>LinkedIn networking and portfolio sharing</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">E-commerce & Retail Integration</h5>
-      <p class="text-sm mb-2">
-        This QR generator facilitates e-commerce managers, retail marketing teams,
-        and customer experience specialists creating seamless shopping journeys.
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is a QR Code?</h2>
+      <p class="mt-3">
+        A <strong>QR code</strong> (Quick Response code) is a two-dimensional barcode invented in 1994 by Denso Wave. Unlike the traditional one-dimensional barcode, a QR code stores information both horizontally and vertically, which is why modern smartphones can decode it in a fraction of a second.
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Retail Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Product information</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Mobile checkout</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Review collection</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Loyalty programs</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Store locators</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Digital catalogs</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Business and Contact Management Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Business & Contact Management Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Professional Networking & Business Cards</h5>
-        <p class="mb-2 text-sm">
-          Essential for business professionals, sales teams, and networking specialists
-          modernizing contact sharing and professional relationship building.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Networking Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Digital business card sharing</li>
-          <li>Conference and trade show networking</li>
-          <li>LinkedIn profile quick access</li>
-          <li>Portfolio and resume distribution</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Event Management & Hospitality</h5>
-        <p class="mb-2 text-sm">
-          Critical for event planners, venue managers, and hospitality professionals
-          streamlining guest experiences and operational efficiency.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Event Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Event check-in and registration</li>
-          <li>Digital menu and ordering systems</li>
-          <li>Guest WiFi access automation</li>
-          <li>Feedback and survey collection</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Educational & Training Applications</h5>
-      <p class="text-sm mb-2">
-        This generator supports educators, training coordinators,
-        and instructional designers creating interactive learning experiences.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Educational Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Course materials</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Assignment submission</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Virtual classrooms</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Resource libraries</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Student portfolios</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Interactive assessments</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Technical Standards and QR Code Implementation -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Technical Standards & QR Code Implementation</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">ISO/IEC Standards & QR Code Specifications</h5>
-        <p class="mb-2 text-sm">
-          Following international standards ensures QR code compatibility,
-          reliability, and optimal scanning performance across different devices and applications.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Technical Standards:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>ISO/IEC 18004:2015 QR Code specification</li>
-          <li>Reed-Solomon error correction algorithms</li>
-          <li>Structured append for large data encoding</li>
-          <li>Finder pattern and timing pattern compliance</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Mobile Device & Scanner Compatibility</h5>
-        <p class="mb-2 text-sm">
-          Understanding device capabilities, scanning app variations,
-          and cross-platform compatibility ensures optimal user experience across all mobile platforms.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Compatibility Considerations:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>iOS Camera app native QR scanning</li>
-          <li>Android built-in scanner integration</li>
-          <li>Third-party QR scanner app support</li>
-          <li>Low-light and distance scanning optimization</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Print Quality & Display Optimization</h5>
-      <p class="text-sm mb-2">
-        Optimal QR code implementation requires understanding of print specifications,
-        size constraints, and display medium considerations for reliable scanning performance.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Implementation Guidelines:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Print resolution (300+ DPI)</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Minimum size standards</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Contrast ratios</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Quiet zone margins</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Vector vs raster formats</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Display scaling</span>
-      </div>
-
-      <p class="text-sm mt-3 text-600">
-        <strong>Best Practice:</strong> Always test QR codes at their intended final size
-        and display medium before mass production to ensure reliable scanning performance.
+      <p class="mt-3">
+        Every QR code is made up of black and white modules arranged in a grid. The three large squares in the corners are finder patterns that help the scanner detect orientation, while the remaining modules encode the actual data &mdash; a URL, plain text, a Wi-Fi password, a contact card and much more.
       </p>
     </div>
 
-    <p class="text-sm mt-3">
-      For QR code technical specifications, visit
-      <a href="https://www.iso.org/standard/62021.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">ISO/IEC 18004:2015 Standard</a>
-      and for implementation guidelines, see
-      <a href="https://www.qr-code-generator.com/qr-code-marketing/qr-codes-basics/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">QR Code Implementation Guide</a>.
-    </p>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why generate QR codes from URLs?</h2>
+      <p class="mt-3">
+        Typing a long URL on a mobile keyboard is slow and error-prone. A <strong>URL QR code</strong> lets users open a website, landing page or document by simply pointing their camera at the code &mdash; no typos, no shortened links, no tracking redirects.
+      </p>
+      <p class="mt-3">
+        QR codes are now the standard way to bridge print and digital: posters, business cards, restaurant menus, product labels, event tickets and even TV ads rely on them to drive traffic to web content instantly.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to create a QR code online (step-by-step)</h2>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Paste your URL</strong> or any text into the input field on the left. The QR preview updates in real time as you type.</li>
+        <li><strong>Customize the style</strong> &mdash; adjust the size slider, pick foreground and background colors, and choose an error-correction level (L, M, Q or H).</li>
+        <li><strong>Download</strong> the finished QR code as a PNG image and use it anywhere: websites, print materials, social media or slide decks.</li>
+      </ol>
+      <p class="mt-3">
+        Everything happens client-side inside your browser, so your URLs never leave your device.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose our QR code generator?</h2>
+      <p class="mt-3">
+        Our generator is 100% free, ad-free and account-free. It runs entirely in the browser, meaning your data is never uploaded, logged or shared with third parties. The interface is clean, responsive and works equally well on desktop and mobile.
+      </p>
+      <p class="mt-3">
+        You get live preview, adjustable size, custom colors, four error-correction levels and instant PNG export &mdash; everything a developer, marketer or small business owner needs to produce print-ready QR codes.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How QR codes work</h2>
+      <p class="mt-3">
+        Behind the scenes, the QR specification (ISO/IEC 18004) defines 40 different <em>versions</em> (sizes) of QR codes, from 21&times;21 modules up to 177&times;177 modules. The bigger the version, the more data can be stored.
+      </p>
+      <p class="mt-3">
+        To survive dirt, scratches and partial occlusion, every QR code is encoded with <strong>Reed-Solomon error correction</strong>. You can choose one of four levels depending on how robust the code needs to be:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-1">
+        <li><strong>L (Low)</strong> &mdash; recovers up to 7% of damaged data. Best when you need maximum data density.</li>
+        <li><strong>M (Medium)</strong> &mdash; recovers up to 15%. The default balance between size and robustness.</li>
+        <li><strong>Q (Quartile)</strong> &mdash; recovers up to 25%. Good for business cards and small prints.</li>
+        <li><strong>H (High)</strong> &mdash; recovers up to 30%. Recommended for industrial labels, logos inside the QR or outdoor signage.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Adjustable size</strong> from 100 px to 500 px for screen or print use.</li>
+        <li><strong>Custom foreground and background colors</strong> with a built-in color picker to match your brand.</li>
+        <li><strong>Four error-correction levels</strong> (L, M, Q, H) for maximum scan reliability.</li>
+        <li><strong>Live preview</strong> that regenerates the QR code as you edit any option.</li>
+        <li><strong>One-click PNG export</strong> in the selected resolution &mdash; ready for print or web.</li>
+        <li><strong>Vector-quality rendering</strong> of the canvas so downloaded PNGs stay crisp at any scale.</li>
+        <li><strong>Client-side processing</strong>: no URL, color or size leaves your browser.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common use cases</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Marketing &amp; advertising</strong> &mdash; posters, flyers, packaging and digital campaigns.</li>
+        <li><strong>Restaurant menus</strong> &mdash; contactless digital menus accessible by phone.</li>
+        <li><strong>Wi-Fi sharing</strong> &mdash; guests connect without typing SSID and password.</li>
+        <li><strong>vCards</strong> &mdash; share contact details from a business card or signature.</li>
+        <li><strong>Event tickets</strong> &mdash; check-in, boarding passes and conference badges.</li>
+        <li><strong>GitHub repositories</strong> &mdash; quick access to open-source projects or profile pages.</li>
+        <li><strong>Product packaging</strong> &mdash; link to documentation, warranty or user manuals.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is it safe to generate QR codes online?</h2>
+      <p class="mt-3">
+        Yes. This tool is fully <strong>client-side</strong>: the QR code is computed by JavaScript inside your browser, and nothing is ever sent to our servers. You can disconnect from the internet after the page is loaded and it will still work &mdash; making it usable offline.
+      </p>
+      <p class="mt-3">
+        No accounts, no trackers, no logs. This is essential when you are encoding sensitive data such as internal URLs, Wi-Fi credentials or private contact information.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a curated suite of free developer and productivity utilities &mdash; formatters, converters, encoders, generators &mdash; all built with the same philosophy: no ads, no sign-up, and privacy by default.
+      </p>
+      <p class="mt-3">
+        The QR code generator is part of this ecosystem, so you can combine it with our URL encoder, Base64 encoder and other tools to build complete workflows without ever leaving the browser.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download &amp; export options</h2>
+      <p class="mt-3">
+        Once the QR code is generated, click the <strong>Download</strong> button to save it as a high-resolution <strong>PNG</strong> image. The image uses the exact pixel size selected with the slider, so it is ready for print or screen use without additional editing.
+      </p>
+      <p class="mt-3">
+        Looking for other related tools? Try our
+        <a [routerLink]="'/url-encoder'" class="text-primary hover:underline">URL encoder / decoder</a>,
+        <a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 encoder</a> or the
+        <a [routerLink]="'/svg-to-react-component'" class="text-primary hover:underline">SVG to React component converter</a>
+        to build a complete pipeline around your QR codes.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What size should my QR code be?</h3>
+        <p class="mt-1">For print, a safe rule is at least 2&nbsp;cm &times; 2&nbsp;cm (about 100 px at 300 DPI) when scanned from close range. For posters or billboards, increase the size proportionally to the scanning distance &mdash; roughly 1 cm of QR code for every 10 cm of distance.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I customize the QR code style and colors?</h3>
+        <p class="mt-1">Yes. You can choose any foreground and background color with the built-in color pickers. Just make sure there is enough contrast between the two colors &mdash; dark on light is the most reliable combination for scanners.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the generator work offline?</h3>
+        <p class="mt-1">Yes. All encoding and rendering runs in your browser via JavaScript, so once the page is loaded you can disconnect from the internet and continue generating QR codes.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which devices and apps can scan these QR codes?</h3>
+        <p class="mt-1">Any modern smartphone camera (iOS 11+, Android 8+) and most third-party QR scanner apps. The codes follow the ISO/IEC 18004 specification, so they are universally compatible.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the maximum amount of data I can encode?</h3>
+        <p class="mt-1">A QR code supports up to 4,296 alphanumeric characters or 2,953 bytes in the largest version (40) with the lowest error-correction level (L). For URLs, this is more than enough for virtually any long link.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to use this online generator for private URLs?</h3>
+        <p class="mt-1">Yes. Your input never leaves your browser because the entire QR generation happens client-side with JavaScript. We do not log, store or transmit any data you enter.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which error-correction level should I choose?</h3>
+        <p class="mt-1">For most URLs, M (Medium, 15% recovery) is a good default. Use H (High, 30%) when the QR code might be dirty, damaged or needs a logo in the center; use L (Low) only when you need to pack the maximum amount of data in the smallest possible code.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I download the QR code as SVG or only PNG?</h3>
+        <p class="mt-1">The current export is PNG, rendered from a high-resolution canvas. Because PNG is lossless, it scales well for most use cases. SVG export is on the roadmap.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>QR Code Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of QR codes and how they are engineered, these external references are an excellent starting point:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://en.wikipedia.org/wiki/QR_code" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia: QR code (ISO/IEC 18004)
+          </a> &mdash; comprehensive overview of the QR code standard, versions, encoding modes and history.
+        </li>
+        <li>
+          <a href="https://www.qrcode.com/en/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            qrcode.com (Denso Wave)
+          </a> &mdash; official site of the company that invented QR codes, with technical specs and best practices.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Reed%E2%80%93Solomon_error_correction" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia: Reed-Solomon error correction
+          </a> &mdash; the mathematics behind QR code resilience to damage and occlusion.
+        </li>
+      </ul>
+    </div>
   </div>
 
-  <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
 </div>

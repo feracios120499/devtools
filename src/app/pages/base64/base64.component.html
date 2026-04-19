@@ -1,12 +1,12 @@
 <div class="dt-container">
-  <app-page-header>Tool for encoding and decoding text using Base64 format</app-page-header>
+  <app-page-header>Free online Base64 encoder and decoder for text and data</app-page-header>
   <div class="p-3">
-    <p>This <strong>online Base64 encoder and decoder</strong> allows you to convert text to Base64 and decode Base64 back to readable text.</p>
-    <p>Quickly <strong>encode text to Base64</strong> or <strong>decode Base64 to text</strong> in your browser with no server upload.</p>
+    <p>This <strong>online Base64 encoder and decoder</strong> converts plain text to Base64 and decodes Base64 strings back to readable text directly in your browser.</p>
+    <p>Quickly <strong>encode text to Base64</strong> or <strong>decode Base64 strings</strong> with instant copy, paste, download and clipboard support — no server upload required.</p>
   </div>
 
-  <!-- Блок переключателей операций -->
-  <div class="mb-3 px-3 flex items-center">
+  <!-- Mode toggle (encode / decode) -->
+  <div class="mb-3 px-3 flex items-center" id="options">
     <div class="flex items-center gap-3">
       <p-radioButton [(ngModel)]="activeTab" inputId="decode" name="operation" [value]="1" (onClick)="switchMode()"></p-radioButton>
       <label for="decode">Decode from Base64 to Text</label>
@@ -16,20 +16,18 @@
     </div>
   </div>
 
-  <!-- Основной контейнер с редакторами -->
+  <!-- Editors -->
   <div class="dt-editors">
-    <!-- Левая колонка - Input Text -->
-    <div class="col flex flex-col h-full">
+    <!-- Input column -->
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 2 ? 'Input Text' : 'Input Base64' }}</h3>
+          <span class="text-xl font-medium text-800 m-0">{{ activeTab == 2 ? 'Input Text' : 'Input Base64' }}</span>
         </div>
-        <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
 
-        <!-- Textarea для серверного рендеринга -->
-        @if (!isBrowser) {
+        <!-- SSR fallback textarea -->
+        @if (false) {
           <textarea
             [(ngModel)]="inputCode"
             (ngModelChange)="processText()"
@@ -37,8 +35,8 @@
           </textarea>
         }
 
-        <!-- Monaco editor для браузера -->
-        @if (isBrowser) {
+        <!-- Monaco editor (browser) -->
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -74,241 +72,279 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor
-                #inputMonacoEditor
-                [options]="inputEditorOptions"
-                [(ngModel)]="inputCode"
-                (ngModelChange)="processText()"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
             </div>
-          }
-        </div>
+            <app-monaco-editor-lazy
+              #inputMonacoEditor
+              [options]="inputEditorOptions"
+              [(ngModel)]="inputCode"
+              (ngModelChange)="processText()"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
       </div>
-
-      <!-- Правая колонка - Output Text -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded Text' : 'Base64 Output' }}</h3>
-          </div>
-          <!-- Отступ для дропдауна -->
-          <div class="mb-1"></div>
-
-          <!-- Textarea для серверного рендеринга -->
-          @if (!isBrowser) {
-            <textarea
-              [(ngModel)]="outputCode"
-              readonly
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
-
-          <!-- Monaco editor для браузера -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
-                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                      <i-tabler name="download" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <hr>
-                </div>
-                <ngx-monaco-editor
-                  #outputMonacoEditor
-                  [options]="outputEditorOptions"
-                  [(ngModel)]="outputCode"
-                  class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Информационный раздел -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About Base64 Encoding</h4>
-        <p class="mb-2 text-sm">
-          Base64 is a binary-to-text encoding scheme that represents binary data in an ASCII string format by translating it into a radix-64 representation. It is commonly used to encode binary data for transmission over media that is designed to deal with textual data.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>When to use Base64 encoding:</strong>
-          Base64 is commonly used when transferring binary data in environments that only support text, such as sending email attachments, storing complex data in JSON, or including binary data in XML files.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>Common Base64 applications:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><span class="text-primary">Data URLs:</span> Embedding images and files directly in HTML, CSS, and web applications</li>
-          <li><span class="text-primary">Email attachments:</span> MIME encoding for sending binary files via email protocols</li>
-          <li><span class="text-primary">API responses:</span> Encoding binary data in JSON responses and REST APIs</li>
-          <li><span class="text-primary">Database storage:</span> Storing binary content in text-based database fields</li>
-          <li><span class="text-primary">Authentication:</span> Encoding credentials and tokens for HTTP Basic Authentication</li>
-        </ul>
-        <p class="text-sm">
-          Learn more about Base64 encoding at
-          <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>
-          and data URLs at
-          <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/Data_URIs" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN Data URLs</a>.
-        </p>
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> All encoding and decoding is performed locally in your browser - your data never leaves your device.
-        </p>
-      </div>
-
-      <!-- Web Development and Data Transmission Applications -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Web Development & Data Transmission Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Frontend Development & Assets</h5>
-            <p class="mb-2 text-sm">
-              Essential for web developers working with embedded resources, data URIs, and client-side
-              applications that need to handle binary data without external file dependencies.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Frontend Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Embed images directly in CSS and HTML</li>
-              <li>Create offline-capable web applications</li>
-              <li>Store files in localStorage and sessionStorage</li>
-              <li>Generate downloadable files dynamically</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">API Development & Integration</h5>
-            <p class="mb-2 text-sm">
-              Critical for backend developers and API designers who need to transmit binary data
-              through JSON-based APIs and handle file uploads in web services.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">API Use Cases:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>File upload processing in REST APIs</li>
-              <li>Image and document transmission</li>
-              <li>Binary data in JSON responses</li>
-              <li>Webhook payload encoding</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Email & Communication Protocols</h5>
-          <p class="text-sm mb-2">
-            This Base64 encoder/decoder is vital for email systems, messaging protocols, and any
-            communication system that requires safe transmission of binary data over text-based channels.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Communication Scenarios:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">MIME email encoding</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Attachment processing</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">HTTP Basic Auth</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">XML data encoding</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Token generation</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">URL safe encoding</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Standards and Implementation Details -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Technical Standards & Implementation Details</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Base64 Variants & Standards</h5>
-            <p class="mb-2 text-sm">
-              Multiple Base64 variants exist for different use cases, each following specific
-              standards and character sets for optimal compatibility with various systems.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Standard Variants:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>RFC 4648 - Standard Base64 alphabet</li>
-              <li>URL-safe Base64 - Filesystem and URL friendly</li>
-              <li>MIME Base64 - Email attachment encoding</li>
-              <li>Modified Base64 - IMAP folder names</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
-            <p class="mb-2 text-sm">
-              Base64 encoding is universally supported across programming languages and platforms
-              with native libraries and built-in functions for efficient conversion.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>JavaScript: btoa(), atob(), Buffer.from()</li>
-              <li>Python: base64.b64encode(), base64.b64decode()</li>
-              <li>Java: Base64.getEncoder(), Base64.getDecoder()</li>
-              <li>PHP: base64_encode(), base64_decode()</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Performance & Security Considerations</h5>
-          <p class="text-sm mb-2">
-            Understanding Base64 characteristics is crucial for making informed decisions about
-            data encoding, transmission efficiency, and security implications in web applications.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Important Considerations:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">33% size increase</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Safe for text channels</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">No encryption</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Padding characters</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Line length limits</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Character set safety</span>
-          </div>
-
-          <p class="text-sm mt-3 text-600">
-            <strong>Note:</strong> Base64 is encoding, not encryption. It provides no security benefits
-            and should not be used to hide sensitive data from unauthorized access.
-          </p>
-        </div>
-
-        <p class="text-sm mt-3">
-          For comprehensive Base64 documentation, visit
-          <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Base64</a>
-          and for implementation guidelines, refer to
-          <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648 Specification</a>.
-        </p>
-      </div>
-
-      <!-- Toast -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+
+    <!-- Output column -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded Text' : 'Base64 Output' }}</span>
+        </div>
+        <div class="mb-1"></div>
+
+        <!-- SSR fallback textarea -->
+        @if (false) {
+          <textarea
+            [(ngModel)]="outputCode"
+            readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor (browser) -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
+                    [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+            </div>
+            <app-monaco-editor-lazy
+              #outputMonacoEditor
+              [options]="outputEditorOptions"
+              [(ngModel)]="outputCode"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is Base64?</h2>
+      <p class="mt-3">
+        Base64 is a binary-to-text encoding scheme that represents arbitrary binary data using a 64-character ASCII alphabet. It converts bytes into a safe, printable string that can be transmitted through channels originally designed for text only, such as email bodies, JSON payloads, XML documents, HTTP headers or URL query parameters.
+      </p>
+      <p class="mt-3">
+        Base64 is encoding, not encryption — it provides no confidentiality. It simply ensures that binary content survives transport through systems that may otherwise corrupt non-ASCII bytes.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use a Base64 Encoder and Decoder?</h2>
+      <p class="mt-3">
+        Developers need a reliable Base64 encoder/decoder when inspecting API tokens, decoding JWT header or payload segments, debugging HTTP Basic Authentication strings, generating data URIs for images, or converting binary files into a text-friendly form. A dedicated online tool removes the need to write throwaway scripts or open a terminal just to run <code>btoa</code>/<code>atob</code>.
+      </p>
+      <p class="mt-3">
+        Our encoder also handles Unicode correctly by UTF-8 encoding text before Base64, which avoids the classic "InvalidCharacterError" you get from calling <code>btoa()</code> directly on non-ASCII strings.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Encode and Decode Base64 Online (Step by Step)</h2>
+      <p class="mt-3">
+        Using this Base64 converter takes only a few seconds:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li>Paste your plain text or Base64 string into the left editor, or click <strong>Sample</strong> to load an example.</li>
+        <li>Toggle the mode: choose <strong>Encode from Text to Base64</strong> or <strong>Decode from Base64 to Text</strong>.</li>
+        <li>The result appears instantly in the right editor as you type — no Submit button needed.</li>
+        <li>Use <strong>Copy</strong> to send it to your clipboard or <strong>Download</strong> to save it as a <code>.txt</code> file.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Base64 Tool?</h2>
+      <p class="mt-3">
+        Our Base64 encoder/decoder runs 100% in your browser using the native <code>btoa()</code> and <code>atob()</code> APIs wrapped with UTF-8 safe helpers. There are no uploads, no tracking, no ads and no registration. The interface is built around a Monaco editor for syntax-aware editing, fullscreen mode, and fast handling of long strings.
+      </p>
+      <p class="mt-3">
+        The tool works equally well for small snippets (API keys, auth headers) and for larger payloads such as JWT tokens, email MIME parts or embedded data URIs.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Base64 Encoding Works</h2>
+      <p class="mt-3">
+        Base64 groups input bytes into blocks of 3 bytes (24 bits) and splits them into 4 groups of 6 bits. Each 6-bit group (0–63) is mapped to a character in the Base64 alphabet: <code>A–Z</code>, <code>a–z</code>, <code>0–9</code>, <code>+</code> and <code>/</code>. The result is always a multiple of 4 characters long.
+      </p>
+      <p class="mt-3">
+        When the input length is not a multiple of 3, the encoder pads the output with one or two <code>=</code> characters so that downstream parsers can recover the original byte length. The URL-safe variant (RFC 4648 §5) replaces <code>+</code> with <code>-</code> and <code>/</code> with <code>_</code> so the string can safely appear in URLs and filenames.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Encode / decode toggle</strong> — switch direction with a single radio button.</li>
+        <li><strong>Unicode-safe</strong> — full UTF-8 support for emoji, Cyrillic, CJK and other non-ASCII text.</li>
+        <li><strong>Paste from clipboard</strong> — one-click import from your OS clipboard.</li>
+        <li><strong>Copy to clipboard</strong> — copy the result with a single button.</li>
+        <li><strong>Download as file</strong> — save the output as <code>encoded_text.txt</code> or <code>decoded_text.txt</code>.</li>
+        <li><strong>Sample data</strong> — preloaded examples for both encoding and decoding.</li>
+        <li><strong>Monaco editor</strong> — word wrap, fullscreen, syntax-aware highlighting.</li>
+        <li><strong>Client-side only</strong> — nothing leaves your browser.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        Base64 encoding shows up almost everywhere in web development and systems integration. Typical scenarios include:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Data URIs</strong> — inline images, fonts or SVGs in HTML and CSS (<code>data:image/png;base64,...</code>).</li>
+        <li><strong>Email attachments</strong> — MIME encoding of binary parts for SMTP transport.</li>
+        <li><strong>HTTP Basic Authentication</strong> — encoding <code>username:password</code> for the <code>Authorization</code> header.</li>
+        <li><strong>API tokens and secrets</strong> — safely transporting binary keys inside JSON and headers.</li>
+        <li><strong>JWT header and payload</strong> — decoding the first two Base64URL-encoded segments of a JSON Web Token.</li>
+        <li><strong>Storing binary blobs</strong> — persisting small binary data in text-only fields (localStorage, JSON columns).</li>
+        <li><strong>Webhooks and queues</strong> — embedding binary payloads in message bodies.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Encode and Decode Base64 Online?</h2>
+      <p class="mt-3">
+        Yes. This tool performs all encoding and decoding locally in your browser using the native <code>btoa()</code> and <code>atob()</code> APIs. Your text is never uploaded to our servers, there is no telemetry on the input, and no logs are kept of the data you paste.
+      </p>
+      <p class="mt-3">
+        Still, remember that Base64 is <em>not</em> a security mechanism. Anyone who receives the encoded string can trivially decode it. Never rely on Base64 to hide passwords, API keys or sensitive personal information — use proper encryption or secret management for that.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a free, ad-free suite of utilities built by developers for developers. Each tool is designed to load fast, work offline after the first visit, and respect your privacy by running entirely in the browser. The Base64 encoder/decoder is part of a larger family of encoding, formatting and conversion tools that share a consistent UI and keyboard-friendly workflow.
+      </p>
+      <p class="mt-3">
+        Whether you are debugging an API, crafting an email template, or inspecting a JWT, you can move between DevTools utilities without leaving the tab — no accounts, no rate limits, no upsell.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Copy and Related Tools</h2>
+      <p class="mt-3">
+        After encoding or decoding, copy the result to your clipboard or download it as a plain text file. If you need different formats or related conversions, jump directly to one of our companion utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/base64-to-file'" class="text-primary hover:underline">Base64 to File</a> — decode a Base64 string back into a downloadable binary file (image, PDF, archive, etc.).
+        </li>
+        <li>
+          <a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 to HEX</a> — convert a Base64 payload into its hexadecimal representation.
+        </li>
+        <li>
+          <a [routerLink]="'/hex-to-base64'" class="text-primary hover:underline">HEX to Base64</a> — convert raw hex bytes into a Base64 string.
+        </li>
+        <li>
+          <a [routerLink]="'/url-encoder'" class="text-primary hover:underline">URL Encoder / Decoder</a> — percent-encode text for safe use in URLs and query strings.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why does a Base64 string sometimes end with one or two "=" characters?</h3>
+        <p class="mt-1">The <code>=</code> characters are padding. Base64 output length must be a multiple of 4, so when the input byte length is not a multiple of 3, one or two <code>=</code> are appended to indicate how many bytes were padded.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between standard Base64 and URL-safe Base64?</h3>
+        <p class="mt-1">URL-safe Base64 (RFC 4648 §5) uses <code>-</code> and <code>_</code> instead of <code>+</code> and <code>/</code> so the result can be used in URLs, filenames and JWTs without further percent-encoding.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does this tool support Unicode text (emoji, Cyrillic, CJK)?</h3>
+        <p class="mt-1">Yes. The encoder UTF-8 encodes your text before calling <code>btoa()</code>, and the decoder reverses that, so arbitrary Unicode input works correctly.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is there a maximum size I can encode or decode?</h3>
+        <p class="mt-1">There is no hard limit set by the tool. Practical size is bounded by your browser's memory — strings of several megabytes are handled smoothly on modern machines.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How is Base64 different from HEX encoding?</h3>
+        <p class="mt-1">Both represent binary data as text. HEX uses 16 characters and produces output that is 2× the input length; Base64 uses 64 characters and produces output that is ~1.33× the input length, making it more compact for transmission.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to paste sensitive data here?</h3>
+        <p class="mt-1">All encoding/decoding happens locally in your browser — no data is sent to our servers. That said, Base64 is not encryption. Do not rely on Base64 to protect secrets; use proper cryptography for confidentiality.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why do I sometimes get an error when decoding?</h3>
+        <p class="mt-1">Decoding fails when the input contains characters outside the Base64 alphabet, has incorrect padding, or mixes URL-safe and standard variants. Check that the string only contains <code>A–Z a–z 0–9 + / =</code> (or <code>- _</code> for URL-safe).</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Base64 Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of Base64 encoding, consult the following authoritative references:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc4648" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            RFC 4648 — The Base16, Base32, and Base64 Data Encodings
+          </a> - The official IETF specification defining standard and URL-safe Base64 alphabets.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia — Base64
+          </a> - Broad overview of the algorithm, history, variants and common use cases.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN — Window.btoa()
+          </a> - Documentation for the browser API that encodes a binary string to Base64.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/atob" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN — Window.atob()
+          </a> - Documentation for the browser API that decodes a Base64 string back to binary.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

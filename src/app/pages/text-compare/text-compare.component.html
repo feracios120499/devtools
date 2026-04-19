@@ -1,12 +1,14 @@
 <div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
   <app-page-header>Text Diff Checker - Compare text files with highlighted differences</app-page-header>
   <div class="p-3">
-    <p>This <strong>Text Diff Checker</strong> and <strong>text compare</strong> tool helps you compare two text files side by side with highlighted differences.</p>
-    <p>Quickly <strong>compare text</strong> and <strong>view differences</strong> with our online <strong>Text Diff Checker</strong> in your browser with no server upload.</p>
+    <p>This <strong>Text Diff Checker</strong> compares two text files side by side with highlighted differences directly in your browser.</p>
+    <p>Quickly <strong>compare text</strong> and visualize insertions, deletions, and modifications with our privacy-first online <strong>text compare</strong> tool.</p>
   </div>
 
-  <div class="dt-editors">
-    <!-- Левая колонка - Original Text -->
+  <div class="dt-editors" id="input">
+    <!-- Left column - Original Text -->
     <div class="col flex flex-col h-full">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <div class="flex justify-between items-center h-10">
@@ -15,19 +17,19 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="originalText" (ngModelChange)="onTextChange()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isOriginalFullscreen" #originalEditorContainer>
             <div class="dt-editors-editor-actions">
-              <div class="flex justify-between p-2">
+              <div class="flex justify-between p-2" id="options">
                 <div class="flex gap-3 align-items-center">
                   <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleText()"
                     class="p-button-sm" severity="contrast">
@@ -58,261 +60,304 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor #originalMonacoEditor [options]="originalEditorOptions" [(ngModel)]="originalText"
-                (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
             </div>
-          }
-        </div>
-      </div>
-
-      <!-- Правая колонка - Modified Text -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">Modified Text</h3>
-          </div>
-          <div class="mb-1"></div>
-
-          <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
-            <textarea [(ngModel)]="modifiedText" (ngModelChange)="onTextChange()"
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
-
-          <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isModifiedFullscreen" #modifiedEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyModifiedToClipboard()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                      (click)="pasteToModified()" severity="contrast">
-                      <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
-                      class="p-button-sm">
-                      <i-tabler name="trash" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isModifiedFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('modified')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isModifiedFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('modified')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <hr>
-                </div>
-                <ngx-monaco-editor #modifiedMonacoEditor [options]="modifiedEditorOptions" [(ngModel)]="modifiedText"
-                  (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Comparison Results Section -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border">
-        <div class="flex align-items-center gap-2 mb-3">
-          <h4 class="text-lg font-semibold m-0">Comparison Results</h4>
-          @if (comparisonResult.hasChanges) {
-            <p-badge [value]="comparisonResult.totalChanges.toString()"
-            severity="warn" class="ml-2"></p-badge>
-          }
-        </div>
-
-        <!-- No changes detected -->
-        @if (!comparisonResult.hasChanges) {
-          <div class="status-success">
-            <i class="pi pi-check-circle text-xl"></i>
-            <div>
-              <p class="font-medium m-0">No differences detected</p>
-              <p class="text-sm m-0 text-500">Both texts are identical</p>
-            </div>
-          </div>
-        }
-
-        <!-- Changes detected -->
-        @if (comparisonResult.hasChanges) {
-          <div class="status-warning">
-            <i class="pi pi-exclamation-triangle text-xl"></i>
-            <div>
-              <p class="font-medium m-0">{{comparisonResult.totalChanges}} difference(s) found</p>
-            </div>
+            <app-monaco-editor-lazy #originalMonacoEditor [options]="originalEditorOptions" [(ngModel)]="originalText"
+              (ngModelChange)="onTextChange()" class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
         }
       </div>
-
-      <!-- Information Section -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About Text Diff Checker</h4>
-        <p class="mb-2 text-sm">
-          This <strong>Text Diff Checker</strong> and <strong>text compare</strong> tool helps you compare two text files side by side with highlighted differences.
-          Perfect for comparing code files, configuration files, or any text documents to identify changes and modifications.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>How it works:</strong>
-          The <strong>Text Diff Checker</strong> uses advanced diff algorithms to analyze both texts and highlight insertions, deletions, and modifications.
-          The side-by-side view makes it easy to understand what has changed between versions using sophisticated <strong>text compare</strong> algorithms.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>Features:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><span class="text-primary">Side-by-side comparison:</span> View both texts simultaneously with clear visual separation</li>
-          <li><span class="text-primary">Inline diff highlighting:</span> Insertions, deletions, and modifications are clearly marked with color coding</li>
-          <li><span class="text-primary">Advanced Monaco editor:</span> Syntax highlighting, error indicators, and professional text editing features</li>
-          <li><span class="text-primary">Copy and paste integration:</span> Easy text manipulation with clipboard support for seamless workflow</li>
-          <li><span class="text-primary">Sample data loading:</span> Load example texts to test the comparison functionality instantly</li>
-          <li><span class="text-primary">Fullscreen editing mode:</span> Focus on individual editors in fullscreen for detailed text work</li>
-          <li><span class="text-primary">Privacy focused:</span> All processing happens locally in your browser - no server upload required</li>
-        </ul>
-        <p class="mb-2 text-sm">
-          <strong>Use cases:</strong> Code review processes, document version comparison, configuration file analysis, version control diff visualization,
-          text editing verification, content change tracking, and development workflow optimization.
-        </p>
-        <p class="text-sm">
-          Learn more about diff algorithms at
-          <a href="https://en.wikipedia.org/wiki/Diff" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Diff</a>
-          and text comparison best practices at
-          <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">GitHub Diff Documentation</a>.
-        </p>
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> All text comparison processing happens in your browser - your data is never sent to any server.
-        </p>
-      </div>
-
-      <!-- Development and Text Processing Applications -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Development & Text Processing Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Code Review & Version Control</h5>
-            <p class="mb-2 text-sm">
-              Essential for developers, code reviewers, and DevOps engineers working with
-              version control systems, pull requests, and code comparison workflows.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Development Tasks:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Git diff visualization and comparison</li>
-              <li>Pull request review and analysis</li>
-              <li>Code refactoring verification</li>
-              <li>Configuration file change tracking</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Documentation & Content Management</h5>
-            <p class="mb-2 text-sm">
-              Critical for technical writers, content managers, and documentation specialists
-              working with text documents, markdown files, and content versioning.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Document version comparison</li>
-              <li>Markdown file diff analysis</li>
-              <li>Content editing verification</li>
-              <li>Translation and localization review</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Configuration Management & DevOps</h5>
-          <p class="text-sm mb-2">
-            This <strong>Text Diff Checker</strong> is valuable for system administrators, DevOps engineers,
-            and configuration managers working with application settings, infrastructure as code, and deployment configurations.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Docker configurations</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Kubernetes manifests</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">CI/CD pipeline configs</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Application settings</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Environment variables</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Infrastructure as Code</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Text Analysis and Quality Assurance -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Text Analysis & Quality Assurance</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Quality Assurance & Testing</h5>
-            <p class="mb-2 text-sm">
-              Essential for QA engineers, test automation specialists, and quality assurance teams
-              working with test scripts, expected outputs, and verification processes.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">QA Use Cases:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Test output verification and comparison</li>
-              <li>API response validation</li>
-              <li>Expected vs actual result analysis</li>
-              <li>Test script change tracking</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Data Analysis & Migration</h5>
-            <p class="mb-2 text-sm">
-              Critical for data analysts, database administrators, and migration specialists
-              who work with data transformation, migration verification, and data integrity checking.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Data Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Data migration verification</li>
-              <li>Export file comparison</li>
-              <li>Database schema diff analysis</li>
-              <li>CSV and text data validation</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Academic Research & Analysis</h5>
-          <p class="text-sm mb-2">
-            This tool supports researchers, students, and academics in text analysis,
-            document comparison, and research verification workflows.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Academic Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Research paper versions</span>
-            <span class="px-2 py-1 bg-violet-50 text-violet-700 rounded">Literature comparison</span>
-            <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded">Thesis revision tracking</span>
-            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Citation verification</span>
-            <span class="px-2 py-1 bg-amber-50 text-amber-700 rounded">Plagiarism detection</span>
-            <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Text analysis studies</span>
-          </div>
-        </div>
-      </div>
-      <!-- Toast component -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+
+    <!-- Right column - Modified Text -->
+    <div class="col flex flex-col h-full">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <div class="flex justify-between items-center h-10">
+          <h3 class="text-xl font-medium text-800 m-0">Modified Text</h3>
+        </div>
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="modifiedText" (ngModelChange)="onTextChange()"
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isModifiedFullscreen" #modifiedEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyModifiedToClipboard()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteToModified()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
+                    class="p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isModifiedFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('modified')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isModifiedFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('modified')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+            </div>
+            <app-monaco-editor-lazy #modifiedMonacoEditor [options]="modifiedEditorOptions" [(ngModel)]="modifiedText"
+              (ngModelChange)="onTextChange()" class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Comparison Results Section -->
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border" id="output">
+    <div class="flex align-items-center gap-2 mb-3">
+      <h4 class="text-lg font-semibold m-0">Comparison Results</h4>
+      @if (comparisonResult.hasChanges) {
+        <p-badge [value]="comparisonResult.totalChanges.toString()"
+          severity="warn" class="ml-2"></p-badge>
+      }
+    </div>
+
+    <!-- No changes detected -->
+    @if (!comparisonResult.hasChanges) {
+      <div class="status-success">
+        <i class="pi pi-check-circle text-xl"></i>
+        <div>
+          <p class="font-medium m-0">No differences detected</p>
+          <p class="text-sm m-0 text-500">Both texts are identical</p>
+        </div>
+      </div>
+    }
+
+    <!-- Changes detected -->
+    @if (comparisonResult.hasChanges) {
+      <div class="status-warning">
+        <i class="pi pi-exclamation-triangle text-xl"></i>
+        <div>
+          <p class="font-medium m-0">{{comparisonResult.totalChanges}} difference(s) found</p>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is a Text Diff Checker?</h2>
+      <p class="mt-3">
+        A <strong>Text Diff Checker</strong> is an online tool that compares two pieces of text and highlights the exact differences between them - character by character and line by line. It visually marks insertions, deletions, and modifications, making it easy to understand how one version of a document evolved into another.
+      </p>
+      <p class="mt-3">
+        Our tool runs entirely in your browser, supports any plain text content - source code, configuration files, prose, logs, API responses - and produces accurate diff results instantly, without uploading your data to any server.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use a Text Diff Checker?</h2>
+      <p class="mt-3">
+        Manually spotting changes between two similar documents is slow and error-prone. A text compare tool automates this by applying a diff algorithm to produce a precise, reliable change report. Developers, writers, QA engineers, and system administrators rely on diff tools daily to review code changes, proofread documents, audit configuration files, and track edits across revisions.
+      </p>
+      <p class="mt-3">
+        With a dedicated <strong>text diff</strong> tool you can quickly verify what changed between two files, catch unintended modifications, and communicate clearly about updates during reviews.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Compare Texts Step by Step</h2>
+      <p class="mt-3">
+        Comparing texts with our tool is straightforward:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Paste the Original text</strong> into the left editor - or click the Sample button to load an example.</li>
+        <li><strong>Paste the Modified text</strong> into the right editor to define the version you want to compare against.</li>
+        <li><strong>Review the highlighted differences</strong> inline in each editor and check the Comparison Results summary below for the total number of changes detected.</li>
+      </ol>
+      <p class="mt-3">
+        You can also toggle fullscreen mode for either editor to focus on a single side, and use Copy/Paste/Clear to manage your text efficiently.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Diff Tool?</h2>
+      <p class="mt-3">
+        Our <strong>Text Diff Checker</strong> combines a professional Monaco editor with a proven diff-match-patch engine to deliver accurate, readable results. Unlike many online diff viewers, we process everything client-side, so sensitive snippets, proprietary code, and private configuration never leave your machine.
+      </p>
+      <p class="mt-3">
+        Highlights include inline character-level diffs, whole-line change markers, syntax-highlighted editors, fullscreen focus mode, dark and light themes, and a lightweight UI optimized for speed - all completely free and without registration.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Diff Algorithms Work (Myers, LCS, Unified Diff)</h2>
+      <p class="mt-3">
+        Most modern diff tools rely on the <strong>Longest Common Subsequence (LCS)</strong> problem as their theoretical foundation: given two sequences, find the longest sequence of tokens that appears in the same order in both. Everything outside that common subsequence is treated as an insertion or deletion.
+      </p>
+      <p class="mt-3">
+        <strong>Myers' diff algorithm</strong> is the de facto standard implementation of LCS-based diffing. It is used by Git and most developer tools to compute minimal, intuitive edit scripts in near-linear time. The <strong>unified diff</strong> format then presents those edits as a compact textual patch with context lines, additions (<code>+</code>) and removals (<code>-</code>).
+      </p>
+      <p class="mt-3">
+        Our tool uses Google's <strong>diff-match-patch</strong> library, which implements an efficient Myers-style diff with semantic cleanup to produce human-readable results for both source code and natural-language text.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Text Diff Checker Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Side-by-side comparison</strong> of Original and Modified texts with synchronized scrolling.</li>
+        <li><strong>Inline character-level highlighting</strong> for insertions and deletions.</li>
+        <li><strong>Whole-line change markers</strong> to quickly locate modified lines.</li>
+        <li><strong>Monaco-powered editors</strong> with syntax highlighting, line numbers, and minimap support.</li>
+        <li><strong>Fullscreen editing mode</strong> for each side, with Esc to exit.</li>
+        <li><strong>Sample data</strong> loader and one-click Copy / Paste / Clear actions.</li>
+        <li><strong>Dark and light themes</strong> that follow your site theme automatically.</li>
+        <li><strong>100% client-side processing</strong> - your data never leaves the browser.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        A <strong>text compare</strong> tool is useful across many workflows:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Code reviews and pull requests</strong> - inspect exactly which lines changed between two revisions of a file.</li>
+        <li><strong>Proofreading and editing</strong> - compare draft versions of articles, documentation, or legal texts.</li>
+        <li><strong>Configuration diffs</strong> - spot accidental changes in Docker, Kubernetes, Nginx, or environment files.</li>
+        <li><strong>API response comparison</strong> - validate that a new deployment returns the same JSON/XML as before.</li>
+        <li><strong>Log analysis</strong> - compare logs from two runs to identify regressions.</li>
+        <li><strong>Translation and localization</strong> - review updates to translated strings against the source.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Compare Texts Online?</h2>
+      <p class="mt-3">
+        Yes. All comparison happens entirely in your browser using JavaScript - no text, diff, or metadata is ever sent to our servers. There are no accounts, no analytics on your content, and no hidden logging of submitted data. This makes the tool safe for reviewing internal code, private configurations, and confidential documents.
+      </p>
+      <p class="mt-3">
+        Because everything runs locally, you can even use the tool on air-gapped or restricted networks once the page has loaded.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools Text Diff Checker?</h2>
+      <p class="mt-3">
+        DevTools Text Diff Checker is part of a broader suite of privacy-first developer utilities. It is designed for daily use by engineers who need a fast, distraction-free diff experience: no ads, no sign-up, no data collection, and a clean interface that works well on desktops, tablets, and modern mobile browsers.
+      </p>
+      <p class="mt-3">
+        Combined with our other tools, it forms a complete client-side toolbox for formatting, inspecting, and comparing text and structured data.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download and Copy Options</h2>
+      <p class="mt-3">
+        After comparing your texts, you can instantly copy the Modified text back to your clipboard for reuse in your IDE, documentation system, or ticket. All interactions use native browser APIs - nothing is written to disk or uploaded.
+      </p>
+      <p class="mt-3">
+        The tool integrates smoothly with other DevTools utilities such as the
+        <a [routerLink]="'/word-counter'" class="text-primary hover:underline">Word Counter</a>,
+        <a [routerLink]="'/markdown-preview'" class="text-primary hover:underline">Markdown Preview</a>, and
+        <a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON Formatter</a>,
+        creating a seamless workflow for analyzing, formatting, and diffing text content.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this Text Diff Checker free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store the texts I compare?</h3>
+        <p class="mt-1">No. All diff computation happens locally in your browser - your original and modified texts never leave your machine.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What diff algorithm does this tool use?</h3>
+        <p class="mt-1">The tool uses Google's diff-match-patch library, a Myers-style diff implementation with semantic cleanup that produces readable character-level and line-level diffs.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I compare source code and configuration files?</h3>
+        <p class="mt-1">Yes. The Monaco-powered editors handle code, JSON, YAML, XML, Markdown, and any plain text. Just paste both versions and the differences are highlighted automatically.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I compare large text files?</h3>
+        <p class="mt-1">Yes. The tool handles large documents efficiently, limited mainly by your browser's available memory. For very large files, splitting them into smaller sections often improves readability of the diff.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How are insertions and deletions highlighted?</h3>
+        <p class="mt-1">Deleted content is highlighted in the Original (left) editor, inserted content is highlighted in the Modified (right) editor, and modified lines are additionally marked with whole-line backgrounds for quick scanning.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does it work offline?</h3>
+        <p class="mt-1">Once the page has loaded, comparison runs entirely in your browser, so you can keep using it even on restricted or offline networks.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Diff Algorithms Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of diff algorithms and text comparison, explore these authoritative external resources:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Diff" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia - Diff
+          </a> - Overview of diff utilities, output formats, and the history of text comparison tools.
+        </li>
+        <li>
+          <a href="https://github.com/kpdecker/jsdiff" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            jsdiff on GitHub
+          </a> - Popular JavaScript diff library implementing Myers' algorithm, with detailed documentation of diff strategies.
+        </li>
+        <li>
+          <a href="https://github.com/google/diff-match-patch" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            google/diff-match-patch
+          </a> - The library powering this tool: diff, match and patch algorithms for plain text.
+        </li>
+        <li>
+          <a href="https://git-scm.com/docs/git-diff" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Git Documentation - git diff
+          </a> - Official reference for unified diff output, as used by virtually every code review tool.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>

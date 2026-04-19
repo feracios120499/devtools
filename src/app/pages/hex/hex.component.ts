@@ -21,10 +21,11 @@ import { SeoService, MetaData } from '../../services/seo.service';
 import { UserPreferencesService, HexSettings } from '../../services/user-preferences.service';
 
 // Monaco editor
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { RouterModule } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 @Component({
   selector: 'app-hex',
@@ -39,10 +40,11 @@ import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-
     ToastModule,
     RadioButtonModule,
     SelectModule,
-    MonacoEditorModule,
+    MonacoEditorLazyComponent,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './hex.component.html',
@@ -227,21 +229,96 @@ export class HexComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/hex';
+    const shortDescription = 'Free online HEX encoder and decoder. Convert text to hexadecimal or decode HEX to text in your browser with multiple formats, copy and download.';
+
     const metaData: MetaData = {
-      OgTitle: 'HEX Encoder and Decoder | DevTools',
-      OgDescription: 'Free online HEX encoder and decoder. Convert text to hexadecimal or decode HEX strings back to readable text. Includes copy and download features.',
-      description: 'Free online HEX encoder and decoder tool. Easily convert text to hexadecimal encoding or decode HEX strings back to readable text. Perfect for data encoding, debugging and binary data analysis.',
-      keywords: ['hex encoder', 'hex decoder', 'hexadecimal converter', 'online hex tool', 'text to hex', 'hex to text', 'binary to hex'],
+      OgTitle: 'HEX Encoder and Decoder Online - Text to HEX Converter | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'hex encoder', 'hex decoder', 'hexadecimal converter', 'online hex tool',
+        'text to hex', 'hex to text', 'binary to hex', 'hex to string',
+        'string to hex', 'hex encoding online', 'hex decoder online',
+        'ascii to hex', 'hex viewer', 'hex dump online'
+      ],
       jsonLd: {
-        name: 'HEX Encoder and Decoder',
-        description: 'Online tool to encode and decode text to and from hexadecimal format',
-        url: 'https://onlinewebdevtools.com/hex'
-      }
+        name: 'HEX Encoder and Decoder Online - Text to HEX Converter | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Encode text to hexadecimal in real time',
+          'Decode HEX strings back to readable text',
+          'Multiple HEX output formats (plain, dashes, colons, 0x prefix, spaces, lowercase)',
+          'Automatic normalization of separators and 0x prefixes when decoding',
+          'Paste from clipboard, copy result, and download as a text file',
+          'Fullscreen Monaco editor with dark and light themes',
+          'Client-side processing for privacy - no uploads'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this HEX encoder and decoder free to use?',
+          answer: 'Yes, the tool is completely free with no registration, no ads, and no usage limits.'
+        },
+        {
+          question: 'What is the difference between uppercase and lowercase HEX?',
+          answer: 'Uppercase (DEADBEEF) and lowercase (deadbeef) HEX represent exactly the same bytes. Case is purely cosmetic, but some protocols and APIs require one specific style, so this tool lets you choose.'
+        },
+        {
+          question: 'Does the HEX decoder support Unicode characters?',
+          answer: "Yes. The encoder writes each character's Unicode code point as HEX digits, and the decoder reconstructs the original string, so standard Unicode text round-trips correctly."
+        },
+        {
+          question: 'Is there a maximum input size?',
+          answer: "There is no hard limit set by the tool; performance is bound only by your browser's memory. Inputs of several megabytes are handled without issue on modern devices."
+        },
+        {
+          question: 'What is the difference between HEX and Base64 encoding?',
+          answer: 'HEX uses 16 symbols and produces 2 characters per byte, while Base64 uses 64 symbols and produces roughly 4 characters per 3 bytes. Base64 is more compact, but HEX is easier to read digit-by-digit and is preferred for debugging, hashes, and memory dumps.'
+        },
+        {
+          question: 'Is it safe to paste sensitive data into this tool?',
+          answer: 'Yes. All processing runs locally in your browser using JavaScript - your input is never uploaded, logged, or shared with any server.'
+        },
+        {
+          question: 'Which HEX input formats are accepted when decoding?',
+          answer: 'The decoder accepts plain HEX (DEADBEEF), dash-separated (DE-AD-BE-EF), colon-separated (DE:AD:BE:EF), space-separated (DE AD BE EF), and 0x-prefixed (0xDE 0xAD 0xBE 0xEF) forms. Separators and prefixes are stripped automatically.'
+        }
+      ],
+      howTo: {
+        name: 'How to encode and decode HEX online',
+        description: 'Convert text to hexadecimal or decode HEX back to text in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste text or HEX',
+            text: 'Paste your text into the Input editor, or click the Sample button to load an example. Switch to decode mode and paste a HEX string instead to reverse the operation.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Toggle mode and choose a HEX format',
+            text: 'Select Encode from Text to HEX or Decode from HEX to Text, and (when encoding) pick an output format such as plain, with dashes, with colons, with 0x prefix, with spaces, or lowercase.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the result',
+            text: 'The result is generated instantly in the output editor. Copy it to your clipboard or download it as a plain-text file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'HEX Encoder and Decoder', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

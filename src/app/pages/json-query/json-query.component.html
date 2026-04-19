@@ -1,14 +1,14 @@
 <div class="dt-container">
-  <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
 
-  <app-page-header>Tool for querying and filtering JSON data with JSONPath expressions</app-page-header>
+  <app-page-header>Free online JSON Query Explorer with JSONPath & JavaScript expressions</app-page-header>
   <div class="p-3">
-    <p>This <strong>online JSON query tool</strong> allows you to extract specific data from JSON using JSONPath expressions and filters.</p>
-    <p>Quickly <strong>query JSON data</strong> and <strong>filter JSON objects</strong> in your browser with no server upload.</p>
+    <p>This <strong>online JSON query tool</strong> lets you extract, filter and transform data from any JSON document using JavaScript expressions and JSONPath-style selectors.</p>
+    <p>Quickly <strong>query JSON online</strong> and <strong>filter JSON objects</strong> entirely in your browser with no server upload.</p>
   </div>
 
   <!-- Query input -->
-  <div class="p-3 query-input-container">
+  <div class="p-3 query-input-container" id="options">
     <p-autocomplete class="w-full" [(ngModel)]="queryString" [dropdown]="querySuggestions.length != 0"
       [suggestions]="querySuggestions" (completeMethod)="search($event)" (ngModelChange)="executeQuery()"
       (keydown.enter)="executeQuery()" (focusout)="saveQueryString()" />
@@ -24,27 +24,25 @@
     }
   </div>
 
-  <!-- Основной контейнер с редакторами -->
+  <!-- Main editors container -->
   <div class="dt-editors">
-    <!-- Левая колонка - Input JSON -->
-    <div class="col flex flex-col h-full">
+    <!-- Left column - Input JSON -->
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">JSON Input</h3>
+          <span class="text-xl font-medium text-800 m-0">JSON Input</span>
         </div>
-        <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="inputJson" (ngModelChange)="formatJson()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -53,7 +51,7 @@
                 <div class="flex gap-3 align-items-center">
                   <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleJson()"
                     class="p-button-sm" severity="contrast">
-                    <i-tabler name="code" class="icon-sm"> </i-tabler>
+                    <i-tabler name="code" class="icon-sm"></i-tabler>
                   </button>
                   <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
                     (click)="pasteFromClipboard()" severity="contrast">
@@ -64,7 +62,7 @@
                     <i-tabler name="align-justified" class="icon-sm"></i-tabler>
                   </button>
                   <button pButton type="button" [outlined]="true" label="Clear" (click)="clearJson()" severity="danger"
-                    class=" p-button-sm">
+                    class="p-button-sm">
                     <i-tabler name="trash" class="icon-sm"></i-tabler>
                   </button>
                 </div>
@@ -84,181 +82,257 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputJson"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
             </div>
-          }
-        </div>
-      </div>
-
-      <!-- Правая колонка - Query Result -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">Query Result</h3>
+            <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputJson"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
-          <!-- Отступ для дропдауна -->
-          <div class="mb-1"></div>
+        }
+      </div>
+    </div>
 
-          <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
-            <textarea [(ngModel)]="queryResult" readonly
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
+    <!-- Right column - Query Result -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">Query Result</span>
+        </div>
+        <div class="mb-1"></div>
 
-          <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadResult()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="download" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="queryResult" readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadResult()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
                 </div>
-                <hr>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
                 </div>
-                <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="queryResult"
-                  class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
               </div>
-            }
+              <hr>
+            </div>
+            <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="queryResult"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
-        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is JSON Query?</h2>
+      <p class="mt-3">
+        JSON Query is the process of searching, filtering and transforming a JSON document to extract only the values you need. Instead of scrolling through thousands of lines, you write a short expression and the tool returns the matching fragment: an array of users, a single nested value, an aggregated metric or a reshaped object.
+      </p>
+      <p class="mt-3">
+        Our online JSON Query Explorer supports JavaScript expressions (filter, map, reduce, destructuring, optional chaining) as well as JSONPath-style navigation, giving you the full power of ad-hoc data querying without installing jq or writing a script.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why use an online JSON Query explorer?</h2>
+      <p class="mt-3">
+        Working with large API responses, log exports or configuration bundles in a plain text editor is painful. A dedicated online JSON Query explorer gives you syntax highlighting, live validation, instant re-evaluation as you type, and pretty-printed results — all in your browser.
+      </p>
+      <p class="mt-3">
+        It is the fastest way to explore an unknown JSON structure, prototype a selector before embedding it in code, or debug a failing integration without setting up a local environment.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to query JSON online (step-by-step)</h2>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li>Paste your JSON into the <strong>Input</strong> editor on the left, or click <em>Sample</em> to load a realistic example.</li>
+        <li>Write a query in the input field above the editors. Start with <code class="text-primary px-1 rounded">data</code> to reference the root and chain JavaScript methods such as <code class="text-primary px-1 rounded">.filter()</code>, <code class="text-primary px-1 rounded">.map()</code> or <code class="text-primary px-1 rounded">.reduce()</code>.</li>
+        <li>The result is re-evaluated on every keystroke and pretty-printed in the <strong>Query Result</strong> panel on the right.</li>
+        <li>Use <em>Copy</em> or <em>Download</em> to export the result, or refine your expression until you get exactly the shape you need.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose our JSON Query tool?</h2>
+      <p class="mt-3">
+        Unlike command-line utilities, our tool requires no installation, no Node.js runtime and no learning curve for a custom DSL. It reuses the JavaScript syntax you already know, runs entirely client-side for privacy, and provides a dual-editor workspace with syntax highlighting powered by Monaco — the same editor engine used by VS Code.
+      </p>
+      <p class="mt-3">
+        Recent queries are remembered as autocomplete suggestions, so iterative exploration of the same dataset becomes effortless.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How JSON Query languages work (JSONPath basics, filters, wildcards)</h2>
+      <p class="mt-3">
+        Traditional JSON query languages such as <strong>JSONPath</strong> borrow ideas from XPath. Expressions begin with a root symbol and use dots for child access, brackets for array indexing and special operators for filters and wildcards:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><code class="text-primary px-1 rounded">$.users[*].name</code> — wildcard to collect every <code class="text-primary px-1 rounded">name</code> in the <code class="text-primary px-1 rounded">users</code> array.</li>
+        <li><code class="text-primary px-1 rounded">$.products[?(&#64;.price &gt; 100)]</code> — filter expression returning only matching items.</li>
+        <li><code class="text-primary px-1 rounded">$..id</code> — recursive descent that finds every <code class="text-primary px-1 rounded">id</code> at any depth.</li>
+      </ul>
+      <p class="mt-3">
+        In our tool you can translate those patterns directly into JavaScript: <code class="text-primary px-1 rounded">data.users.map(u =&gt; u.name)</code>, <code class="text-primary px-1 rounded">data.products.filter(p =&gt; p.price &gt; 100)</code>, or use recursion helpers for deep search.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Sample data</strong> button loads a realistic nested JSON so you can start experimenting immediately.</li>
+        <li><strong>Instant results</strong> — every keystroke re-runs the query in under a millisecond for small and medium documents.</li>
+        <li><strong>Pretty-printed output</strong> with syntax highlighting for strings, numbers, booleans and null.</li>
+        <li><strong>Error hints</strong> show the JavaScript exception when a query is malformed, without breaking the UI.</li>
+        <li><strong>Query history</strong> is kept in local storage and surfaces as autocomplete suggestions.</li>
+        <li><strong>Fullscreen editors</strong> for both input and output when you need to inspect large payloads.</li>
+        <li><strong>Copy & download</strong> the result as a <code class="text-primary px-1 rounded">.json</code> file in one click.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common use cases (API exploration, log digging, config auditing, ETL)</h2>
+      <p class="mt-3">
+        JSON Query is useful everywhere JSON shows up:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>API exploration</strong> — extract only the fields a frontend needs from a verbose REST or GraphQL response.</li>
+        <li><strong>Log digging</strong> — filter newline-delimited JSON logs by level, service or correlation ID.</li>
+        <li><strong>Config auditing</strong> — check Kubernetes manifests, Terraform outputs or CI pipeline definitions for missing or unexpected values.</li>
+        <li><strong>ETL prototyping</strong> — design a transformation (map, reduce, group-by) before porting it to a production pipeline.</li>
+        <li><strong>Database exports</strong> — slice MongoDB, CouchDB, Firestore or Elasticsearch dumps without loading them into a query engine.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is it safe to query JSON online?</h2>
+      <p class="mt-3">
+        Yes. The entire query engine runs inside your browser using JavaScript — your JSON is never uploaded to a server, never logged and never stored after you close the tab. There is no account, no analytics on your data and no third-party tracker reading the editor contents.
+      </p>
+      <p class="mt-3">
+        This client-side architecture also means the tool keeps working offline once the page is loaded, and that confidential payloads such as API keys or customer records can be inspected without leaving your machine.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a curated suite of free, ad-free, privacy-first utilities built by developers for developers. Every tool shares the same fast editor, the same dark/light theme engine and the same commitment to keeping your data on your machine.
+      </p>
+      <p class="mt-3">
+        The JSON Query Explorer fits naturally next to the rest of the JSON toolkit — format, convert and query your data without switching tabs or tools.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download & copy options</h2>
+      <p class="mt-3">
+        Once you have the data you want, export it with a single click: <em>Copy</em> places the pretty-printed JSON on your clipboard, and <em>Download</em> saves it as <code class="text-primary px-1 rounded">query-result.json</code> — ready to commit, share or feed into the next step of your workflow.
+      </p>
+      <p class="mt-3">
+        Pair the explorer with the rest of our JSON suite to cover every transformation scenario:
+        <a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON Formatter &amp; Validator</a>,
+        <a [routerLink]="'/json-to-xml'" class="text-primary hover:underline">JSON to XML converter</a>, and
+        <a [routerLink]="'/json-to-env'" class="text-primary hover:underline">JSON to ENV converter</a>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this JSON Query tool free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads or usage limits.</p>
       </div>
 
-      <!-- Information Section -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About JSON Query Explorer</h4>
-        <p class="mb-2 text-sm">
-          This tool allows you to query and extract data from JSON using standard JavaScript expressions. The JSON data is
-          assigned to a variable called <code class="text-primary px-1 rounded">data</code>, which you can use in your
-          queries.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>Example queries:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><code class="text-primary px-1 rounded">data.users.filter(user => user.age > 30)</code> - Get users older than
-        30</li>
-        <li><code class="text-primary px-1 rounded">data.products.map(p => p.name)</code> - Extract names only</li>
-        <li><code class="text-primary px-1 rounded">data.orders.reduce((sum, order) => sum + order.total, 0)</code> -
-      Calculate total value</li>
-      <li><code class="text-primary px-1 rounded">Object.keys(data.settings)</code> - Get all keys from settings object
-    </li>
-  </ul>
-  <p class="text-sm">
-    For more about JSON format and structure, visit
-    <a href="https://www.json.org/json-en.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">JSON.org</a>.
-  </p>
-</div>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload or store my JSON data?</h3>
+        <p class="mt-1">No. All parsing and query evaluation happens in your browser. Your JSON never leaves your device.</p>
+      </div>
 
-<!-- Additional Information Section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Supported JavaScript Features</h4>
-  <p class="mb-2 text-sm">
-    You can use all valid JavaScript expressions, including filter, map,
-    reduce, find, and standard object methods.
-  </p>
-  <ul class="list-disc pl-5 mb-3 text-sm space-y-1">
-    <li><code class="text-primary px-1 rounded">filter()</code>, <code
-  class="text-primary px-1 rounded">map()</code>, <code
-class="text-primary px-1 rounded">reduce()</code>, <code
-class="text-primary px-1 rounded">find()</code></li>
-<li>Object/array destructuring</li>
-<li>Optional chaining <code class="text-primary px-1 rounded">(?.)</code></li>
-</ul>
-<p class="text-sm">
-  Learn more about <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter"
-target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Array.filter()</a>
-and other JavaScript methods on MDN.
-</p>
-</div>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which query syntax is supported?</h3>
+        <p class="mt-1">Any valid JavaScript expression. Start from the <code class="text-primary px-1 rounded">data</code> variable and chain methods like <code class="text-primary px-1 rounded">.filter()</code>, <code class="text-primary px-1 rounded">.map()</code>, <code class="text-primary px-1 rounded">.reduce()</code>, <code class="text-primary px-1 rounded">.find()</code>, or use destructuring and optional chaining.</p>
+      </div>
 
-<!-- SEO Keywords and Use Cases Section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">JSON Data Extraction & Analysis Use Cases</h4>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I use JSONPath expressions?</h3>
+        <p class="mt-1">The tool uses JavaScript as its query language, which covers the same use cases as JSONPath. Every JSONPath pattern has a direct equivalent in JavaScript — for example <code class="text-primary px-1 rounded">$.users[*].name</code> becomes <code class="text-primary px-1 rounded">data.users.map(u =&gt; u.name)</code>.</p>
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">API Response Processing</h5>
-      <p class="mb-2 text-sm">
-        Perfect for analyzing REST API responses, extracting specific fields from complex JSON structures,
-        and transforming API data for frontend applications.
-      </p>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can the explorer handle large JSON files?</h3>
+        <p class="mt-1">Yes. The parser is the native browser engine, so the only limit is the amount of memory your browser tab can allocate. Documents of several megabytes query smoothly.</p>
+      </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Common API Tasks:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Extract user profiles from authentication APIs</li>
-        <li>Filter product catalogs by category or price</li>
-        <li>Parse nested configuration objects</li>
-        <li>Aggregate metrics from analytics APIs</li>
-      </ul>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What happens when my query throws an error?</h3>
+        <p class="mt-1">The error message is shown directly below the query input so you can fix the expression without losing your input JSON or previous results.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the tool remember my previous queries?</h3>
+        <p class="mt-1">Yes. Recently used queries are stored locally in your browser and resurface as autocomplete suggestions the next time you open the page.</p>
+      </div>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Database Query Results</h5>
-      <p class="mb-2 text-sm">
-        Analyze NoSQL database outputs, MongoDB query results, and JSON exports from various database systems.
-        Perfect for data scientists and backend developers.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>JSON Query Learning Resources</h2>
+      <p class="mt-3">
+        Deepen your knowledge of JSON querying with these reference materials:
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Database Operations:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Filter MongoDB collection results</li>
-        <li>Transform CouchDB document arrays</li>
-        <li>Process Elasticsearch aggregation data</li>
-        <li>Extract fields from Firebase snapshots</li>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://goessner.net/articles/JsonPath/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">JSONPath by Stefan Goessner</a> - The original specification of JSONPath and its operators.
+        </li>
+        <li>
+          <a href="https://stedolan.github.io/jq/manual/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">jq manual</a> - The canonical command-line JSON processor whose filters inspire most modern JSON query engines.
+        </li>
+        <li>
+          <a href="https://www.json.org/json-en.html" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">JSON.org</a> - The official JSON specification by Douglas Crockford.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN Array methods</a> - In-browser reference for <code class="text-primary px-1 rounded">filter</code>, <code class="text-primary px-1 rounded">map</code>, <code class="text-primary px-1 rounded">reduce</code> and other methods used in queries.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/JSON" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia: JSON</a> - Background on the history, design and ecosystem of the JSON format.
+        </li>
       </ul>
     </div>
   </div>
 
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">JSON Path Alternative & JQ Online Tool</h5>
-    <p class="text-sm mb-2">
-      This JSON query explorer serves as an alternative to JSONPath expressions and JQ command-line tool,
-      providing a browser-based solution for JSON data manipulation without installation requirements.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Key Features:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">JSON Path queries</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">JavaScript expressions</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Array filtering</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Object transformation</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data aggregation</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Real-time preview</span>
-    </div>
-  </div>
-</div>
-
-
-<!-- Toast component -->
-<p-toast position="bottom-right"></p-toast>
+  <p-toast position="bottom-right"></p-toast>
 </div>

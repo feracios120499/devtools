@@ -1,12 +1,14 @@
 <div class="dt-container">
-  <app-page-header>Tool for viewing, editing and analyzing CSV files with advanced filtering</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online CSV viewer, editor and analyzer</app-page-header>
   <div class="p-3">
-    <p>This <strong>online CSV viewer and editor</strong> allows you to view, edit, filter, and analyze CSV files with advanced table features.</p>
-    <p>Quickly <strong>view CSV files</strong> and <strong>edit CSV data</strong> in your browser with no server upload.</p>
+    <p>This <strong>online CSV viewer and editor</strong> lets you open, inspect, sort, filter and export CSV files directly in your browser.</p>
+    <p>Quickly <strong>view CSV data online</strong> and <strong>analyze CSV files</strong> in an interactive table without uploading anything to a server.</p>
   </div>
 
-  <!-- Панель настроек -->
-  <div class="card p-3 surface-card shadow-sm mb-4">
+  <!-- CSV parsing options (delimiter, quote character, header) -->
+  <div class="card p-3 surface-card shadow-sm mb-4" id="options">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
       <div class="col">
         <label for="delimiter" class="block text-700 mb-2">Delimiter</label>
@@ -50,24 +52,24 @@
         <label for="quoteChar" class="block text-700 mb-2" style="visibility: hidden;">aadasd</label>
         <div class="field-checkbox">
           <p-checkbox [(ngModel)]="hasHeader" [binary]="true" inputId="hasHeader"
-          (onChange)="onHeaderOptionChange()"></p-checkbox>
+            (onChange)="onHeaderOptionChange()"></p-checkbox>
           <label for="hasHeader" class="ml-2">First row as header</label>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- CSV Input Section -->
-  <div class="card p-3 surface-card shadow-sm mb-4">
+  <!-- CSV Input Section (paste, upload, sample) -->
+  <div class="card p-3 surface-card shadow-sm mb-4" id="input">
     <div class="flex justify-between items-center mb-3">
       <h3 class="text-xl font-medium text-800 m-0">CSV Input</h3>
       <div class="flex gap-2">
         <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-        class="p-button-text p-button-sm"></button>
+          class="p-button-text p-button-sm"></button>
         <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSampleCsv()"
-        class="p-button-text p-button-sm"></button>
+          class="p-button-text p-button-sm"></button>
         <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
-        class="p-button-text p-button-sm"></button>
+          class="p-button-text p-button-sm"></button>
       </div>
     </div>
 
@@ -75,7 +77,7 @@
     <div class="p-fluid w-full">
       <textarea class="w-full" rows="8" pTextarea [(ngModel)]="csvData"
         (ngModelChange)="originalCsvData = $event; onCsvDataChange()"
-      placeholder="Paste your CSV data here or use the upload button"></textarea>
+        placeholder="Paste your CSV data here or use the upload button"></textarea>
     </div>
 
     <!-- Warning about hidden content -->
@@ -96,7 +98,7 @@
     <div class="mt-3">
       <p-fileUpload mode="basic" chooseLabel="Upload CSV File" [auto]="true" accept=".csv,.txt,.tsv"
         (uploadHandler)="onFileUpload($event)" [customUpload]="true" chooseIcon="pi pi-upload"
-      class="w-full"></p-fileUpload>
+        class="w-full"></p-fileUpload>
     </div>
 
     <!-- Error message -->
@@ -109,7 +111,7 @@
 
   <!-- CSV Table Result -->
   @if (parsedData.length > 0) {
-    <div class="card p-3 surface-card shadow-sm mb-4">
+    <div class="card p-3 surface-card shadow-sm mb-4" id="output">
       <div class="flex justify-between items-center mb-3">
         <div>
           <h3 class="text-xl font-medium text-800 m-0">CSV Data</h3>
@@ -117,9 +119,9 @@
         </div>
         <div class="flex gap-2">
           <button pButton type="button" label="Clear Filters" icon="pi pi-filter-slash"
-          (click)="clearAllFilters()" class="p-button-text p-button-sm"></button>
+            (click)="clearAllFilters()" class="p-button-text p-button-sm"></button>
           <button pButton type="button" label="Export" icon="pi pi-download" (click)="exportToCsv()"
-          class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
         </div>
       </div>
       <!-- PrimeNG Table with filtering, sorting and pagination -->
@@ -139,291 +141,251 @@
                   </p-inputicon>
                   <input #searchInput type="text" pInputText class="w-full" placeholder="Search keyword"
                     (input)="csvTable.filterGlobal(searchInput.value, 'contains')">
-                  </p-iconfield>
-                </div>
-                <!-- Выбор колонок для отображения -->
-                <div class="flex gap-2 mb-3">
-                  <p-multiSelect [options]="availableColumns" [(ngModel)]="selectedColumns"
-                    optionLabel="header" [maxSelectedLabels]="3" [showToggleAll]="true"
-                    (onChange)="onColumnSelectionChange()" placeholder="Select Columns"
-                    styleClass="p-multiselect-sm" display="chip">
-                    <ng-template let-value pTemplate="selectedItems">
-                      @if (value) {
-                        <div class="flex align-items-center gap-2">
-                          @if (value.length > 0) {
-                            <span>{{value.length}} columns selected</span>
-                          }
-                          @if (value.length === 0) {
-                            <span>All columns</span>
-                          }
-                        </div>
-                      }
-                    </ng-template>
-                  </p-multiSelect>
-                </div>
+                </p-iconfield>
               </div>
-            </ng-template>
-            <ng-template pTemplate="header" let-columns>
-              <tr>
-                @for (col of columns; track col) {
-                  <th [pSortableColumn]="col.field" [style]="{'min-width': '150px'}"
-                    pResizableColumn pReorderableColumn>
-                    {{col.header}}
-                    <p-sortIcon [field]="col.field"></p-sortIcon>
-                    <p-columnFilter [field]="col.field" matchMode="contains" [showMatchModes]="false"
+              <!-- Column visibility selection -->
+              <div class="flex gap-2 mb-3">
+                <p-multiSelect [options]="availableColumns" [(ngModel)]="selectedColumns"
+                  optionLabel="header" [maxSelectedLabels]="3" [showToggleAll]="true"
+                  (onChange)="onColumnSelectionChange()" placeholder="Select Columns"
+                  styleClass="p-multiselect-sm" display="chip">
+                  <ng-template let-value pTemplate="selectedItems">
+                    @if (value) {
+                      <div class="flex align-items-center gap-2">
+                        @if (value.length > 0) {
+                          <span>{{value.length}} columns selected</span>
+                        }
+                        @if (value.length === 0) {
+                          <span>All columns</span>
+                        }
+                      </div>
+                    }
+                  </ng-template>
+                </p-multiSelect>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              @for (col of columns; track col) {
+                <th [pSortableColumn]="col.field" [style]="{'min-width': '150px'}"
+                  pResizableColumn pReorderableColumn>
+                  {{col.header}}
+                  <p-sortIcon [field]="col.field"></p-sortIcon>
+                  <p-columnFilter [field]="col.field" matchMode="contains" [showMatchModes]="false"
                     [showOperator]="false" [showAddButton]="false" display="menu"></p-columnFilter>
-                  </th>
-                }
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-rowData let-columns="columns">
-              <tr>
-                @for (col of columns; track col) {
-                  <td [style]="{'min-width': '150px'}" class="p-2">
-                    {{rowData[col.field]}}
-                  </td>
-                }
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="emptymessage">
+                </th>
+              }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-rowData let-columns="columns">
+            <tr>
+              @for (col of columns; track col) {
+                <td [style]="{'min-width': '150px'}" class="p-2">
+                  {{rowData[col.field]}}
+                </td>
+              }
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td [attr.colspan]="selectedColumns.length" class="text-center p-4">
+                No data available
+              </td>
+            </tr>
+          </ng-template>
+          @if (loading) {
+            <ng-template pTemplate="loadingbody">
               <tr>
                 <td [attr.colspan]="selectedColumns.length" class="text-center p-4">
-                  No data available
+                  Loading data...
                 </td>
               </tr>
             </ng-template>
-            @if (loading) {
-              <ng-template pTemplate="loadingbody">
-                <tr>
-                  <td [attr.colspan]="selectedColumns.length" class="text-center p-4">
-                    Loading data...
-                  </td>
-                </tr>
-              </ng-template>
-            }
-          </p-table>
-        </div>
+          }
+        </p-table>
       </div>
-    }
+    </div>
+  }
 
-    <!-- Information Section -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-      <h4 class="text-xl font-semibold mb-2">About CSV Viewer and Analyzer</h4>
-      <p class="mb-2 text-sm">
-        This tool allows you to view and analyze CSV (Comma-Separated Values) data in an interactive table format.
-        CSV files are commonly used to store tabular data and can be exported from spreadsheets and databases.
+  <!-- SEO info sections -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is a CSV Viewer?</h2>
+      <p class="mt-3">
+        A CSV viewer is a tool that reads Comma-Separated Values files and renders them as a structured, readable table. CSV is one of the most widely used tabular data formats, exported by spreadsheets, databases, analytics platforms and countless APIs. Our online CSV viewer parses the raw text, detects columns and rows, and displays them with sorting, filtering and pagination - without installing any software.
       </p>
-      <p class="mb-2 text-sm">
-        <strong>How it works:</strong>
-        The viewer parses CSV data with customizable delimiters and formatting options, then presents it in an interactive data grid with sorting, filtering, and export capabilities for efficient data analysis.
-      </p>
-      <p class="mb-2 text-sm">
-        <strong>Features:</strong>
-      </p>
-      <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-        <li><strong>Customizable parser:</strong> Choose the delimiter, quote character, and whether to treat the
-      first row as headers</li>
-      <li><strong>Interactive table:</strong> Sort, filter, and paginate through your data with a powerful data
-    grid</li>
-    <li><strong>Data import options:</strong> Paste CSV text directly, upload CSV files, or use a sample dataset
-  </li>
-  <li><strong>Export capability:</strong> Export the filtered and sorted data back to CSV format</li>
-</ul>
-<p class="text-sm">
-  Learn more about CSV format at
-  <a href="https://tools.ietf.org/html/rfc4180" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4180 CSV Standard</a>
-  and data analysis best practices at
-  <a href="https://en.wikipedia.org/wiki/Data_analysis" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Data Analysis</a>.
-</p>
-<p class="text-sm text-500">
-  <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to
-  any server.
-</p>
-</div>
+    </div>
 
-<!-- Business Intelligence and Data Analysis Applications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Business Intelligence & Data Analysis Applications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Business Analytics & Reporting</h5>
-      <p class="mb-2 text-sm">
-        Essential for business analysts, data scientists, and managers who need to quickly examine,
-        validate, and analyze tabular data from various business systems and reports.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use an Online CSV Viewer?</h2>
+      <p class="mt-3">
+        Opening large or unfamiliar CSV files in a spreadsheet can be slow, can reformat values (dates, leading zeros, scientific notation) and often requires desktop software. An online CSV viewer gives you instant access from any device, preserves the raw text, and provides fast exploration features like global search, per-column filters and resizable columns - ideal for developers, analysts and QA engineers.
       </p>
+    </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Business Use Cases:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Sales data analysis and trend identification</li>
-        <li>Financial report validation and verification</li>
-        <li>Customer data segmentation and profiling</li>
-        <li>Performance metrics monitoring and tracking</li>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Use the CSV Viewer</h2>
+      <p class="mt-3">
+        Using the tool takes three simple steps:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Upload or paste CSV</strong> - drop a <code>.csv</code>, <code>.tsv</code> or <code>.txt</code> file, paste from clipboard, or load the built-in sample.</li>
+        <li><strong>Configure parsing options</strong> - choose the delimiter (comma, semicolon, tab, pipe, space), the quote character, and whether the first row is a header.</li>
+        <li><strong>Explore and export</strong> - sort, filter and reorder columns in the interactive table, then export the cleaned data back to CSV.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our CSV Viewer Tool?</h2>
+      <p class="mt-3">
+        Our CSV viewer is built for speed, privacy and flexibility. Parsing happens entirely in your browser using a quote-aware parser that respects RFC 4180 rules, so sensitive data never leaves your machine. Unlike basic previewers, it supports configurable delimiters and quotes, global and per-column filters, column visibility toggles, resizable and reorderable columns, and direct CSV export - everything you need for day-to-day data exploration.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How CSV Parsing Works (RFC 4180)</h2>
+      <p class="mt-3">
+        CSV looks trivial at first glance, but real files are full of edge cases. Our parser follows the core rules of RFC 4180:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Fields are separated by a configurable delimiter (<code>,</code> by default, also <code>;</code>, <code>\t</code>, <code>|</code> or space).</li>
+        <li>Fields that contain the delimiter, a quote character or a line break must be wrapped in double quotes.</li>
+        <li>Double quotes inside a quoted field are escaped by doubling them (<code>""</code>).</li>
+        <li>Line endings may be <code>\n</code>, <code>\r</code> or <code>\r\n</code> - all are normalized automatically.</li>
+        <li>The optional header row is treated as column names when the "First row as header" option is enabled.</li>
       </ul>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Data Quality & Validation</h5>
-      <p class="mb-2 text-sm">
-        Critical for data engineers, quality assurance teams, and database administrators
-        who need to inspect data integrity, identify anomalies, and ensure data consistency.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Key Features of the CSV Viewer</h2>
+      <p class="mt-3">
+        The viewer combines a configurable parser with an interactive data grid to make CSV exploration effortless:
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Quality Assurance Tasks:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Data migration verification and testing</li>
-        <li>Export/import process validation</li>
-        <li>Duplicate record identification</li>
-        <li>Format consistency checking</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Research & Academic Analysis</h5>
-    <p class="text-sm mb-2">
-      This CSV viewer is valuable for researchers, academics, and students
-      working with survey data, experimental results, and statistical datasets.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Research Applications:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Survey data analysis</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Experimental results</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Statistical datasets</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Market research</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Academic studies</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Public datasets</span>
-    </div>
-  </div>
-</div>
-
-<!-- Development and Integration Applications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Development & System Integration Applications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Software Development & Testing</h5>
-      <p class="mb-2 text-sm">
-        Essential for developers working with data-driven applications, APIs, and systems
-        that import/export CSV data for testing, debugging, and development purposes.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Development Tasks:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>API response data validation</li>
-        <li>Test data generation and verification</li>
-        <li>Database import/export testing</li>
-        <li>Data transformation pipeline debugging</li>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Drag-and-drop and file upload</strong> for <code>.csv</code>, <code>.tsv</code> and <code>.txt</code> files.</li>
+        <li><strong>Column sorting</strong> with ascending, descending and unsorted states.</li>
+        <li><strong>Global search</strong> and <strong>per-column "contains" filters</strong> for fast lookup.</li>
+        <li><strong>Column visibility</strong>, resizing and reordering for custom layouts.</li>
+        <li><strong>Pagination</strong> with configurable page sizes (10, 25, 50, 100 rows).</li>
+        <li><strong>One-click export</strong> back to a properly quoted CSV file.</li>
       </ul>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">System Integration & ETL</h5>
-      <p class="mb-2 text-sm">
-        Critical for system integrators, ETL developers, and data engineers
-        who work with data exchange between different systems and platforms.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        A CSV viewer is useful across many domains and workflows:
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Integration Scenarios:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Data warehouse loading processes</li>
-        <li>CRM/ERP system data exchange</li>
-        <li>Legacy system data migration</li>
-        <li>Cloud platform data synchronization</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Database Administration & Maintenance</h5>
-    <p class="text-sm mb-2">
-      This CSV viewer supports database administrators and data custodians
-      in database maintenance, backup verification, and data archival processes.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Administrative Tasks:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Backup validation</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Data archival</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Query result analysis</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Performance monitoring</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data lineage tracking</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Compliance reporting</span>
-    </div>
-  </div>
-</div>
-
-<!-- Technical Standards and File Format Details -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Technical Standards & File Format Specifications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">CSV Format Standards & Variations</h5>
-      <p class="mb-2 text-sm">
-        CSV format has multiple variations and standards depending on the source system
-        and regional conventions, requiring flexible parsing capabilities for universal compatibility.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Format Variations:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>RFC 4180 - Official CSV specification</li>
-        <li>Tab-separated values (TSV) format</li>
-        <li>Semicolon-separated values (European standard)</li>
-        <li>Custom delimiter configurations</li>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>API and ETL debugging</strong> - inspect CSV exports from REST endpoints, data pipelines or cron jobs.</li>
+        <li><strong>Database and BI exports</strong> - open query results from PostgreSQL, MySQL, BigQuery or Excel without opening a heavy IDE.</li>
+        <li><strong>Log and event analysis</strong> - scan access logs, event streams or audit exports for specific values.</li>
+        <li><strong>Data quality checks</strong> - find duplicates, empty cells or malformed rows before importing into another system.</li>
+        <li><strong>Research and reporting</strong> - explore survey results, experimental data and open datasets.</li>
       </ul>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Character Encoding & Localization</h5>
-      <p class="mb-2 text-sm">
-        Modern CSV viewers must handle various character encodings and regional
-        formatting conventions to support international data and multilingual content.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to View CSV Online?</h2>
+      <p class="mt-3">
+        Yes. All parsing, filtering, sorting and exporting happens entirely inside your browser using client-side JavaScript - your CSV file is never uploaded to our servers. There is no account, no tracking of file contents and no cloud storage, which makes the viewer suitable even for confidential business data, log files or exports containing personally identifiable information.
       </p>
+      <p class="mt-3">
+        For maximum safety, the tool also works fully offline after the first load, so you can review sensitive CSV files in restricted or air-gapped environments.
+      </p>
+    </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Encoding Support:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>UTF-8 - Universal character encoding</li>
-        <li>UTF-16 - Wide character support</li>
-        <li>ISO-8859-1 - Latin character set</li>
-        <li>Regional number formatting</li>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a curated suite of free, ad-free developer utilities designed around speed, privacy and usability. Our CSV viewer is built to the same standards as the rest of the platform: a consistent interface, no artificial limits, no upsells, and a strong focus on keyboard and pointer ergonomics. Every feature - from keyword search to column reordering - is there because it is genuinely useful in real-world CSV work.
+      </p>
+      <p class="mt-3">
+        Whether you open one CSV file a month or dozens a day, you get a predictable, professional tool that integrates smoothly with other DevTools utilities for JSON, SQL and text processing.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Export and Related Tools</h2>
+      <p class="mt-3">
+        After filtering and sorting your CSV, one click on <strong>Export</strong> produces a clean, properly quoted <code>.csv</code> file that you can share, commit to a repository or import into another system. Values containing delimiters or quotes are automatically wrapped and escaped so the output stays RFC 4180 compatible.
+      </p>
+      <p class="mt-3">
+        For more advanced transformations, continue your workflow with other DevTools utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Convert tabular data to structured JSON and beautify it with the <a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON Formatter</a>.</li>
+        <li>Transform and format XML exports side by side using the <a [routerLink]="'/xml-formatter'" class="text-primary hover:underline">XML Formatter</a>.</li>
+        <li>Turn configuration rows into <code>.env</code> variables with the <a [routerLink]="'/json-to-env'" class="text-primary hover:underline">JSON to ENV converter</a>.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is the CSV viewer free to use?</h3>
+        <p class="mt-1">Yes, it is completely free with no registration, ads or file-size subscriptions.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload my CSV files to a server?</h3>
+        <p class="mt-1">No. All parsing and rendering happens locally in your browser. Your CSV data never leaves your device.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which delimiters and quote characters are supported?</h3>
+        <p class="mt-1">You can choose between comma, semicolon, tab, pipe and space as delimiters, and double, single or no quote character - covering CSV, TSV and most European and custom exports.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I open large CSV files?</h3>
+        <p class="mt-1">Yes. The viewer streams and paginates rows, so it handles large files efficiently - the practical limit depends on your browser's memory. For very large datasets (>100 MB) server-side processing is usually more appropriate.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the viewer support TSV and pipe-delimited files?</h3>
+        <p class="mt-1">Yes. Select the Tab or Pipe option in the delimiter dropdown and the tool will parse TSV and pipe-separated files the same way as standard CSV.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I export the filtered and sorted data?</h3>
+        <p class="mt-1">Yes. Click the Export button to download the currently loaded CSV as a standards-compliant <code>.csv</code> file with proper quoting and escaping.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the tool modify my data in any way?</h3>
+        <p class="mt-1">No. Values are treated as plain strings, so dates, leading zeros and long numbers are preserved exactly as they appear in the source file.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>CSV Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your knowledge of the CSV format and browser-based file handling, these external references are a great place to start:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://tools.ietf.org/html/rfc4180" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">RFC 4180</a> - the official CSV specification from the IETF, describing delimiters, quoting and line endings.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN File API</a> - comprehensive reference for reading local files from JavaScript, including <code>File</code>, <code>Blob</code> and <code>FileReader</code>.
+        </li>
+        <li>
+          <a href="https://www.papaparse.com/docs" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Papa Parse documentation</a> - a popular open-source CSV parser for JavaScript with streaming, worker and auto-detection features.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Comma-separated_values" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia: CSV</a> - historical background, dialects and common pitfalls of the CSV format.
+        </li>
       </ul>
     </div>
   </div>
 
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Performance & Scalability Considerations</h5>
-    <p class="text-sm mb-2">
-      Efficient CSV processing requires understanding of memory management, parsing algorithms,
-      and user interface optimization for handling large datasets in web browsers.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Technical Features:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Streaming parser</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Virtual scrolling</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Lazy loading</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Memory optimization</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Client-side processing</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Progressive rendering</span>
-    </div>
-
-    <p class="text-sm mt-3 text-600">
-      <strong>Performance Tip:</strong> For very large CSV files (>100MB), consider using
-      server-side processing or specialized data analysis tools for optimal performance.
-    </p>
-  </div>
-
-  <p class="text-sm mt-3">
-    For CSV format specifications, visit
-    <a href="https://tools.ietf.org/html/rfc4180" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4180 Standard</a>
-    and for data processing best practices, see
-    <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN File API</a>.
-  </p>
-</div>
-
-<!-- Toast component -->
-<p-toast position="bottom-right"></p-toast>
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
 </div>

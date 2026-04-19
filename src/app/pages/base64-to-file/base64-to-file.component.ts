@@ -6,11 +6,18 @@ import { MessageService } from 'primeng/api';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
 import { FileTypeService, FileTypeInfo } from '../../services/file-type.service';
 import { MimeTypeService, MimeTypeInfo } from '../../services/mime-type.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { RouterModule } from '@angular/router';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 // Интерфейс TypeOption совпадает с FileTypeInfo для использования с p-select
 interface TypeOption extends FileTypeInfo {
   // Нет необходимости добавлять поле value, так как будем использовать исходные объекты
@@ -21,8 +28,15 @@ interface TypeOption extends FileTypeInfo {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
-    PageHeaderComponent
+    ButtonModule,
+    FloatLabelModule,
+    InputTextModule,
+    SelectModule,
+    TextareaModule,
+    ToastModule,
+    PageHeaderComponent,
+    RouterModule,
+    AnchorHeadingDirective
 ],
   providers: [MessageService],
   templateUrl: './base64-to-file.component.html',
@@ -80,21 +94,108 @@ export class Base64ToFileComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/base64-to-file';
+    const shortDescription = 'Free online Base64 to File converter. Decode Base64 strings back to downloadable files in your browser with automatic MIME and file type detection. No upload, no signup.';
+
     const metaData: MetaData = {
-      OgTitle: 'Base64 to File Converter | DevTools',
-      OgDescription: 'Free online Base64 to File converter. Convert Base64 encoded data back to downloadable files with automatic file type detection.',
-      description: 'Free online Base64 to File converter. Convert Base64 encoded data back to files. Download files from Base64 strings with automatic file type detection. Perfect for developers and data processing.',
-      keywords: ['base64 to file', 'base64 decoder', 'base64 converter', 'convert base64 to file', 'download file from base64', 'base64 file converter', 'base64 to binary'],
+      OgTitle: 'Base64 to File Converter Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'base64 to file',
+        'base64 decoder',
+        'base64 converter',
+        'convert base64 to file',
+        'download file from base64',
+        'base64 file converter',
+        'base64 to binary',
+        'decode base64 online',
+        'base64 to image',
+        'base64 to pdf',
+        'data uri to file',
+        'base64 mime detection'
+      ],
       jsonLd: {
-        name: 'Base64 to File Converter',
-        description: 'Free online tool for converting Base64 encoded data to downloadable files',
-        url: 'https://onlinewebdevtools.com/base64-to-file'
-      }
+        name: 'Base64 to File Converter Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'One-click paste of Base64 from clipboard and built-in sample',
+          'Automatic MIME type and extension detection from binary signatures',
+          'Editable file name with smart extension replacement',
+          'Manual file type override via dropdown',
+          'Instant client-side download via Blob and URL.createObjectURL',
+          'Robust Base64 validation including URL-safe variant and data URI prefix',
+          'Handles large payloads with safe display truncation'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this Base64 to File converter free to use?',
+          answer: 'Yes, it is completely free with no registration, ads or usage limits.'
+        },
+        {
+          question: 'Do you upload or store my Base64 data?',
+          answer: 'No. All decoding happens locally in your browser using native Web APIs. Your Base64 string and the resulting file never leave your device.'
+        },
+        {
+          question: 'Which file types can be detected automatically?',
+          answer: 'The converter recognizes dozens of common formats through magic-number signatures, including images (JPG, PNG, GIF, BMP, WebP, SVG, ICO), documents (PDF, DOC, DOCX, RTF, XML, HTML, TXT, CSV), archives (ZIP, RAR, 7z, GZ, TAR), audio (MP3, AAC, OGG, FLAC, WAV), video (MP4, MKV, AVI, MOV) and fonts (TTF, OTF, WOFF, WOFF2).'
+        },
+        {
+          question: 'What happens if the file type cannot be detected?',
+          answer: 'If no signature matches, the file is saved with a .bin extension and an application/octet-stream MIME type. You can still rename it manually to any extension before downloading.'
+        },
+        {
+          question: 'Can I decode data URIs (data:image/png;base64,...)?',
+          answer: 'Yes. The converter automatically strips the data:*/*;base64, prefix, validates the remaining payload and decodes it just like a plain Base64 string.'
+        },
+        {
+          question: 'Does it support URL-safe Base64?',
+          answer: 'Yes. URL-safe characters (- and _) are accepted and converted to the standard Base64 alphabet before decoding, and missing padding is restored automatically when possible.'
+        },
+        {
+          question: 'Is there a file size limit?',
+          answer: 'There is no artificial limit imposed by the tool itself. The maximum size depends only on the memory available to your browser tab — modern browsers routinely handle multi-megabyte payloads.'
+        },
+        {
+          question: 'My Base64 string is shown truncated in the textarea — is my data safe?',
+          answer: 'Yes. For very long inputs, only a preview is rendered to keep the UI responsive, but the full original string is always preserved in memory and used during decoding. A warning banner indicates how many characters are hidden.'
+        }
+      ],
+      howTo: {
+        name: 'How to decode a Base64 string to a file',
+        description: 'Convert a Base64-encoded payload back into a downloadable file directly in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste Base64',
+            text: 'Paste your Base64 payload into the input area, or press Sample to load a demo PNG string. Data URI prefixes are stripped automatically and the payload is validated in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure filename',
+            text: 'Review the auto-detected MIME type, adjust the File name and, if needed, override the File type dropdown with the extension you want for the downloaded file.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Download file',
+            text: 'Click Convert & Download to decode the Base64 string to a Blob and trigger a native browser download of the resulting file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'Base64 to File', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

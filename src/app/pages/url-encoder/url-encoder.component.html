@@ -1,17 +1,19 @@
 <div class="dt-container">
-  <app-page-header>Tool for encoding and decoding URLs for safe web use</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Online URL Encoder &amp; Decoder - Percent-Encode URLs Instantly</app-page-header>
   <div class="p-3">
-    <p>This <strong>online URL encoder and decoder</strong> converts special characters in URLs for safe transmission and decodes encoded URLs.</p>
-    <p>Quickly <strong>encode URLs</strong> and <strong>decode URL parameters</strong> in your browser with no server upload.</p>
+    <p>This <strong>online URL encoder and decoder</strong> converts special characters into percent-encoded (<code>%XX</code>) sequences for safe transmission and decodes encoded URLs back to readable text.</p>
+    <p>Quickly <strong>encode URL parameters</strong> and <strong>decode percent-encoded URLs</strong> in your browser with no server upload.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-1 gap-4 flex-1">
-    <!-- Левая колонка - Input Text -->
-    <div class="col flex flex-col h-full">
+    <!-- Left column - Input URL -->
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
 
-        <!-- Операция (encode/decode) с радиокнопками -->
-        <div class="mb-3 flex items-center">
+        <!-- Operation (encode/decode) radio toggle -->
+        <div id="options" class="mb-3 flex items-center">
           <div class="flex items-center gap-3">
             <p-radiobutton [(ngModel)]="activeTab" inputId="decode" name="operation" value="1" (onClick)="processText()"/>
             <label for="decode">Decode URL</label>
@@ -21,7 +23,7 @@
           </div>
         </div>
 
-        <!-- Заголовок с фиксированной высотой -->
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">Input URL</h3>
           <div class="flex gap-2">
@@ -34,28 +36,18 @@
           </div>
         </div>
 
-        <!-- Поле ввода с плавающей меткой -->
+        <!-- Input field -->
         <div class="p-fluid w-full mt-3">
           <textarea class="w-full" rows="1" cols="30" pTextarea [autoResize]="true" placeholder="URL" [(ngModel)]="inputText"
-          (ngModelChange)="processText()" ></textarea>
-          <!-- <p-floatLabel variant="on">
-          <input
-            pInputText
-            id="input_text"
-            [(ngModel)]="inputText"
-            (ngModelChange)="processText()"
-            autocomplete="off"
-            class="input-url" />
-            <label for="input_text">{{ activeTab == 0 ? 'Text to encode' : 'Text to decode' }}</label>
-          </p-floatLabel> -->
+          (ngModelChange)="processText()"></textarea>
         </div>
       </div>
     </div>
 
-    <!-- Правая колонка - Output Text -->
-    <div class="col flex flex-col">
+    <!-- Right column - Output URL -->
+    <div class="col flex flex-col" id="output">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden">
-        <!-- Заголовок с фиксированной высотой -->
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}</h3>
           <div class="flex gap-2">
@@ -64,270 +56,254 @@
           </div>
         </div>
 
-        <!-- Отступ для выравнивания -->
+        <!-- Spacer for alignment -->
         <div class="mb-3"></div>
 
-        <!-- Поле вывода с плавающей меткой -->
+        <!-- Output field -->
         <div class="p-fluid flex-1 output-container output-wrapper">
-          <textarea class="w-full" rows="1" cols="30" [readonly]="true" pTextarea [autoResize]="true" placeholder="{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}" [(ngModel)]="outputText" ></textarea>
-          <!-- <p-floatLabel variant="on">
-          <input pInputText id="output_text" [(ngModel)]="outputText" readonly class="output-url" />
-          <label for="output_text">{{ activeTab == 0 ? 'Encoded result' : 'Decoded result' }}</label>
-        </p-floatLabel> -->
+          <textarea class="w-full" rows="1" cols="30" [readonly]="true" pTextarea [autoResize]="true"
+            placeholder="{{ activeTab == 1 ? 'Decoded URL' : 'Encoded URL' }}" [(ngModel)]="outputText"></textarea>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- URL Components Table -->
-<div class="mt-4 mb-4 p-3 border-round-lg surface-card shadow-sm surface-border">
-  <h3 class="text-xl font-medium text-800 mb-2">URL Components</h3>
-  <p-table [value]="urlComponents" [tableStyle]="{'min-width': '50rem'}" styleClass="url-components-table">
-    <ng-template pTemplate="caption">
-      <div class="text-left">
-        <span class="font-medium text-sm text-600">URL structure breakdown showing protocol, domain, path, and query parameters</span>
+  <!-- URL Components Table -->
+  <div class="mt-4 mb-4 p-3 border-round-lg surface-card shadow-sm surface-border">
+    <h3 class="text-xl font-medium text-800 mb-2">URL Components</h3>
+    <p-table [value]="urlComponents" [tableStyle]="{'min-width': '50rem'}" styleClass="url-components-table">
+      <ng-template pTemplate="caption">
+        <div class="text-left">
+          <span class="font-medium text-sm text-600">URL structure breakdown showing protocol, domain, path, and query parameters</span>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Component</th>
+          <th>Value</th>
+          <th>Description</th>
+          <th style="width: 70px"></th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-component>
+        <tr>
+          <td><strong>{{component.name}}</strong></td>
+          <td>
+            @if (component.name !== 'Query Parameters' || !component.value) {
+              <span [ngClass]="{'text-primary': component.value}">
+                {{component.value || '-'}}
+              </span>
+            }
+            @if (component.name === 'Query Parameters' && component.value) {
+              <span [ngClass]="{'text-primary': true}">
+                <div [innerHTML]="component.value | nl2br"></div>
+              </span>
+            }
+          </td>
+          <td>{{component.description}}</td>
+          <td class="text-center">
+            @if (component.value) {
+              <button
+                pButton
+                pRipple
+                type="button"
+                icon="pi pi-copy"
+                (click)="copyComponentValue(component)"
+                class="p-button-rounded p-button-text p-button-sm copy-button"
+                pTooltip="Copy value"
+              tooltipPosition="left"></button>
+            }
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is URL Encoding (Percent-Encoding)?</h2>
+      <p class="mt-3">
+        URL encoding, also known as <strong>percent-encoding</strong>, is a mechanism defined in RFC 3986 for translating characters that are unsafe or reserved in a Uniform Resource Identifier (URI) into a format that can be safely transmitted over the Internet. Each unsafe character is replaced by a percent sign (<code>%</code>) followed by two hexadecimal digits representing its byte value in UTF-8.
+      </p>
+      <p class="mt-3">
+        For example, a space becomes <code>%20</code>, a question mark becomes <code>%3F</code>, and the ampersand becomes <code>%26</code>. This ensures URLs remain valid across browsers, servers, proxies, and API gateways.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use a URL Encoder/Decoder?</h2>
+      <p class="mt-3">
+        URLs have a strict syntax and only a small set of characters is allowed without escaping. Whenever you embed user input, file names, search terms, or arbitrary data into a URL, you must encode it - otherwise reserved characters like <code>?</code>, <code>&amp;</code>, <code>#</code>, <code>/</code> and spaces will break routing, query string parsing, or redirects.
+      </p>
+      <p class="mt-3">
+        A <strong>URL decoder</strong> reverses this process, turning <code>%20</code> back into a space and <code>%C3%A9</code> back into <code>é</code>, so you can inspect payloads from server logs, analytics URLs, or deep links in a human-readable form.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Encode or Decode URLs Online (Step-by-Step)</h2>
+      <p class="mt-3">
+        Using the tool is straightforward and takes just a few seconds:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li>Paste your URL or plain text into the <strong>Input URL</strong> field, or click <em>Sample</em> to load an example.</li>
+        <li>Choose the mode - <strong>Decode URL</strong> to unescape percent-encoded sequences, or <strong>Encode URL</strong> to escape special characters.</li>
+        <li>The result appears instantly in the output field. Click <em>Copy</em> to place it on your clipboard.</li>
+      </ol>
+      <p class="mt-3">
+        The tool also parses the URL and shows a breakdown of its components (protocol, host, path, query parameters, fragment) so you can verify the structure at a glance.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our URL Encoder</h2>
+      <p class="mt-3">
+        Our URL encoder is designed for developers who need a fast, accurate, and private way to handle percent-encoding. It uses the browser's native <code>encodeURIComponent</code> and <code>decodeURIComponent</code> implementations, so the result matches exactly what your JavaScript code would produce in production.
+      </p>
+      <p class="mt-3">
+        There are no ads, no sign-up, no file uploads and no throttling - just instant results with a built-in URL component inspector, sample data, and one-click copy.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How URL Encoding Works (Reserved vs Unreserved Characters)</h2>
+      <p class="mt-3">
+        RFC 3986 splits URI characters into two groups. <strong>Unreserved characters</strong> (<code>A-Z</code>, <code>a-z</code>, <code>0-9</code>, <code>-</code>, <code>.</code>, <code>_</code>, <code>~</code>) are always safe and never encoded. <strong>Reserved characters</strong> (<code>:/?#[]&#64;!$&amp;'()*+,;=</code>) have special meaning in URLs and must be percent-encoded when used as data rather than as delimiters.
+      </p>
+      <p class="mt-3">
+        For non-ASCII characters, the value is first encoded as UTF-8, then each byte is represented as <code>%XX</code>. That is why the character <code>é</code> becomes <code>%C3%A9</code> - two bytes in UTF-8, each written as a percent-escaped hex pair.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <p class="mt-3">
+        Everything you need in a single page, optimized for real-world URL work:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Encode URL</strong> - escape reserved and non-ASCII characters using <code>encodeURIComponent</code>.</li>
+        <li><strong>Decode URL</strong> - unescape percent-encoded sequences, including multi-byte UTF-8.</li>
+        <li><strong>URL component inspector</strong> - see protocol, host, port, path, query parameters and fragment at a glance.</li>
+        <li><strong>Copy to clipboard</strong> for the full result or for any individual URL component.</li>
+        <li><strong>Sample data</strong> to quickly try encoding or decoding without typing.</li>
+        <li><strong>Paste from clipboard</strong> and automatic live processing on every keystroke.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        URL encoding is a daily task for web, backend, and mobile developers. Typical scenarios include:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Query strings</strong> - safely appending user search terms or filter values to URLs.</li>
+        <li><strong>REST APIs</strong> - sending path and query parameters that include spaces, slashes, or Unicode.</li>
+        <li><strong>OAuth redirects</strong> - encoding <code>redirect_uri</code> and <code>state</code> parameters per RFC 6749.</li>
+        <li><strong>Analytics / UTM parameters</strong> - building campaign URLs with readable but safely escaped values.</li>
+        <li><strong>Deep links and app links</strong> - encoding payloads passed to mobile apps or single-page applications.</li>
+        <li><strong>Debugging server logs</strong> - decoding captured URLs to understand what a client actually sent.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Encode URLs Online?</h2>
+      <p class="mt-3">
+        Yes. This URL encoder is fully <strong>client-side</strong> - all encoding and decoding happens in your browser via standard JavaScript APIs. Your URLs, tokens, and query strings are never uploaded to any server and are not logged, stored, or shared.
+      </p>
+      <p class="mt-3">
+        You can safely use it on sensitive data such as OAuth tokens, signed links, or staging URLs - closing the tab is enough to remove every trace from this session.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools</h2>
+      <p class="mt-3">
+        DevTools is a curated suite of free, privacy-respecting developer utilities. Every tool runs locally in your browser, loads quickly, and is built with the same standards you would use in production - no guesswork, no tracking, no paywall.
+      </p>
+      <p class="mt-3">
+        Together the tools cover the full developer workflow: data conversion, encoding, formatting, diffing and inspection, so you can stop stitching together random single-purpose websites.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download &amp; Copy Options</h2>
+      <p class="mt-3">
+        Once you have the encoded or decoded result you can copy it to the clipboard with a single click, or copy any individual parsed component (host, path, query) from the URL components table. This makes it easy to move values into other tools or into your own code.
+      </p>
+      <p class="mt-3">
+        Need to go further? Combine this page with other DevTools utilities:
+        <a [routerLink]="'/url-to-qr'" class="text-primary hover:underline">URL to QR Code</a>,
+        <a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 Encoder / Decoder</a>, and
+        <a [routerLink]="'/hex'" class="text-primary hover:underline">Hex Converter</a>
+        - building a smooth workflow from raw text to safely transmitted payloads.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between encodeURI and encodeURIComponent?</h3>
+        <p class="mt-1"><code>encodeURI</code> is meant for a complete URL and leaves reserved delimiters such as <code>:/?#&amp;=</code> untouched. <code>encodeURIComponent</code> is meant for a single URL component (for example a query-string value) and also escapes those delimiters. This tool uses <code>encodeURIComponent</code>, which is the safe default when you are escaping user-provided values.</p>
       </div>
-    </ng-template>
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Component</th>
-        <th>Value</th>
-        <th>Description</th>
-        <th style="width: 70px"></th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-component>
-      <tr>
-        <td><strong>{{component.name}}</strong></td>
-        <td>
-          @if (component.name !== 'Query Parameters' || !component.value) {
-            <span [ngClass]="{'text-primary': component.value}">
-              {{component.value || '-'}}
-            </span>
-          }
-          @if (component.name === 'Query Parameters' && component.value) {
-            <span [ngClass]="{'text-primary': true}">
-              <div [innerHTML]="component.value | nl2br"></div>
-            </span>
-          }
-        </td>
-        <td>{{component.description}}</td>
-        <td class="text-center">
-          @if (component.value) {
-            <button
-              pButton
-              pRipple
-              type="button"
-              icon="pi pi-copy"
-              (click)="copyComponentValue(component)"
-              class="p-button-rounded p-button-text p-button-sm copy-button"
-              pTooltip="Copy value"
-            tooltipPosition="left"></button>
-          }
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-</div>
 
-<!-- Information Section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border">
-  <h4 class="text-xl font-semibold mb-2">About URL Encoding</h4>
-  <p class="mb-2 text-sm">
-    URL encoding converts characters that are not allowed in URLs to character-entity references.
-    Spaces are converted to plus signs (+) or %20, and reserved characters like ?, &, #, etc. are
-    converted to their hexadecimal values.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>When to use URL encoding:</strong>
-    When you need to send data in a URL (like form submissions, API calls) or when creating links
-    with special characters in the parameters.
-  </p>
-</div>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which characters are considered reserved in a URL?</h3>
+        <p class="mt-1">Per RFC 3986 the reserved characters are <code>:/?#[]&#64;!$&amp;'()*+,;=</code>. Any other ASCII symbol outside the unreserved set (<code>A-Z a-z 0-9 - . _ ~</code>) must also be percent-encoded when used as data.</p>
+      </div>
 
-<!-- Web Development and API Integration Applications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Web Development & API Integration Applications</h4>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How are Unicode characters handled?</h3>
+        <p class="mt-1">Non-ASCII characters are first encoded as UTF-8 bytes, then each byte is written as <code>%XX</code>. For example <code>é</code> becomes <code>%C3%A9</code> and the emoji <code>&#128512;</code> becomes <code>%F0%9F%98%80</code>.</p>
+      </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Frontend & Full-Stack Development</h5>
-      <p class="mb-2 text-sm">
-        Essential for web developers, frontend engineers, and full-stack developers
-        working with dynamic URLs, form submissions, and client-server data transmission.
-      </p>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between <code>+</code> and <code>%20</code> for spaces?</h3>
+        <p class="mt-1">In the <code>application/x-www-form-urlencoded</code> format (HTML form submissions) a space is encoded as <code>+</code>. In a generic URL path or query per RFC 3986 a space is encoded as <code>%20</code>. This tool produces <code>%20</code>, which is always safe; decoders accept either form.</p>
+      </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Frontend Development Applications:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Form data URL parameter encoding</li>
-        <li>Dynamic route generation with special characters</li>
-        <li>Search query parameter handling</li>
-        <li>Social media sharing URL generation</li>
-      </ul>
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to paste sensitive URLs here?</h3>
+        <p class="mt-1">Yes. The tool runs entirely in your browser. Nothing you paste is uploaded, logged, or stored on any server.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why does my decoded URL still contain <code>%</code> characters?</h3>
+        <p class="mt-1">That usually means the URL was encoded more than once (double-encoded). Run the decoder again on the result until no <code>%XX</code> sequences remain.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this URL encoder free?</h3>
+        <p class="mt-1">Yes - it is completely free with no registration, no ads, and no usage limits.</p>
+      </div>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Service Integration</h5>
-      <p class="mb-2 text-sm">
-        Critical for backend developers, API engineers, and integration specialists
-        ensuring proper data encoding for HTTP requests and API endpoint consumption.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>URL Encoding Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of URL encoding, URI syntax and percent-encoding, explore these authoritative references:
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">API Integration Scenarios:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>REST API query parameter encoding</li>
-        <li>OAuth redirect URI formatting</li>
-        <li>Webhook URL parameter handling</li>
-        <li>Third-party API data transmission</li>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc3986" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">RFC 3986 - URI Generic Syntax</a> - the canonical specification defining URI structure and percent-encoding rules.
+        </li>
+        <li>
+          <a href="https://url.spec.whatwg.org/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">WHATWG URL Living Standard</a> - the modern specification that browsers actually implement for URL parsing and encoding.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/encodeURIComponent" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN: encodeURIComponent</a> - reference for JavaScript's component-level URL encoder, including which characters are escaped.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/URL/URL" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN: URL constructor</a> - guide to parsing and composing URLs programmatically using the standard <code>URL</code> API.
+        </li>
       </ul>
     </div>
   </div>
 
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Web Framework & CMS Integration</h5>
-    <p class="text-sm mb-2">
-      This URL encoder supports framework developers, CMS specialists,
-      and web platform engineers working with various web technologies and content management systems.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Framework Applications:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">React Router URLs</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Angular routing</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Vue.js navigation</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">WordPress permalinks</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Django URL patterns</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Express.js routes</span>
-    </div>
-  </div>
-</div>
-
-<!-- Data Transmission and Security Applications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Data Transmission & Security Applications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Secure Data Transmission & Encoding</h5>
-      <p class="mb-2 text-sm">
-        Essential for security engineers, backend developers, and cybersecurity specialists
-        ensuring secure and compliant data transmission over HTTP/HTTPS protocols.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Security Applications:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Secure token transmission in URLs</li>
-        <li>Authentication parameter encoding</li>
-        <li>CSRF protection token handling</li>
-        <li>API key secure transmission</li>
-      </ul>
-    </div>
-
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">E-commerce & Payment Processing</h5>
-      <p class="mb-2 text-sm">
-        Critical for e-commerce developers, payment gateway integrators, and fintech engineers
-        working with payment redirects, transaction parameters, and financial data transmission.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">E-commerce Applications:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Payment gateway redirect URLs</li>
-        <li>Shopping cart parameter encoding</li>
-        <li>Product catalog URL generation</li>
-        <li>Order confirmation data transmission</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Analytics & Tracking Systems</h5>
-    <p class="text-sm mb-2">
-      This encoder facilitates digital marketing specialists, analytics engineers,
-      and data tracking professionals working with campaign URLs and user behavior tracking.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Tracking Applications:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Google Analytics UTM</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Campaign tracking</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Referral parameters</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">A/B testing URLs</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Conversion tracking</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Attribution modeling</span>
-    </div>
-  </div>
-</div>
-
-<!-- Technical Standards and URL Encoding Specifications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Technical Standards & URL Encoding Specifications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">HTTP & URI Standards Compliance</h5>
-      <p class="mb-2 text-sm">
-        Following RFC specifications and international standards ensures cross-browser compatibility,
-        server compatibility, and adherence to web protocol specifications.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Protocol Standards:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>RFC 3986 URI Generic Syntax compliance</li>
-        <li>RFC 1738 URL specification adherence</li>
-        <li>Percent-encoding (RFC 3986) implementation</li>
-        <li>HTTP/1.1 and HTTP/2 protocol compatibility</li>
-      </ul>
-    </div>
-
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Character Encoding & Internationalization</h5>
-      <p class="mb-2 text-sm">
-        Understanding character encoding standards, Unicode handling,
-        and internationalization requirements for global web application development.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Encoding Standards:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>UTF-8 character encoding for URLs</li>
-        <li>ASCII safe character handling</li>
-        <li>Unicode normalization for international domains</li>
-        <li>Punycode encoding for IDN (Internationalized Domain Names)</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Browser Compatibility & Implementation</h5>
-    <p class="text-sm mb-2">
-      Cross-browser URL encoding implementation requires understanding of browser-specific behaviors,
-      encoding differences, and compatibility considerations for legacy and modern web environments.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Implementation Considerations:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Cross-browser support</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Legacy compatibility</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Mobile browser handling</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Server-side validation</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Performance optimization</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Error handling</span>
-    </div>
-
-    <p class="text-sm mt-3 text-600">
-      <strong>Compatibility Note:</strong> Different browsers may handle certain edge cases
-      in URL encoding differently. Always test encoding behavior across target browsers.
-    </p>
-  </div>
-
-  <p class="text-sm mt-3">
-    For URL encoding standards and specifications, visit
-    <a href="https://tools.ietf.org/html/rfc3986" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 3986 URI Generic Syntax</a>
-    and for character encoding details, see
-    <a href="https://www.w3.org/International/articles/http-charset/index" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C Character Encoding</a>.
-  </p>
-</div>
-
-<!-- Toast component -->
-<p-toast position="bottom-right"></p-toast>
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
 </div>

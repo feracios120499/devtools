@@ -2,13 +2,17 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Hos
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 interface ConversionSettings {
   targetFormat: string;
@@ -22,9 +26,14 @@ interface ConversionSettings {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    RippleModule,
+    SelectButtonModule,
+    ToastModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './image-format-converter.component.html',
@@ -95,25 +104,109 @@ export class ImageFormatConverterComponent implements OnInit, AfterViewInit, OnD
   }
 
   ngOnDestroy() {
-    // Cleanup if needed
+    this.seoService.destroy();
   }
 
   /**
-   * Setup SEO for the page
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/image-format-converter';
+    const shortDescription = 'Free online image format converter. Convert images between JPG, PNG, WebP, BMP and GIF directly in your browser with drag-and-drop — no upload, no signup.';
+
     const metaData: MetaData = {
-      OgTitle: 'Image Format Converter | DevTools',
-      OgDescription: 'Free online image format converter. Convert images between JPG, PNG, WebP, BMP, and GIF formats with drag and drop interface.',
-      description: 'Free online image format converter. Upload images via drag and drop, convert between JPG, PNG, WebP, BMP, and GIF formats. Fast and secure image conversion tool.',
-      keywords: ['image convert', 'image format converter', 'jpg to png', 'png to webp', 'webp converter', 'image format change', 'bmp converter', 'gif converter'],
+      OgTitle: 'Image Format Converter — JPG, PNG, WebP, BMP, GIF Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'image format converter',
+        'convert image format',
+        'jpg to png',
+        'png to jpg',
+        'png to webp',
+        'webp converter',
+        'jpg to webp',
+        'bmp converter',
+        'gif converter',
+        'online image converter',
+        'change image format',
+        'image format change',
+        'free image converter'
+      ],
       jsonLd: {
-        name: 'Image Format Converter',
-        description: 'Online tool to convert images between different formats including JPG, PNG, WebP, BMP, and GIF',
-        url: 'https://onlinewebdevtools.com/image-format-converter'
-      }
+        name: 'Image Format Converter — JPG, PNG, WebP, BMP, GIF Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Convert between JPG, PNG, WebP, BMP and GIF',
+          'Drag-and-drop image upload',
+          'Instant live preview of the converted image',
+          'Original vs converted file size comparison',
+          'One-click download of the converted file',
+          'Copy converted image to the system clipboard',
+          '100% client-side processing for privacy'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this image format converter free to use?',
+          answer: "Yes, it's completely free with no registration, watermarks or usage limits."
+        },
+        {
+          question: 'Are my images uploaded to a server?',
+          answer: 'No. All conversion is performed locally in your browser using the HTML5 canvas API, so your images never leave your device.'
+        },
+        {
+          question: 'Which image formats are supported?',
+          answer: 'You can convert between JPG, PNG, WebP, BMP and GIF. Input can be any image format your browser can decode, including HEIC on compatible browsers.'
+        },
+        {
+          question: 'Will converting reduce the quality of my image?',
+          answer: 'It depends on the target format. Converting to lossy formats like JPEG or WebP may introduce minor compression artifacts, while converting to lossless formats like PNG or BMP preserves every pixel of the source image.'
+        },
+        {
+          question: 'Can I convert PNG to WebP or JPG to PNG?',
+          answer: 'Yes. Any supported input format can be converted to any supported output format — PNG to WebP, JPG to PNG, BMP to JPG, WebP to PNG and every other combination work out of the box.'
+        },
+        {
+          question: 'Is there a file size limit?',
+          answer: "There is no hard limit imposed by the tool; the only constraint is your browser's available memory, which is usually enough for typical photographs and screenshots."
+        },
+        {
+          question: 'Does the converter preserve transparency?',
+          answer: 'Transparency is preserved when converting to formats that support an alpha channel such as PNG and WebP. Converting to JPG, BMP or GIF will flatten transparent regions.'
+        }
+      ],
+      howTo: {
+        name: 'How to convert an image between formats online',
+        description: 'Change an image from one format to another in three steps, entirely in your browser.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Upload an image',
+            text: 'Drag and drop an image onto the upload area, or click it to pick a file from your device. The original picture is decoded and rendered to a preview canvas.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure the target format',
+            text: 'Use the Convert To selector to pick the output format — JPG, PNG, WebP, BMP or GIF. The converted preview and resulting file size update instantly.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Download or copy the result',
+            text: 'Click Download to save the converted image as a file, or Copy to place it on the system clipboard ready to paste into another application.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Image Tools', url: 'https://onlinewebdevtools.com/#image-tools' },
+        { name: 'Image Format Converter', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

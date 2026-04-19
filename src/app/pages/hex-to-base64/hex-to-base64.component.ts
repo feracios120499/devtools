@@ -1,20 +1,22 @@
 import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { UserPreferencesService, HexToBase64Settings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -36,11 +38,14 @@ interface Base64FormatOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './hex-to-base64.component.html',
@@ -304,22 +309,98 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   
-  /**
-   * Настройка SEO для страницы
-   */
+  // Setup metadata for SEO. FAQ/HowTo mirror visible HTML content.
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/hex-to-base64';
+    const shortDescription = 'Convert HEX to Base64 online for free. Fast, private, client-side tool with standard, URL-safe and MIME line-wrapped Base64 output.';
+
     const metaData: MetaData = {
-      OgTitle: 'HEX to Base64 Converter | DevTools',
-      OgDescription: 'Free online HEX to Base64 converter. Convert hexadecimal data to Base64 encoded format with various output options.',
-      description: 'Free online HEX to Base64 converter tool. Easily convert hexadecimal data to Base64 encoding with support for standard Base64, URL-safe Base64, and formatted output with line breaks.',
-      keywords: ['hex to base64', 'hex converter', 'base64 encoder', 'hexadecimal to base64', 'hex encoding', 'url safe base64'],
+      OgTitle: 'HEX to Base64 Converter | Free & Fast Online Tool – DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'hex to base64',
+        'hex to base64 converter',
+        'hexadecimal to base64',
+        'hex encoder',
+        'base64 encoder',
+        'url safe base64',
+        'base64 line breaks',
+        'encoding converter'
+      ],
       jsonLd: {
         name: 'HEX to Base64 Converter',
-        description: 'Online tool for converting hexadecimal data to Base64 format',
-        url: 'https://onlinewebdevtools.com/hex-to-base64'
-      }
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Encodes hexadecimal to standard RFC 4648 Base64',
+          'Accepts plain, dashed, 0x-prefixed, colon and space HEX formats',
+          'Three Base64 output flavors: Standard, URL Safe and 76-char line breaks',
+          'Copy to clipboard and download as .txt file',
+          'Client-side processing for privacy',
+          'Fullscreen Monaco editor with dark / light themes',
+          'Remembers your preferred format in local storage'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this HEX to Base64 converter free?',
+          answer: "Yes, it's completely free with no registration, ads, or usage limits."
+        },
+        {
+          question: 'What happens if my HEX is invalid?',
+          answer: 'The tool validates the input against [0-9A-Fa-f] after stripping separators. If non-hex characters are found, an error toast appears and the output shows "Error: Invalid hexadecimal input".'
+        },
+        {
+          question: 'What if my HEX string has an odd number of characters?',
+          answer: 'A single leading 0 is automatically prepended so the string can be split into whole bytes before Base64 encoding.'
+        },
+        {
+          question: 'Does it support URL-safe Base64?',
+          answer: 'Yes. Pick "URL Safe" from the format dropdown — + becomes - and / becomes _, compatible with JWTs and query strings.'
+        },
+        {
+          question: 'Is there a maximum input size?',
+          answer: 'There is no hard-coded limit, but since everything happens in the browser, performance depends on your device. Multi-megabyte HEX inputs are handled comfortably on modern machines.'
+        },
+        {
+          question: 'Is it safe to paste sensitive hex data?',
+          answer: 'Yes — all encoding runs locally in your browser, nothing is sent to a server. You can even use it offline after the page has loaded.'
+        },
+        {
+          question: 'Can I convert Base64 back to HEX?',
+          answer: 'Yes — use the reverse tool: Base64 to HEX converter at /base64-to-hex.'
+        }
+      ],
+      howTo: {
+        name: 'How to convert HEX to Base64 online',
+        description: 'Encode hexadecimal data into Base64 in three steps, fully in the browser.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste HEX',
+            text: 'Paste your hexadecimal string into the Input HEX editor, or click Sample to load an example. Plain, dashed, 0x-prefixed, colon and space formats are all accepted.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Pick options',
+            text: 'Choose the Base64 output format: Standard, URL Safe, or With Line Breaks (76 chars).',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download Base64',
+            text: 'Copy the result to your clipboard or download it as a .txt file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Encoding Tools', url: 'https://onlinewebdevtools.com/#encoding-tools' },
+        { name: 'HEX to Base64', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   

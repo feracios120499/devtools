@@ -1,13 +1,15 @@
 <div class="dt-container">
-  <app-page-header>Tool for decoding and verifying JSON Web Tokens (JWT)</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online JWT decoder, verifier and inspector</app-page-header>
   <div class="p-3">
-    <p>This <strong>online JWT decoder and verifier</strong> allows you to decode JWT tokens and verify their signatures with multiple algorithms.</p>
+    <p>This <strong>online JWT decoder and verifier</strong> decodes JSON Web Tokens and inspects header, payload and signature data instantly.</p>
     <p>Quickly <strong>decode JWT tokens</strong> and <strong>verify JWT signatures</strong> in your browser with no server upload.</p>
   </div>
 
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
     <!-- JWT Token Input Section -->
-    <div class="lg:col-span-12">
+    <div class="lg:col-span-12" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
         <!-- Header and actions -->
         <div class="flex justify-between items-center mb-2">
@@ -41,7 +43,7 @@
     </div>
 
     <!-- Decoded Data and Verification Section -->
-    <div class="lg:col-span-8">
+    <div class="lg:col-span-8" id="output">
       <div class="card p-3 surface-card shadow-sm h-full">
         <h3 class="text-xl font-medium text-800 mb-3">Decoded Token</h3>
 
@@ -52,10 +54,10 @@
             <button [disabled]="!header" pButton type="button" icon="pi pi-copy" class="p-button-sm p-button-text"
             (click)="copyToClipboard(formattedHeader, 'Header')"></button>
           </div>
-          @if (isBrowser) {
+          @if (true) {
             <div class="surface-border rounded">
-              <ngx-monaco-editor #headerEditor [options]="editorOptions" [(ngModel)]="formattedHeader"
-              class="h-32 w-full" monacoScrollFix></ngx-monaco-editor>
+              <app-monaco-editor-lazy #headerEditor [options]="editorOptions" [(ngModel)]="formattedHeader"
+              class="h-32 w-full"></app-monaco-editor-lazy>
             </div>
           }
         </div>
@@ -67,10 +69,10 @@
             <button [disabled]="!payload" pButton type="button" icon="pi pi-copy" class="p-button-sm p-button-text"
             (click)="copyToClipboard(formattedPayload, 'Payload')"></button>
           </div>
-          @if (isBrowser) {
+          @if (true) {
             <div class="surface-border rounded">
-              <ngx-monaco-editor #payloadEditor [options]="editorOptions" [(ngModel)]="formattedPayload"
-              class="h-64 w-full" monacoScrollFix></ngx-monaco-editor>
+              <app-monaco-editor-lazy #payloadEditor [options]="editorOptions" [(ngModel)]="formattedPayload"
+              class="h-64 w-full"></app-monaco-editor-lazy>
             </div>
           }
         </div>
@@ -93,7 +95,7 @@
     </div>
 
     <!-- Verification Section -->
-    <div class="lg:col-span-4">
+    <div class="lg:col-span-4" id="options">
       <div class="card p-3 surface-card shadow-sm h-full">
         <h3 class="text-xl font-medium text-800 mb-3">Verification</h3>
 
@@ -151,7 +153,7 @@
           <label for="secret_encoding" class="ml-2 text-500">Secret is Base64 encoded</label>
         </div>
 
-        <!-- Информация о ограничениях верификации -->
+        <!-- Verification constraints info -->
         <div class="text-xs text-500 mt-2">
           <i class="pi pi-info-circle mr-1"></i>
           <span>Only HMAC algorithms (HS256, HS384, HS512) are supported in the browser.</span>
@@ -160,217 +162,188 @@
     </div>
   </div>
 
-  <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About JWT Decoder and Verifier</h4>
-    <p class="mb-2 text-sm">
-      JWT (JSON Web Token) is a compact, URL-safe means of representing claims to be transferred between two parties.
-      This tool allows you to decode JWT tokens to inspect their header and payload data, and verify their signatures.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Key features:</strong>
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
-      <li>Decode JWT tokens to view header and payload information</li>
-      <li>Verify JWT signatures using various algorithms (HS256, RS256, etc.)</li>
-      <li>Support for both symmetric (HMAC) and asymmetric (RSA, ECDSA) algorithms</li>
-      <li>Option for Base64-encoded secrets</li>
-    </ul>
-    <p class="mb-2 text-sm">
-      <strong>JWT structure:</strong>
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
-      <li><code class="text-primary px-1 rounded">Header</code> - Contains the token type and signing algorithm</li>
-      <li><code class="text-primary px-1 rounded">Payload</code> - Contains the claims or assertions</li>
-      <li><code class="text-primary px-1 rounded">Signature</code> - Verifies the token hasn't been tampered with</li>
-    </ul>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> This tool performs all operations in your browser - no data is sent to any
-      server.
-    </p>
-  </div>
-
-  <!-- Security and Authentication Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Security & Authentication Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Web Application Security & Authentication</h5>
-        <p class="mb-2 text-sm">
-          Essential for security engineers, authentication specialists, and backend developers
-          implementing secure user authentication and authorization systems.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Authentication Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>User login and session management</li>
-          <li>Single Sign-On (SSO) implementation</li>
-          <li>OAuth 2.0 and OpenID Connect flows</li>
-          <li>Multi-factor authentication (MFA) integration</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">API Security & Access Control</h5>
-        <p class="mb-2 text-sm">
-          Critical for API developers, cybersecurity specialists, and DevSecOps engineers
-          securing API endpoints and implementing fine-grained access control mechanisms.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">API Security Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>RESTful API authentication and authorization</li>
-          <li>Microservices inter-service communication</li>
-          <li>GraphQL query authorization</li>
-          <li>Rate limiting and API gateway integration</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Enterprise Security & Identity Management</h5>
-      <p class="text-sm mb-2">
-        This JWT decoder supports enterprise security teams, identity architects,
-        and compliance specialists working with large-scale authentication systems.
+  <!-- SEO / informational content section -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is a JWT?</h2>
+      <p class="mt-3">
+        A JSON Web Token (JWT) is a compact, URL-safe open standard (RFC 7519) for securely transmitting claims between two parties as a JSON object. JWTs are self-contained, digitally signed, and are the de-facto token format for modern authentication, authorization, single sign-on and stateless APIs.
       </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Enterprise Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Identity providers</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">LDAP integration</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">SAML federation</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Role-based access</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Audit logging</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Compliance monitoring</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- API Development and Microservices Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">API Development & Microservices Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Services Development</h5>
-        <p class="mb-2 text-sm">
-          Essential for API developers, backend engineers, and integration specialists
-          building secure, scalable web services with stateless authentication mechanisms.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">API Development Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>RESTful API endpoint protection</li>
-          <li>Bearer token authentication implementation</li>
-          <li>API versioning and deprecation management</li>
-          <li>Third-party API integration and testing</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Microservices Architecture & Cloud Native</h5>
-        <p class="mb-2 text-sm">
-          Critical for microservices architects, cloud engineers, and distributed systems specialists
-          implementing secure service-to-service communication and cloud-native authentication.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Microservices Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Service mesh authentication (Istio, Linkerd)</li>
-          <li>Container-based authentication strategies</li>
-          <li>Kubernetes RBAC and service accounts</li>
-          <li>Event-driven architecture security</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">DevOps & CI/CD Integration</h5>
-      <p class="text-sm mb-2">
-        This decoder facilitates DevOps engineers, automation specialists,
-        and platform teams integrating JWT authentication into deployment pipelines.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">CI/CD pipeline auth</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Deployment tokens</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Infrastructure as Code</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Secret management</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Monitoring integration</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Health check endpoints</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Technical Standards and JWT Implementation -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Technical Standards & JWT Implementation</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">RFC Standards & JWT Specifications</h5>
-        <p class="mb-2 text-sm">
-          Following IETF standards and industry specifications ensures JWT compatibility,
-          security, and interoperability across different platforms and implementations.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Technical Standards:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>RFC 7519 JSON Web Token (JWT) specification</li>
-          <li>RFC 7515 JSON Web Signature (JWS) compliance</li>
-          <li>RFC 7516 JSON Web Encryption (JWE) support</li>
-          <li>RFC 7517 JSON Web Key (JWK) management</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Cryptographic Algorithms & Security</h5>
-        <p class="mb-2 text-sm">
-          Understanding cryptographic algorithms, key management,
-          and security best practices ensures robust JWT implementation and vulnerability prevention.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Cryptographic Implementation:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>HMAC-SHA256 (HS256) symmetric signing</li>
-          <li>RSA with SHA-256 (RS256) asymmetric signing</li>
-          <li>ECDSA with P-256 and SHA-256 (ES256)</li>
-          <li>Key rotation and management strategies</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Security Best Practices & Vulnerability Prevention</h5>
-      <p class="text-sm mb-2">
-        Proper JWT implementation requires understanding of security vulnerabilities,
-        attack vectors, and mitigation strategies to prevent common authentication bypasses.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Security Considerations:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Algorithm confusion</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Token expiration</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Signature verification</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Secret management</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Replay attacks</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">CSRF protection</span>
-      </div>
-
-      <p class="text-sm mt-3 text-600">
-        <strong>Security Warning:</strong> Always validate JWT signatures, verify expiration times,
-        and use secure key management practices to prevent authentication bypasses and token manipulation.
+      <p class="mt-3">
+        A JWT is made of three Base64URL-encoded parts separated by dots: <code class="text-primary">header.payload.signature</code>. Decoding a JWT reveals the algorithm, token type, user identity, expiration and any custom claims packed into the token.
       </p>
     </div>
 
-    <p class="text-sm mt-3">
-      For JWT technical specifications, visit
-      <a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 7519 JWT Standard</a>
-      and for security best practices, see
-      <a href="https://auth0.com/blog/a-look-at-the-latest-draft-for-jwt-bcp/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">JWT Security Best Practices</a>.
-    </p>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Decode JWTs Online?</h2>
+      <p class="mt-3">
+        Decoding JWTs online is essential while debugging authentication flows, inspecting API requests, validating third-party identity tokens, or understanding claims returned by OAuth 2.0 and OpenID Connect providers. A quick online JWT decoder lets you see exactly what a token contains without writing extra code.
+      </p>
+      <p class="mt-3">
+        This is especially useful for frontend developers, backend engineers and QA engineers who frequently work with bearer tokens, access tokens and ID tokens across multiple environments.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Decode a JWT Step-by-Step</h2>
+      <p class="mt-3">
+        Using our JWT decoder is simple and runs entirely in your browser:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Paste your JWT token into the input field at the top of the page.</li>
+        <li>The tool automatically splits the token into header, payload and signature and decodes them in real time.</li>
+        <li>Optionally provide a secret key in the verification panel to validate the HMAC signature.</li>
+        <li>Copy the decoded header or payload to your clipboard for documentation or further inspection.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our JWT Decoder?</h2>
+      <p class="mt-3">
+        Our JWT decoder prioritises privacy, speed and accuracy. All parsing and signature verification happen on the client side, so tokens never leave your browser. It supports HMAC verification (HS256, HS384, HS512), Base64-encoded secrets and automatic algorithm detection from the token header.
+      </p>
+      <p class="mt-3">
+        With real-time decoding, syntax-highlighted JSON output and zero tracking, it is designed as a professional tool for developers, security engineers and DevOps teams working with authentication every day.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How JWT Works: Header, Payload, Signature & Base64URL</h2>
+      <p class="mt-3">
+        A JWT consists of three Base64URL-encoded segments joined with dots. The <strong>header</strong> describes the token type and signing algorithm (for example <code class="text-primary">{{ jwtHeaderExample }}</code>). The <strong>payload</strong> contains the claims such as <code class="text-primary">sub</code>, <code class="text-primary">iat</code>, <code class="text-primary">exp</code>, <code class="text-primary">iss</code> and any custom data about the user or session.
+      </p>
+      <p class="mt-3">
+        The <strong>signature</strong> is computed by signing <code class="text-primary">base64url(header) + "." + base64url(payload)</code> with a secret or private key using the algorithm declared in the header. Base64URL encoding is a URL-safe variant of Base64 that replaces <code class="text-primary">+</code>, <code class="text-primary">/</code> and padding characters so the token can travel safely in URLs, headers and cookies.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>JWT Decoder Features</h2>
+      <p class="mt-3">
+        This JWT decoder and verifier is packed with features designed for real-world authentication debugging:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Decode the JWT header to inspect the algorithm, key ID (<code class="text-primary">kid</code>) and token type.</li>
+        <li>Decode the payload to view all standard and custom claims with syntax highlighting.</li>
+        <li>Verify HMAC signatures (HS256, HS384, HS512) with plain or Base64-encoded secret keys.</li>
+        <li>Automatic expiration (<code class="text-primary">exp</code>) and issued-at (<code class="text-primary">iat</code>) awareness in the decoded payload.</li>
+        <li>One-click copy of the decoded header or payload to your clipboard.</li>
+        <li>Sample JWT loader for quick testing and learning.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases for JWT</h2>
+      <p class="mt-3">
+        JWTs power a huge range of authentication and authorization scenarios: login sessions for single-page applications, bearer-token authentication for REST and GraphQL APIs, OAuth 2.0 access and refresh tokens, OpenID Connect ID tokens, machine-to-machine service credentials and stateless microservices communication.
+      </p>
+      <p class="mt-3">
+        Developers use an online JWT decoder to debug failing logins, inspect third-party identity tokens (Auth0, Okta, Keycloak, Firebase, AWS Cognito), verify claims propagated between microservices, or confirm that tokens issued by their own backend contain the expected data and expiration.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Decode JWTs Online?</h2>
+      <p class="mt-3">
+        Yes — this tool is built with privacy as a top priority. All JWT parsing and signature verification runs entirely in your browser using client-side JavaScript. Tokens and secret keys are never uploaded, logged or stored on any server.
+      </p>
+      <p class="mt-3">
+        Even so, treat production JWTs as credentials. <strong>Never paste production secret keys or long-lived access tokens into any third-party tool</strong>, including this one. For sensitive debugging, use short-lived test tokens or locally issued tokens, and rotate any secret that you may have exposed accidentally.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools JWT Decoder?</h2>
+      <p class="mt-3">
+        Among the many JWT tools available online, DevTools stands out for its focus on speed, privacy and developer ergonomics. It is 100% free, free of ads and trackers, and designed by developers for developers who need a reliable daily utility.
+      </p>
+      <p class="mt-3">
+        Whether you decode JWTs occasionally or dozens of times per day, this tool delivers a clean, consistent experience. It is part of a comprehensive suite of developer utilities that covers encoding, formatting, conversion and inspection workflows.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download and Copy Options</h2>
+      <p class="mt-3">
+        Once a JWT is decoded, you can copy the header or payload JSON to your clipboard with a single click. This makes it easy to share the decoded structure with teammates, paste it into a bug report, or feed it into another tool for further processing.
+      </p>
+      <p class="mt-3">
+        For deeper inspection you can combine this decoder with other DevTools utilities such as the
+        <a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 encoder and decoder</a>,
+        the <a [routerLink]="'/url-encoder'" class="text-primary hover:underline">URL encoder and decoder</a>, and the
+        <a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON formatter</a>
+        to pretty-print the decoded payload, inspect URL-encoded bearer tokens or explore custom Base64-encoded claims.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this JWT decoder free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store my JWT tokens or secrets?</h3>
+        <p class="mt-1">No, all decoding and signature verification is performed locally in your browser. Your tokens and secret keys never touch our servers.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which JWT signature algorithms can be verified in the browser?</h3>
+        <p class="mt-1">HMAC algorithms HS256, HS384 and HS512 are supported for signature verification directly in the browser. Asymmetric algorithms such as RS256 or ES256 can still be decoded, but their signatures must be verified on a server that has access to the public key.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How do I verify a JWT signature?</h3>
+        <p class="mt-1">Paste the JWT into the input field, then enter the matching secret key in the verification panel. The algorithm is auto-detected from the token header, and a green "Signature Verified" badge confirms the token has not been tampered with.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What do claims like iss, sub, aud, exp and iat mean?</h3>
+        <p class="mt-1">These are standard registered JWT claims defined in RFC 7519: <code class="text-primary">iss</code> (issuer), <code class="text-primary">sub</code> (subject / user ID), <code class="text-primary">aud</code> (audience), <code class="text-primary">exp</code> (expiration time as a Unix timestamp) and <code class="text-primary">iat</code> (issued-at time). Tokens may also include custom claims specific to your application.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I decode an expired JWT?</h3>
+        <p class="mt-1">Yes. Decoding a JWT only reads its header and payload, so expired tokens are fully decodable. Signature verification is independent of the <code class="text-primary">exp</code> claim — your application is responsible for rejecting expired tokens at authentication time.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to paste a JWT into an online decoder?</h3>
+        <p class="mt-1">All processing in this tool happens client-side, so tokens are not uploaded. Still, treat JWTs as credentials — avoid pasting production tokens or production secret keys into any third-party tool, and rotate any key that may have been exposed.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What's the difference between signing a JWT and encrypting it (JWS vs JWE)?</h3>
+        <p class="mt-1">A signed JWT (JWS, RFC 7515) is integrity-protected but its payload is only Base64URL-encoded, not encrypted — anyone can read it. An encrypted JWT (JWE, RFC 7516) keeps the payload confidential. This tool works with signed JWTs, which are the most common format used in authentication.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>JWT Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of JSON Web Tokens and related security best practices, here are authoritative external resources:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc7519" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">RFC 7519 - JSON Web Token</a>
+          - The official IETF specification defining JWT structure, claims and processing rules.
+        </li>
+        <li>
+          <a href="https://jwt.io/introduction" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">jwt.io Introduction</a>
+          - A clear, interactive introduction to JWTs with playground and library listings.
+        </li>
+        <li>
+          <a href="https://oauth.net/openid/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">OAuth.net OpenID Connect</a>
+          - Overview of OpenID Connect, the identity layer on top of OAuth 2.0 that relies on JWT ID tokens.
+        </li>
+        <li>
+          <a href="https://cheatsheetseries.owasp.org/cheatsheets/JSON_Web_Token_for_Java_Cheat_Sheet.html" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">OWASP JWT Cheat Sheet</a>
+          - Security best practices, common vulnerabilities and mitigation strategies for JWT.
+        </li>
+      </ul>
+    </div>
   </div>
 
   <!-- Toast component -->

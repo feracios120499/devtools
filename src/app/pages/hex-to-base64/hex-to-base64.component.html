@@ -1,31 +1,33 @@
 <div class="dt-container">
-  <app-page-header>Tool for converting hexadecimal values to Base64 format</app-page-header>
+  <app-page-header>HEX to Base64 Converter - Encode Hexadecimal to Base64 Online</app-page-header>
   <div class="p-3">
-    <p>This <strong>online HEX to Base64 converter</strong> supports multiple hexadecimal input formats like plain, with colons, dashes, and 0x prefix.</p>
-    <p>Quickly <strong>convert hexadecimal to Base64</strong> in your browser with no server upload.</p>
+    <p>This <strong>online HEX to Base64 converter</strong> encodes hexadecimal data into Base64 directly in your
+      browser with support for plain, dashed, 0x-prefixed, colon-separated and space-separated HEX input.</p>
+    <p>Quickly <strong>convert hexadecimal to Base64</strong> with standard, URL-safe or 76-character line-break
+      output — no uploads, no tracking, no server round-trip.</p>
   </div>
 
   <!-- Основной контейнер с редакторами -->
   <div class="dt-editors">
     <!-- Левая колонка - Input HEX -->
-    <div class="col flex flex-col h-full">
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Заголовок -->
         <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">Input HEX</h3>
+          <span class="text-xl font-medium text-800 m-0">Input HEX</span>
         </div>
         <!-- Отступ для дропдауна -->
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="inputCode" (ngModelChange)="convertHexToBase64()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -61,230 +63,316 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-                (ngModelChange)="convertHexToBase64()" class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
             </div>
-          }
-        </div>
+            <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+              (ngModelChange)="convertHexToBase64()" class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
       </div>
-
-      <!-- Правая колонка - Base64 Output -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">Base64 Output</h3>
-            <div class="flex gap-2 items-center">
-              <p-select [options]="base64FormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
-                (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
-                [panelStyleClass]="'same-width-panel'" appendTo="body">
-                <ng-template pTemplate="selectedItem">
-                  <div class="flex align-items-center">
-                    <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
-                  </div>
-                </ng-template>
-                <ng-template let-option pTemplate="item">
-                  <div class="flex align-items-center">
-                    <span>{{option.label}} ({{option.example}})</span>
-                  </div>
-                </ng-template>
-              </p-select>
-            </div>
-          </div>
-          <!-- Отступ для дропдауна -->
-          <div class="mb-1"></div>
-
-          <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
-            <textarea [(ngModel)]="outputCode" readonly
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
-
-          <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadBase64()"
-                      class="p-button-sm" severity="contrast">
-                      <i-tabler name="download" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <hr>
-                </div>
-                <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-                  class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Information Section -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About HEX to Base64 Converter</h4>
-        <p class="mb-2 text-sm">
-          This tool allows you to convert hexadecimal (HEX) data to Base64 encoded format with various display options. HEX is a common way to represent binary data in a text format using the characters 0-9 and A-F.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>Supported HEX input formats:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
-          <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
-          <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
-          <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
-          <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
-        </ul>
-        <p class="mb-2 text-sm">
-          <strong>Available Base64 output formats:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><code class="text-primary px-1 rounded">Standard</code> - Regular Base64 encoding (SGVsbG8gV29ybGQ=)</li>
-          <li><code class="text-primary px-1 rounded">URL Safe</code> - URL-friendly Base64 where '+' is replaced with '-' and '/' with '_'</li>
-          <li><code class="text-primary px-1 rounded">With Line Breaks</code> - Base64 with line breaks every 76 characters for better readability</li>
-        </ul>
-        <p class="text-sm">
-          Learn more about Base64 encoding at
-          <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Base64</a>
-          and hexadecimal format at
-          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN parseInt()</a>.
-        </p>
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> This conversion is performed locally in your browser - no data is sent to any server.
-        </p>
-      </div>
-
-      <!-- Programming and Development Use Cases -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Programming & Development Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Cryptography & Security</h5>
-            <p class="mb-2 text-sm">
-              Essential for handling cryptographic data, security tokens, and encrypted content in web applications
-              and security systems.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Security Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Convert encrypted hex data for API transmission</li>
-              <li>Process cryptographic keys and certificates</li>
-              <li>Handle JWT token payloads and signatures</li>
-              <li>Transform hash values for storage systems</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Data Storage & Transmission</h5>
-            <p class="mb-2 text-sm">
-              Critical for encoding binary data in text-based systems, databases, and network protocols
-              where binary data needs to be safely transmitted.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Storage Solutions:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Encode binary files for database storage</li>
-              <li>Convert hex dumps to Base64 for logging</li>
-              <li>Process embedded images in HTML/CSS</li>
-              <li>Handle binary data in JSON APIs</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Web Development & API Integration</h5>
-          <p class="text-sm mb-2">
-            This HEX to Base64 converter is essential for web developers working with binary data,
-            file uploads, image processing, and API integrations that require data format transformations.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Development Scenarios:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">File upload processing</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Image data conversion</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Binary API responses</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Embedded resources</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data URLs creation</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Hex dump analysis</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Specifications and Standards -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Technical Standards & Format Details</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Hexadecimal Format Standards</h5>
-            <p class="mb-2 text-sm">
-              Hexadecimal encoding follows established standards for representing binary data
-              in human-readable format using base-16 numeral system.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">HEX Specifications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>IEEE 754 floating-point hex representation</li>
-              <li>MAC address format (xx:xx:xx:xx:xx:xx)</li>
-              <li>Color codes in CSS and graphics (#RRGGBB)</li>
-              <li>Memory addresses and debugging output</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Base64 Encoding Standards</h5>
-            <p class="mb-2 text-sm">
-              Base64 encoding follows RFC 4648 standards, providing reliable method for
-              encoding binary data in ASCII string format for safe transmission.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Base64 Standards:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>RFC 4648 - Standard Base64 alphabet</li>
-              <li>RFC 4648 - URL and filename safe Base64</li>
-              <li>MIME Base64 with line length limits</li>
-              <li>Data URI scheme compatibility</li>
-            </ul>
-          </div>
-        </div>
-
-        <p class="text-sm mt-3">
-          For detailed technical specifications, refer to
-          <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>
-          for Base64 encoding standards and
-          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Hexadecimal Wikipedia</a>
-          for comprehensive hex format documentation.
-        </p>
-      </div>
-
-      <!-- Toast component -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+
+    <!-- Правая колонка - Base64 Output -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Заголовок -->
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">Base64 Output</span>
+          <div class="flex gap-2 items-center" id="options">
+            <p-select [options]="base64FormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
+              (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
+              [panelStyleClass]="'same-width-panel'" appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}} ({{option.example}})</span>
+                </div>
+              </ng-template>
+            </p-select>
+          </div>
+        </div>
+        <!-- Отступ для дропдауна -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="outputCode" readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadBase64()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+            </div>
+            <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is HEX to Base64 conversion</h2>
+      <p class="mt-3"><strong class="text-primary">HEX to Base64 conversion</strong> transforms a hexadecimal string —
+        a base-16 representation of raw bytes — into <strong class="text-primary">Base64</strong>, a compact ASCII
+        encoding defined by RFC 4648. HEX uses two characters (0-9, A-F) per byte, while Base64 packs every 3 bytes
+        into 4 printable characters, making it roughly 33% shorter than HEX for the same data.</p>
+      <p class="mt-3">This converter accepts HEX in plain, dashed (<code>DE-AD-BE-EF</code>), 0x-prefixed
+        (<code>0xDE 0xAD</code>), colon-separated (<code>DE:AD:BE:EF</code>) and space-separated forms, then emits
+        standard Base64, URL-safe Base64 or MIME-formatted Base64 with 76-character line breaks.</p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why convert HEX to Base64</h2>
+      <p class="mt-3">HEX is excellent for inspection and debugging, but it is bulky and not URL- or form-friendly.
+        <strong class="text-primary">Base64</strong> is the standard when you need to embed binary data in text-only
+        channels.</p>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li><strong class="text-primary">Compactness:</strong> Base64 is ~25% shorter than HEX for the same bytes.</li>
+        <li><strong class="text-primary">Transport safety:</strong> Safe in JSON, XML, YAML, email (MIME) and HTTP
+          headers.</li>
+        <li><strong class="text-primary">Data URIs:</strong> <code>data:image/png;base64,…</code> needs Base64, not
+          HEX.</li>
+        <li><strong class="text-primary">URL-safe variant:</strong> Replace <code>+</code>/<code>/</code> with
+          <code>-</code>/<code>_</code> for query strings and JWTs.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to convert HEX to Base64 online (step-by-step)</h2>
+      <ol class="mt-3 list-decimal pl-5 space-y-2">
+        <li>Paste your HEX into the <strong class="text-primary">Input HEX</strong> editor, or click
+          <strong>Sample</strong> to load an example.</li>
+        <li>The tool auto-detects separators (spaces, dashes, colons, <code>0x</code>) and normalizes the hex to
+          contiguous bytes.</li>
+        <li>Pick the desired Base64 flavor in <strong class="text-primary">Format</strong>:
+          <em>Standard</em>, <em>URL Safe</em>, or <em>With Line Breaks (76 chars)</em>.</li>
+        <li>Read the result in the <strong class="text-primary">Base64 Output</strong> editor on the right.</li>
+        <li>Click <strong>Copy</strong> to place the Base64 on your clipboard, or <strong>Download</strong> to save it
+          as a <code>.txt</code> file.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose our HEX to Base64 tool</h2>
+      <p class="mt-3">Built for developers, security researchers and power users who want a reliable
+        <strong class="text-primary">HEX to Base64 encoder</strong> with zero server overhead.</p>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li><strong class="text-primary">100% client-side:</strong> conversion runs in your browser using native
+          <code>btoa()</code> — your data never leaves the tab.</li>
+        <li><strong class="text-primary">Flexible input:</strong> accepts the five most common HEX formats without
+          preprocessing.</li>
+        <li><strong class="text-primary">Three output flavors:</strong> Standard, URL-safe and line-wrapped MIME Base64.
+        </li>
+        <li><strong class="text-primary">Monaco editor:</strong> syntax-friendly editing, fullscreen mode, paste and
+          clear shortcuts.</li>
+        <li><strong class="text-primary">Remembers your choice:</strong> preferred output format is stored in local
+          storage for next time.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How HEX to Base64 conversion works</h2>
+      <p class="mt-3">Internally the converter performs three deterministic steps:</p>
+      <ol class="mt-3 list-decimal pl-5 space-y-2">
+        <li><strong class="text-primary">Normalize HEX:</strong> strip whitespace, dashes, colons and
+          <code>0x</code> prefixes, leaving only <code>[0-9A-Fa-f]</code>. Odd-length input is left-padded with a
+          leading zero.</li>
+        <li><strong class="text-primary">Parse hex pairs → byte array:</strong> every two hex characters are parsed
+          with <code>parseInt(hex, 16)</code> into a <code>Uint8Array</code>.</li>
+        <li><strong class="text-primary">Encode bytes → Base64:</strong> the byte array is turned into a binary
+          string and passed to <code>btoa()</code>. The selected formatter then produces Standard, URL-safe or
+          76-character line-wrapped output.</li>
+      </ol>
+      <p class="mt-3">Example: <code>48656C6C6F20576F726C64</code> → bytes
+        <code>[48 65 6C 6C 6F 20 57 6F 72 6C 64]</code> → <code>SGVsbG8gV29ybGQ=</code>.</p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li>Accepts <strong class="text-primary">plain</strong>, <strong class="text-primary">dashed</strong>,
+          <strong class="text-primary">0x-prefixed</strong>, <strong class="text-primary">colon-separated</strong> and
+          <strong class="text-primary">space-separated</strong> HEX.</li>
+        <li>Three Base64 output flavors: Standard, URL Safe, and With Line Breaks (76 chars, MIME-style).</li>
+        <li>One-click <strong>Sample</strong>, <strong>Paste from clipboard</strong>, and <strong>Clear</strong>.</li>
+        <li><strong>Copy to clipboard</strong> and <strong>Download</strong> as a <code>.txt</code> file.</li>
+        <li>Fullscreen editor with <kbd>Esc</kbd> to exit.</li>
+        <li>Automatic theme switching (light / dark) for the Monaco editor.</li>
+        <li>Persistent format preference via <code>localStorage</code>.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common use cases</h2>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li><strong class="text-primary">Cryptography:</strong> convert hex-encoded keys, hashes (SHA-256, MD5) or
+          signatures into Base64 for storage and transport.</li>
+        <li><strong class="text-primary">API tokens &amp; JWT:</strong> re-encode hex payload bytes as URL-safe Base64
+          for header/query usage.</li>
+        <li><strong class="text-primary">Embedding binary in JSON/XML:</strong> JSON forbids raw bytes — Base64 is the
+          canonical workaround.</li>
+        <li><strong class="text-primary">Forensics &amp; reverse engineering:</strong> move raw memory dumps or PCAP
+          bytes from HEX viewers into Base64 for tools that expect it.</li>
+        <li><strong class="text-primary">Web development:</strong> build <code>data:</code> URIs for inline images,
+          fonts or icons.</li>
+        <li><strong class="text-primary">Email (MIME):</strong> produce line-wrapped Base64 ready for SMTP bodies and
+          attachments.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is it safe to use online</h2>
+      <p class="mt-3">Yes. This converter is fully <strong class="text-primary">client-side</strong>: the HEX you paste
+        never leaves your browser. There is no upload, no logging, no analytics on the input — the encoding runs in
+        JavaScript using the native <code>btoa()</code> API. You can safely use it for secrets, cryptographic material
+        and internal data.</p>
+      <p class="mt-3">For maximum paranoia you can disconnect from the network after the page loads; the tool will keep
+        working because all code is already in the browser.</p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why choose DevTools</h2>
+      <p class="mt-3">DevTools is a curated collection of fast, privacy-respecting browser utilities for developers.
+        Every tool, including this <strong class="text-primary">HEX to Base64 encoder</strong>, follows the same rules:
+        no ads, no accounts, no tracking of input, and no server-side processing.</p>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li>Open in a modern browser — works offline after first load.</li>
+        <li>Consistent UX across encoding, formatting and conversion tools.</li>
+        <li>Keyboard-friendly Monaco editors with dark/light theming.</li>
+        <li>Clear preference persistence via local storage, nothing cloud-synced.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download &amp; Copy options and related tools</h2>
+      <p class="mt-3">Use the toolbar above the Base64 output to <strong>Copy</strong> the result to your clipboard or
+        <strong>Download</strong> it as a plain-text file (<code>base64-output.txt</code>). Need the reverse direction
+        or a different encoding? Check out these related converters:</p>
+      <ul class="mt-3 list-disc pl-5 space-y-2">
+        <li><a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 to HEX converter</a> -
+          decode Base64 back to hexadecimal with multiple formatting options.</li>
+        <li><a [routerLink]="'/base64'" class="text-primary hover:underline">Base64 Encoder / Decoder</a> -
+          convert plain text to and from Base64.</li>
+        <li><a [routerLink]="'/hex'" class="text-primary hover:underline">HEX Encoder / Decoder</a> -
+          convert plain text to and from hexadecimal.</li>
+        <li><a [routerLink]="'/hex-to-file'" class="text-primary hover:underline">HEX to File converter</a> -
+          turn a hexadecimal dump back into a downloadable binary file.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this HEX to Base64 converter free?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What happens if my HEX is invalid?</h3>
+        <p class="mt-1">The tool validates the input against <code>[0-9A-Fa-f]</code> after stripping separators. If
+          non-hex characters are found, an error toast appears and the output shows
+          <em>Error: Invalid hexadecimal input</em>.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What if my HEX string has an odd number of characters?</h3>
+        <p class="mt-1">A single leading <code>0</code> is automatically prepended so the string can be split into
+          whole bytes before Base64 encoding.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does it support URL-safe Base64?</h3>
+        <p class="mt-1">Yes. Pick <em>URL Safe</em> from the format dropdown — <code>+</code> becomes <code>-</code>
+          and <code>/</code> becomes <code>_</code>, compatible with JWTs and query strings.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is there a maximum input size?</h3>
+        <p class="mt-1">There is no hard-coded limit, but since everything happens in the browser, performance depends
+          on your device. Multi-megabyte HEX inputs are handled comfortably on modern machines.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is it safe to paste sensitive hex data?</h3>
+        <p class="mt-1">Yes — all encoding runs locally in your browser, nothing is sent to a server. You can even use
+          it offline after the page has loaded.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I convert Base64 back to HEX?</h3>
+        <p class="mt-1">Yes — use the reverse tool:
+          <a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 to HEX converter</a>.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Encoding Learning Resources</h2>
+      <p class="mt-3">To deepen your understanding of HEX, Base64 and browser encoding APIs, here are curated external
+        resources:</p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://datatracker.ietf.org/doc/html/rfc4648" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">RFC 4648</a> - The official Base16, Base32 and Base64 data encoding
+          specification.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Base64" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Base64 on Wikipedia</a> - History, alphabet variants and common use
+          cases.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Hexadecimal on Wikipedia</a> - Positional numeral system and byte
+          representation.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/btoa" target="_blank"
+            rel="noopener noreferrer" class="text-primary hover:underline">MDN btoa()</a> - The browser API used by
+          this tool to produce Base64 output.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

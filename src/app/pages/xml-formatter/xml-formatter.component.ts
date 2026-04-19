@@ -1,7 +1,7 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { MenuItem, MessageService } from 'primeng/api';
 import { camelCase, snakeCase, pascalCase, kebabCase } from 'change-case';
 
@@ -9,10 +9,11 @@ import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
 import { Router } from '@angular/router';
 import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
@@ -33,11 +34,12 @@ interface TagCaseOption {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    ButtonModule,
+    SelectModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective,
     AnchorHeadingDirective
 ],
   providers: [MessageService],
@@ -152,19 +154,84 @@ export class XmlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Setup SEO metadata via SeoService
+   * Setup SEO metadata via SeoService.
+   * FAQ/HowTo texts mirror the visible content (Google rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/xml-formatter';
+    const shortDescription = 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.';
+
     const metaData: MetaData = {
       OgTitle: 'XML Formatter, Beautifier & Viewer | Free Online DevTools',
-      OgDescription: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',
-      description: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',
+      OgDescription: shortDescription,
+      description: shortDescription,
       keywords: ['XML formatter', 'XML beautifier', 'XML viewer', 'format XML online', 'view XML online', 'XML tools', 'beautify XML', 'pretty print XML', 'XML validator', 'XML highlighter'],
       jsonLd: {
         name: 'XML Formatter, Beautifier & Viewer | Free Online DevTools',
-        description: 'Beautify, format and view XML online with this free DevTools utility. Clean up messy XML, validate structure, and copy or download your formatted code instantly.',
-        url: 'https://onlinewebdevtools.com/xml-formatter'
-      }
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'XML formatting with customizable indentation',
+          'Real-time XML syntax validation via DOMParser',
+          'Tag case transformation (camelCase, snake_case, PascalCase, kebab-case)',
+          'Copy to clipboard and download as .xml',
+          'Client-side processing for privacy',
+          'Dark and light editor themes'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this XML formatter free?',
+          answer: "Yes, it's completely free to use with no registration required."
+        },
+        {
+          question: 'Do you store my XML data?',
+          answer: 'No, all processing is done locally in your browser. Nothing is sent to our servers.'
+        },
+        {
+          question: 'Can I format large XML files?',
+          answer: "Yes, the tool supports large XML documents, depending on your browser's memory limits."
+        },
+        {
+          question: 'Does the tool validate my XML?',
+          answer: 'Absolutely. It checks your XML for syntax errors and structural validity in real time.'
+        },
+        {
+          question: 'Can I transform XML tag names while formatting?',
+          answer: 'Yes. Use the tag case dropdown to convert all tag names to camelCase, snake_case, PascalCase or kebab-case while preserving the document structure.'
+        },
+        {
+          question: 'What XML specification does the tool follow?',
+          answer: 'The formatter follows the W3C XML 1.0 specification for well-formed documents. For schema validation against XSD, use a dedicated validator.'
+        }
+      ],
+      howTo: {
+        name: 'How to format and validate XML online',
+        description: 'Beautify and validate XML in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste or type your XML',
+            text: 'Paste your XML into the Input editor, or click the Sample button to load an example. Syntax is validated in real time.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure formatting options',
+            text: 'Choose indentation (2 or 4 spaces) and an optional tag case transformation such as camelCase or snake_case.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the result',
+            text: 'Copy the formatted XML to your clipboard or download it as an .xml file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'XML Tools', url: 'https://onlinewebdevtools.com/#xml-tools' },
+        { name: 'XML Formatter', url: pageUrl }
+      ]
     };
 
     this.seoService.setupSeo(metaData);

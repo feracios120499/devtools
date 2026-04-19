@@ -7,10 +7,21 @@ import { Table, TableModule } from 'primeng/table';
 
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { CheckboxModule } from 'primeng/checkbox';
+import { FileUploadModule } from 'primeng/fileupload';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { ToastModule } from 'primeng/toast';
+import { RouterModule } from '@angular/router';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 /**
  * Интерфейс для сохранения настроек страницы CSV Viewer
@@ -44,9 +55,21 @@ interface QuoteCharOption {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    CheckboxModule,
+    FileUploadModule,
+    IconFieldModule,
+    InputIconModule,
+    InputTextModule,
+    MultiSelectModule,
+    SelectModule,
     TableModule,
-    PageHeaderComponent
+    TextareaModule,
+    ToastModule,
+    TableModule,
+    PageHeaderComponent,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './csv-viewer.component.html',
@@ -115,7 +138,8 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
     private titleService: Title,
     private messageService: MessageService,
     private userPreferencesService: UserPreferencesService,
-    private seoService: SeoService
+    private seoService: SeoService,
+    private cdr: ChangeDetectorRef
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -186,21 +210,107 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/csv-viewer';
+    const shortDescription = 'Free online CSV viewer, editor and analyzer. Open, sort, filter and export CSV, TSV and pipe-separated files in your browser - no upload, no signup.';
+
     const metaData: MetaData = {
-      OgTitle: 'CSV Viewer and Formatter | DevTools',
-      OgDescription: 'Free online CSV viewer and formatter. View and explore CSV files in a convenient table format with sorting and filtering capabilities.',
-      description: 'Free online CSV viewer and formatter tool. View and explore CSV files in a well-formatted table with pagination, sorting, and filtering capabilities. Configure delimiter, quote character, and display options for optimal visualization.',
-      keywords: ['csv viewer', 'csv formatter', 'csv table viewer', 'csv parser', 'csv file viewer', 'online csv viewer', 'csv data viewer', 'csv explorer', 'csv file reader', 'open csv file online'],
+      OgTitle: 'CSV Viewer, Editor & Analyzer Online | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'csv viewer',
+        'online csv viewer',
+        'csv editor',
+        'view csv online',
+        'csv file viewer',
+        'csv parser',
+        'csv table viewer',
+        'tsv viewer',
+        'csv reader',
+        'open csv online',
+        'csv analyzer',
+        'csv filter sort',
+        'rfc 4180 csv',
+        'csv to table'
+      ],
       jsonLd: {
-        name: 'CSV Viewer and Formatter',
-        description: 'Online tool to view and format CSV data in a well-structured table',
-        url: 'https://onlinewebdevtools.com/csv-viewer'
-      }
+        name: 'CSV Viewer, Editor & Analyzer Online | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Browser-based CSV, TSV and pipe-separated file parsing',
+          'Configurable delimiter, quote character and header row',
+          'Interactive data table with sorting and per-column filtering',
+          'Global keyword search across all columns',
+          'Column visibility, resizing and reordering',
+          'RFC 4180 compliant CSV export with proper quoting',
+          'Drag-and-drop file upload and clipboard paste',
+          'Client-side processing for full data privacy'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is the CSV viewer free to use?',
+          answer: 'Yes, it is completely free with no registration, ads or file-size subscriptions.'
+        },
+        {
+          question: 'Do you upload my CSV files to a server?',
+          answer: 'No. All parsing and rendering happens locally in your browser. Your CSV data never leaves your device.'
+        },
+        {
+          question: 'Which delimiters and quote characters are supported?',
+          answer: 'You can choose between comma, semicolon, tab, pipe and space as delimiters, and double, single or no quote character - covering CSV, TSV and most European and custom exports.'
+        },
+        {
+          question: 'Can I open large CSV files?',
+          answer: "Yes. The viewer streams and paginates rows, so it handles large files efficiently - the practical limit depends on your browser's memory. For very large datasets (>100 MB) server-side processing is usually more appropriate."
+        },
+        {
+          question: 'Does the viewer support TSV and pipe-delimited files?',
+          answer: 'Yes. Select the Tab or Pipe option in the delimiter dropdown and the tool will parse TSV and pipe-separated files the same way as standard CSV.'
+        },
+        {
+          question: 'Can I export the filtered and sorted data?',
+          answer: 'Yes. Click the Export button to download the currently loaded CSV as a standards-compliant .csv file with proper quoting and escaping.'
+        },
+        {
+          question: 'Does the tool modify my data in any way?',
+          answer: 'No. Values are treated as plain strings, so dates, leading zeros and long numbers are preserved exactly as they appear in the source file.'
+        }
+      ],
+      howTo: {
+        name: 'How to view and analyze a CSV file online',
+        description: 'Open, inspect and export CSV files in your browser in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Upload or paste your CSV',
+            text: 'Drag a .csv, .tsv or .txt file into the upload area, paste CSV text from your clipboard, or click Sample to load an example dataset.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure parsing options',
+            text: 'Select the delimiter (comma, semicolon, tab, pipe or space), the quote character, and whether the first row should be treated as a header.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Explore and export the data',
+            text: 'Use sorting, per-column filters and global search to explore the table, then click Export to download the result as a clean CSV file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+        { name: 'CSV Viewer', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
   
@@ -343,12 +453,13 @@ export class CsvViewerComponent implements OnInit, OnDestroy {
         this.formatDisplayText();
         this.parseCsvData();
         this.loading = false;
+        this.cdr.markForCheck();
       }, 100);
     };
-    
-    // Устанавливаем обработчик ошибки
+
     reader.onerror = () => {
       this.loading = false;
+      this.cdr.markForCheck();
       this.messageService.add({
         severity: 'error',
         summary: 'Error',

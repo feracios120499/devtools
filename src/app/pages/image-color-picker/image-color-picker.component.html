@@ -1,274 +1,374 @@
 <div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online image color picker - extract HEX, RGB and HSL from any image</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online image color picker</strong> lets you extract exact colors from any image with a magnifying glass preview for pixel-perfect selection.</p>
+    <p>Simply drag and drop a picture and click anywhere to copy precise <strong>HEX, RGB and HSL color values</strong> directly in your browser.</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left column - Image upload and canvas -->
+    <div class="col flex flex-col">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+
+        <!-- File upload area -->
+        <div id="input">
+          @if (!isImageLoaded && isBrowser) {
+            <div
+              class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+              [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
+              (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+              (click)="openFileDialog()">
+              <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+              <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
+              <p class="text-sm text-600 mb-3">or click to select from your device</p>
+              <p class="text-xs text-500">Supports: PNG, JPG, JPEG, GIF, WebP</p>
+            </div>
+          }
+
+          <!-- Loading message for SSR -->
+          @if (false) {
+            <div class="loading-placeholder text-center p-6 surface-ground border-round">
+              <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+              <p class="text-sm text-600 m-0">Loading image color picker...</p>
+            </div>
+          }
+
+          <!-- Upload another image button -->
+          @if (isImageLoaded && isBrowser) {
+            <div class="mt-3">
+              <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload"
+                class="p-button-outlined" (click)="openFileDialog()">
+              </button>
+            </div>
+          }
+
+          <!-- Hidden file input -->
+          @if (true) {
+            <input #fileInput type="file" accept="image/*" class="hidden"
+              (change)="onFileSelected($event)">
+          }
+        </div>
+
+        <!-- Canvas area (interactive picker options) -->
+        <div id="options" class="mt-3">
+          @if (true) {
+            <div class="canvas-container relative">
+              <div class="canvas-wrapper dt-border p-2" [style.display]="isImageLoaded ? 'inline-block' : 'none'">
+                <canvas #mainCanvas class="cursor-crosshair" (mousemove)="onCanvasMouseMove($event)"
+                  (mouseleave)="onCanvasMouseLeave()" (click)="onCanvasClick($event)">
+                </canvas>
+              </div>
+              <!-- Zoom preview -->
+              <div
+                class="zoom-preview absolute border-2 border-primary rounded-lg bg-white p-2 shadow-lg pointer-events-none"
+                [style.left.px]="mouseX + 20" [style.top.px]="mouseY - 60"
+                [style.display]="showZoom && isBrowser ? 'block' : 'none'">
+                <canvas #zoomCanvas class="border rounded"></canvas>
+                <p class="text-xs text-center text-600 mt-1 m-0">Magnifying Glass</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right column - Color information / picked-color output -->
+    <div class="col flex flex-col" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1">
+        <h3 class="text-xl font-medium text-800 mb-3">Color Information</h3>
+
+        <!-- Color information -->
+        <div class="mb-4">
+
+          <!-- Selected color -->
+          @if (isImageLoaded) {
+            <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
+              <h4 class="text-lg font-medium text-700 mb-3">Selected Color</h4>
+              <div class="color-info-container">
+                @if (selectedColor) {
+                  <div>
+                    <!-- Color preview -->
+                    <div class="flex items-center p-2 surface-ground border-round">
+                      <div class="color-preview mr-3 border-round" [style.background-color]="selectedColor.hex">
+                      </div>
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0">Clicked Color</p>
+                        <p class="text-sm text-600 m-0">Position: {{selectedColor.x}}, {{selectedColor.y}}</p>
+                      </div>
+                      <button pButton type="button" [outlined]="true" label="Use in Color Converter"
+                        (click)="useColorInConverter(selectedColor.hex)" class="p-button-sm" severity="contrast">
+                        <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+                      </button>
+                    </div>
+                    <!-- HEX value -->
+                    <div class="flex items-center justify-between p-2 surface-ground border-round">
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0 mb-1">HEX</p>
+                        <p class="text-sm text-600 m-0 font-mono">{{selectedColor.hex}}</p>
+                      </div>
+                      <button pButton type="button" [outlined]="true" label="Copy"
+                        (click)="copyColor(selectedColor.hex, 'HEX')" class="p-button-sm" severity="contrast">
+                        <i-tabler name="copy" class="icon-sm"></i-tabler>
+                      </button>
+                    </div>
+                    <!-- RGB value -->
+                    <div class="flex items-center justify-between p-2 surface-ground border-round">
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0 mb-1">RGB</p>
+                        <p class="text-sm text-600 m-0 font-mono">{{selectedColor.rgb}}</p>
+                      </div>
+                      <button pButton type="button" [outlined]="true" label="Copy"
+                        (click)="copyColor(selectedColor.rgb, 'RGB')" class="p-button-sm" severity="contrast">
+                        <i-tabler name="copy" class="icon-sm"></i-tabler>
+                      </button>
+                    </div>
+                  </div>
+                }
+                @if (!selectedColor) {
+                  <div class="color-info-container-empty">
+                    <p class="text-md text-600 m-0">Click on the image to select a color</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          <!-- Hover color -->
+          @if (isImageLoaded) {
+            <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
+              <h4 class="text-lg font-medium text-700 mb-3">Hover Color</h4>
+              <div class="color-info-container">
+                @if (hoverColor) {
+                  <div>
+                    <!-- Color preview -->
+                    <div class="flex items-center p-2 surface-ground border-round">
+                      <div class="color-preview mr-3 border-round" [style.background-color]="hoverColor.hex">
+                      </div>
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0">Live Preview</p>
+                        <p class="text-sm text-600 m-0">Position: {{hoverColor.x}}, {{hoverColor.y}}</p>
+                      </div>
+                    </div>
+                    <!-- HEX value -->
+                    <div class="flex items-center justify-between p-2 surface-ground border-round">
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0 mb-1">HEX</p>
+                        <p class="text-sm text-600 m-0 font-mono">{{hoverColor.hex}}</p>
+                      </div>
+                    </div>
+                    <!-- RGB value -->
+                    <div class="flex items-center justify-between p-2 surface-ground border-round">
+                      <div class="flex-1">
+                        <p class="font-medium text-800 m-0 mb-1">RGB</p>
+                        <p class="text-sm text-600 m-0 font-mono">{{hoverColor.rgb}}</p>
+                      </div>
+                    </div>
+                  </div>
+                }
+                @if (!hoverColor) {
+                  <div class="color-info-container-empty">
+                    <p class="text-md text-600 m-0">Move mouse over the image to see colors, click to select</p>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+        </div>
+
+        <!-- Default instructions for SSR or when no image -->
+        @if (!isBrowser || (!selectedColor && !hoverColor && !isImageLoaded)) {
+          <div
+            class="text-center p-4 surface-ground dt-border color-info-container-upload">
+            <div>
+              <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
+            </div>
+            <p class="text-lg font-medium text-700 mb-2">Upload an image to start picking colors</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- SEO-oriented informational sections -->
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is an Image Color Picker?</h2>
+      <p class="mt-3">
+        An <strong>image color picker</strong> is a browser-based eyedropper tool that extracts the exact color of any pixel from an uploaded picture. It reads the image into an HTML5 canvas, samples the RGB values under the cursor, and converts them to developer-friendly formats such as HEX, RGB and HSL so designers and engineers can reuse those colors in their own projects.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Use an Image Color Picker?</h2>
+      <p class="mt-3">
+        When you need to reproduce a brand color from a logo, match the exact tone of a photograph, or build a palette from a reference mood board, guessing colors by eye is unreliable. An image color picker delivers pixel-perfect accuracy in seconds, eliminates trial-and-error, and produces copy-ready values that you can paste straight into CSS, Tailwind config, Figma or any design tool.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Use This Tool</h2>
+      <p class="mt-3">
+        Using this image color picker takes only a few seconds:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Upload an image</strong> by dragging and dropping it into the upload area or clicking to browse your device.</li>
+        <li><strong>Hover over the image</strong> to see a magnified preview of the pixel under your cursor together with a live HEX and RGB readout.</li>
+        <li><strong>Click to lock in a color</strong> - the selected color card shows the HEX and RGB values.</li>
+        <li><strong>Copy any value</strong> to the clipboard with the Copy button, or send the HEX directly to our Color Converter for additional formats.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Image Color Picker?</h2>
+      <p class="mt-3">
+        Our tool combines accuracy with a clean, distraction-free interface. The real-time magnifying glass removes guesswork from individual pixels, the hover and click states give you both exploration and precision, and everything runs instantly without installing software or creating an account. It is optimized for desktop, tablet and mobile so you can pick colors wherever you work.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Image Color Picking Works</h2>
+      <p class="mt-3">
+        Under the hood, the uploaded picture is drawn onto an HTML5 <code>&lt;canvas&gt;</code> element. When you move the mouse, the tool calls <code>canvas.getImageData(x, y, 1, 1)</code> to read the red, green and blue values of that exact pixel. Those three 0-255 numbers are assembled into an <code>rgb()</code> string and converted to <strong>HEX</strong> (by mapping each channel to two hexadecimal digits) and <strong>HSL</strong> (by normalizing the RGB values and computing hue, saturation and lightness).
+      </p>
+      <p class="mt-3">
+        Because everything happens on the canvas in your browser, the tool can sample any pixel of any uploaded image without sending a single byte to a remote server.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Drag &amp; drop upload</strong> with support for PNG, JPG, JPEG, GIF and WebP.</li>
+        <li><strong>Magnifying glass eyedropper</strong> for pixel-perfect color selection.</li>
+        <li><strong>Live hover readout</strong> plus persistent selected-color card.</li>
+        <li><strong>HEX and RGB output</strong> with one-click copy to clipboard.</li>
+        <li><strong>Direct handoff</strong> to the Color Converter for HSL, HSV, CMYK and CSS named colors.</li>
+        <li><strong>100% client-side processing</strong> - your images never leave your device.</li>
+        <li><strong>Responsive UI</strong> that works on desktop, tablet and mobile browsers.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        The image color picker is useful for a wide range of day-to-day tasks faced by developers and designers:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Brand color extraction</strong> from logos, screenshots and marketing assets.</li>
+        <li><strong>CSS and Tailwind</strong> theme creation by sampling colors from design mockups.</li>
+        <li><strong>UI design QA</strong> to verify that implemented components match the Figma or Sketch source.</li>
+        <li><strong>Palette generation</strong> from photographs, illustrations and reference boards.</li>
+        <li><strong>Digital art and photo editing</strong> when you need to match an existing tone.</li>
+        <li><strong>Accessibility checks</strong> by feeding picked colors into a contrast checker.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Use Online?</h2>
+      <p class="mt-3">
+        Yes. Every operation in this image color picker - file reading, canvas drawing and pixel sampling - runs entirely inside your browser using standard Web APIs. Your images are <strong>not uploaded to any server</strong>, which means confidential mockups, unreleased product screenshots and personal photos stay private. There are no trackers, no account requirements and no third-party analytics on the uploaded files themselves.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a fast, ad-free collection of developer utilities built by engineers for engineers. Every tool shares the same privacy-first, client-side philosophy, a consistent UI and deep linking between related features so you can move smoothly from picking a color to converting it, generating gradients or building a theme. It is 100% free and requires no sign-up.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Copy &amp; Export Options</h2>
+      <p class="mt-3">
+        Every picked color can be copied as HEX or RGB with a single click, or sent straight to the
+        <a [routerLink]="'/color-converter'" class="text-primary hover:underline">Color Converter</a>
+        for additional formats like HSL, HSV and CMYK. Need to prepare the source image as well? Combine this picker with our other image utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/image-resize'" class="text-primary hover:underline">Image Resize</a> - change image dimensions before sampling.
+        </li>
+        <li>
+          <a [routerLink]="'/image-compressor'" class="text-primary hover:underline">Image Compressor</a> - reduce file size without losing color fidelity.
+        </li>
+        <li>
+          <a [routerLink]="'/image-format-converter'" class="text-primary hover:underline">Image Format Converter</a> - convert between PNG, JPG and WebP.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this image color picker free to use?</h3>
+        <p class="mt-1">Yes, the image color picker is completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload my images to a server?</h3>
+        <p class="mt-1">No. Images are read directly in your browser via the File and Canvas APIs and never leave your device.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which image formats are supported?</h3>
+        <p class="mt-1">You can pick colors from PNG, JPG, JPEG, GIF and WebP images. Any raster format your browser can render on a canvas will work.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What color formats can I copy?</h3>
+        <p class="mt-1">The tool produces HEX and RGB values out of the box, and you can send the picked color to our Color Converter to get HSL, HSV, CMYK and named CSS colors.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How accurate is the color picker?</h3>
+        <p class="mt-1">It reads the exact RGB value of a single pixel using canvas.getImageData, so the accuracy is identical to the source image - no averaging or compression is applied.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I use the picker on mobile?</h3>
+        <p class="mt-1">Yes. The layout is fully responsive and the canvas accepts both mouse and touch events, so you can tap on an image to pick colors on phones and tablets.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Why does the picked color look slightly different from the original?</h3>
+        <p class="mt-1">Compressed formats like JPG and WebP can introduce small color shifts around edges. For absolute fidelity, upload a lossless PNG exported directly from your design tool.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Image Color Picker Learning Resources</h2>
+      <p class="mt-3">
+        To dive deeper into color sampling, the Canvas API and color theory, the following resources are excellent starting points:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN Canvas API</a>
+          - Official documentation for the HTML5 canvas, including getImageData and pixel manipulation.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia: Color Theory</a>
+          - A comprehensive overview of how colors interact, combine and create harmony.
+        </li>
+        <li>
+          <a href="https://www.w3.org/TR/css-color-4/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">W3C CSS Color Module Level 4</a>
+          - The specification for HEX, RGB, HSL and modern color notations on the web.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN CSS color value</a>
+          - A practical reference for every color notation supported in CSS.
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-  <app-page-header>Pick colors from images with magnifying glass preview and get precise HEX and RGB
-  values</app-page-header>
-  <div class="p-3">
-    <p>This <strong>image color picker</strong> allows you to extract colors from any image with precision using a
-  magnifying glass preview.</p>
-  <p>Simply <strong>drag and drop an image</strong> or click to upload, then click anywhere on the image to get
-  <strong>HEX and RGB color values</strong>.
-</p>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-  <!-- Left column - Image upload and canvas -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-      <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
-
-      <!-- File upload area -->
-      @if (!isImageLoaded && isBrowser) {
-        <div
-          class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
-          [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
-          (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
-          (click)="openFileDialog()">
-          <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
-          <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
-          <p class="text-sm text-600 mb-3">or click to select from your device</p>
-          <p class="text-xs text-500">Supports: PNG, JPG, JPEG, GIF, WebP</p>
-        </div>
-      }
-
-      <!-- Loading message for SSR -->
-      @if (!isBrowser) {
-        <div class="loading-placeholder text-center p-6 surface-ground border-round">
-          <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
-          <p class="text-sm text-600 m-0">Loading image color picker...</p>
-        </div>
-      }
-
-      <!-- Canvas area -->
-      @if (isBrowser) {
-        <div class="canvas-container relative">
-          <div class="canvas-wrapper dt-border p-2" [style.display]="isImageLoaded ? 'inline-block' : 'none'">
-            <canvas #mainCanvas class="cursor-crosshair" (mousemove)="onCanvasMouseMove($event)"
-              (mouseleave)="onCanvasMouseLeave()" (click)="onCanvasClick($event)">
-            </canvas>
-          </div>
-          <!-- Zoom preview -->
-          <div
-            class="zoom-preview absolute border-2 border-primary rounded-lg bg-white p-2 shadow-lg pointer-events-none"
-            [style.left.px]="mouseX + 20" [style.top.px]="mouseY - 60"
-            [style.display]="showZoom && isBrowser ? 'block' : 'none'">
-            <canvas #zoomCanvas class="border rounded"></canvas>
-            <p class="text-xs text-center text-600 mt-1 m-0">Magnifying Glass</p>
-          </div>
-        </div>
-      }
-
-      <!-- Upload another image button -->
-      @if (isImageLoaded && isBrowser) {
-        <div class="mt-3">
-          <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload"
-            class="p-button-outlined" (click)="openFileDialog()">
-          </button>
-        </div>
-      }
-
-      <!-- Hidden file input -->
-      @if (isBrowser) {
-        <input #fileInput type="file" accept="image/*" class="hidden"
-          (change)="onFileSelected($event)">
-      }
-    </div>
-  </div>
-
-  <!-- Right column - Color information -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1">
-      <h3 class="text-xl font-medium text-800 mb-3">Color Information</h3>
-
-      <!-- Color information -->
-      <div class="mb-4">
-
-        <!-- Selected color -->
-        @if (isImageLoaded) {
-          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
-            <h4 class="text-lg font-medium text-700 mb-3">Selected Color</h4>
-            <div class="color-info-container">
-              @if (selectedColor) {
-                <div>
-                  <!-- Color preview -->
-                  <div class="flex items-center p-2 surface-ground border-round">
-                    <div class="color-preview mr-3 border-round" [style.background-color]="selectedColor.hex">
-                    </div>
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0">Clicked Color</p>
-                      <p class="text-sm text-600 m-0">Position: {{selectedColor.x}}, {{selectedColor.y}}</p>
-                    </div>
-                    <button pButton type="button" [outlined]="true" label="Use in Color Converter"
-                      (click)="useColorInConverter(selectedColor.hex)" class="p-button-sm" severity="contrast">
-                      <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <!-- HEX value -->
-                  <div class="flex items-center justify-between p-2 surface-ground border-round">
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0 mb-1">HEX</p>
-                      <p class="text-sm text-600 m-0 font-mono">{{selectedColor.hex}}</p>
-                    </div>
-                    <button pButton type="button" [outlined]="true" label="Copy"
-                      (click)="copyColor(selectedColor.hex, 'HEX')" class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <!-- RGB value -->
-                  <div class="flex items-center justify-between p-2 surface-ground border-round">
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0 mb-1">RGB</p>
-                      <p class="text-sm text-600 m-0 font-mono">{{selectedColor.rgb}}</p>
-                    </div>
-                    <button pButton type="button" [outlined]="true" label="Copy"
-                      (click)="copyColor(selectedColor.rgb, 'RGB')" class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                </div>
-              }
-              @if (!selectedColor) {
-                <div class="color-info-container-empty">
-                  <p class="text-md text-600 m-0">Click on the image to select a color</p>
-                </div>
-              }
-            </div>
-          </div>
-        }
-        <!-- Hover color -->
-        @if (isImageLoaded) {
-          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
-            <h4 class="text-lg font-medium text-700 mb-3">Hover Color</h4>
-            <div class="color-info-container">
-              @if (hoverColor) {
-                <div>
-                  <!-- Color preview -->
-                  <div class="flex items-center p-2 surface-ground border-round">
-                    <div class="color-preview mr-3 border-round" [style.background-color]="hoverColor.hex">
-                    </div>
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0">Live Preview</p>
-                      <p class="text-sm text-600 m-0">Position: {{hoverColor.x}}, {{hoverColor.y}}</p>
-                    </div>
-                  </div>
-                  <!-- HEX value -->
-                  <div class="flex items-center justify-between p-2 surface-ground border-round">
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0 mb-1">HEX</p>
-                      <p class="text-sm text-600 m-0 font-mono">{{hoverColor.hex}}</p>
-                    </div>
-                  </div>
-                  <!-- RGB value -->
-                  <div class="flex items-center justify-between p-2 surface-ground border-round">
-                    <div class="flex-1">
-                      <p class="font-medium text-800 m-0 mb-1">RGB</p>
-                      <p class="text-sm text-600 m-0 font-mono">{{hoverColor.rgb}}</p>
-                    </div>
-                  </div>
-                </div>
-              }
-              @if (!hoverColor) {
-                <div class="color-info-container-empty">
-                  <p class="text-md text-600 m-0">Move mouse over the image to see colors, click to select</p>
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-
-      </div>
-
-
-      <!-- Default instructions for SSR or when no image -->
-      @if (!isBrowser || (!selectedColor && !hoverColor && !isImageLoaded)) {
-        <div
-          class="text-center p-4 surface-ground dt-border color-info-container-upload">
-          <div>
-            <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
-          </div>
-          <p class="text-lg font-medium text-700 mb-2">Upload an image to start picking colors</p>
-        </div>
-      }
-    </div>
-  </div>
-</div>
-
-<!-- Information section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-  <h4 class="text-xl font-semibold mb-2">About Image Color Picker</h4>
-  <p class="mb-2 text-sm">
-    Image Color Picker is a powerful tool that allows you to extract precise color values from any image.
-    Simply upload an image and click anywhere to get accurate HEX and RGB color codes with a magnifying glass preview
-    for pixel-perfect selection.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>How it works:</strong>
-    Upload an image via drag and drop or file selection. Move your mouse over the image to see a magnified view of the
-    area under your cursor.
-    Click to select a color and get its exact HEX and RGB values.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>Key features:</strong>
-  </p>
-  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-    <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
-    <li><span class="text-primary">Magnifying Glass:</span> Real-time zoom preview for precise color selection</li>
-    <li><span class="text-primary">Multiple Formats:</span> Get color values in both HEX and RGB formats</li>
-    <li><span class="text-primary">One-Click Copy:</span> Copy color values to clipboard with a single click</li>
-    <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
-  </li>
-</ul>
-<p class="text-sm">
-  Perfect for web designers, graphic designers, developers, and anyone who needs to extract exact colors from images
-  for their projects.
-  Learn more about color theory at
-  <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer"
-  class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>.
-</p>
-<p class="text-sm text-500">
-  <i class="pi pi-info-circle mr-1"></i> All image processing is performed locally in your browser - no data is sent
-  to any server.
-</p>
-</div>
-
-<!-- Use Cases -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Use Cases & Applications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Web Design & Development</h5>
-      <p class="mb-2 text-sm">
-        Extract colors from design mockups, existing websites, or brand assets to maintain consistent color schemes
-        across your projects.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Common Uses:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Color matching for brand consistency</li>
-        <li>CSS color property definitions</li>
-        <li>Theme color extraction</li>
-        <li>Style guide creation</li>
-      </ul>
-    </div>
-
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Graphic Design & Digital Art</h5>
-      <p class="mb-2 text-sm">
-        Sample colors from reference images, photographs, or artwork to create harmonious color palettes for your
-        designs.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Color palette creation from photos</li>
-        <li>Logo color extraction</li>
-        <li>Print design color matching</li>
-        <li>Digital artwork color sampling</li>
-      </ul>
-    </div>
-  </div>
-</div>
 </div>

@@ -3,11 +3,20 @@ import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { ColorPickerModule } from 'primeng/colorpicker';
+import { InputTextModule } from 'primeng/inputtext';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { UserPreferencesService, ColorConverterSettings } from '../../services/user-preferences.service';
 import { ColorConverterService } from './color-converter.service';
 import { ColorFormat, ColorHistoryItem } from './color-converter.types';
@@ -19,8 +28,18 @@ import { SeoService, MetaData } from '../../services/seo.service';
     standalone: true,
     imports: [
     FormsModule,
-    PrimeNgModule,
-    PageHeaderComponent
+    ButtonModule,
+    ColorPickerModule,
+    InputTextModule,
+    MultiSelectModule,
+    RadioButtonModule,
+    RippleModule,
+    TableModule,
+    ToastModule,
+    TooltipModule,
+    PageHeaderComponent,
+    AnchorHeadingDirective,
+    RouterModule
 ],
     providers: [MessageService],
     templateUrl: './color-converter.component.html',
@@ -117,19 +136,97 @@ export class ColorConverterComponent implements OnInit, OnDestroy {
     }
 
     /**
-     * Настройка SEO для страницы
+     * Configure page-level SEO via SeoService.
+     * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
      */
     private setupSeo() {
+        const pageUrl = 'https://onlinewebdevtools.com/color-converter';
+        const shortDescription = 'Free online color converter. Convert HEX, RGB, HSL, HSV, HWB, CMYK, LCH and LAB in real time with a color picker, alpha support and one-click copy.';
+
         const metaData: MetaData = {
-            OgTitle: 'Color Converter | DevTools',
-            OgDescription: 'Free online color converter tool. Convert colors between HEX, RGB, HSL, and HSV formats with live preview and color picker.',
-            description: 'Free online color converter. Easily convert colors between different formats including HEX, RGB, HSL, and HSV. Includes a color picker and live preview of selected colors. Perfect for developers and designers.',
-            keywords: ['color converter', 'hex to rgb', 'rgb to hex', 'hsl converter', 'hsv converter', 'color format converter', 'web color tools', 'color picker', 'color code converter'],
+            OgTitle: 'Color Converter: HEX, RGB, HSL, HSV, CMYK Online | DevTools',
+            OgDescription: shortDescription,
+            description: shortDescription,
+            keywords: [
+                'color converter', 'hex to rgb', 'rgb to hex', 'hex to hsl', 'rgb to hsl',
+                'hsl converter', 'hsv converter', 'hex to cmyk', 'rgb to cmyk', 'color format converter',
+                'css color converter', 'online color picker', 'color code converter', 'hex rgb hsl tool'
+            ],
             jsonLd: {
-                name: 'Color Converter',
-                description: 'Online tool to convert colors between different formats including HEX, RGB, HSL, and HSV',
-                url: 'https://onlinewebdevtools.com/color-converter'
-            }
+                name: 'Color Converter: HEX, RGB, HSL, HSV, CMYK Online | DevTools',
+                description: shortDescription,
+                url: pageUrl,
+                featureList: [
+                    'Convert between HEX, RGB, RGBA, HSL, HSV/HSB, HWB, CMYK, LCH and LAB',
+                    'Interactive color picker with live preview',
+                    'Text-based input with format validation and examples',
+                    'One-click copy for every converted CSS color value',
+                    'Local color history with customizable columns',
+                    'Client-side processing for privacy',
+                    'Works with named CSS colors and alpha transparency'
+                ]
+            },
+            faq: [
+                {
+                    question: 'Is this color converter free to use?',
+                    answer: 'Yes, it is completely free with no registration, ads or usage limits.'
+                },
+                {
+                    question: 'Do you store the colors I convert?',
+                    answer: "No. All conversions run locally in your browser and are never uploaded. A short color history is saved only in your browser's local storage."
+                },
+                {
+                    question: 'Which color formats are supported?',
+                    answer: 'HEX, RGB, RGBA, HSL, HSV/HSB, HWB, CMYK, LCH and LAB are all converted in real time.'
+                },
+                {
+                    question: 'Does the tool support alpha transparency?',
+                    answer: 'Yes. Use the RGBA format to keep or set an alpha channel; other formats are displayed without transparency by default.'
+                },
+                {
+                    question: 'What is the difference between HSL and HSV?',
+                    answer: 'Both use the same hue axis (0-360°), but HSL describes brightness as lightness (0% black, 100% white, 50% pure color) while HSV uses value (0% black, 100% pure color). HSV is common in design software; HSL is common in CSS.'
+                },
+                {
+                    question: 'How accurate is the CMYK conversion?',
+                    answer: "The CMYK output is a device-independent approximation calculated from sRGB. For production printing, always calibrate against your printer's ICC profile."
+                },
+                {
+                    question: 'Can I use the converted values in CSS directly?',
+                    answer: 'Yes. HEX, RGB/RGBA, HSL and HWB outputs are valid CSS color values and can be pasted straight into stylesheets.'
+                },
+                {
+                    question: 'Does the converter work offline?',
+                    answer: 'Once the page is loaded, all conversions are performed locally, so you can keep using the tool even with an unstable connection.'
+                }
+            ],
+            howTo: {
+                name: 'How to convert colors between HEX, RGB, HSL and other formats online',
+                description: 'Convert a color to every popular CSS and design format in three steps.',
+                totalTime: 'PT1M',
+                steps: [
+                    {
+                        name: 'Enter or pick a color',
+                        text: 'Use the color picker or type a value (for example #4ade80 or rgb(74, 222, 128)) in the input field.',
+                        url: pageUrl + '#input'
+                    },
+                    {
+                        name: 'Pick the input format',
+                        text: 'Select HEX, RGB, HSL, HSV, CMYK or another notation so the converter knows how to parse your value.',
+                        url: pageUrl + '#options'
+                    },
+                    {
+                        name: 'Copy the converted result',
+                        text: 'Every supported format is displayed on the right; click the copy icon next to any value to place it on your clipboard.',
+                        url: pageUrl + '#output'
+                    }
+                ]
+            },
+            breadcrumbs: [
+                { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+                { name: 'Text Tools', url: 'https://onlinewebdevtools.com/#text-tools' },
+                { name: 'Color Converter', url: pageUrl }
+            ]
         };
 
         this.seoService.setupSeo(metaData);

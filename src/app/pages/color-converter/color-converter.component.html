@@ -1,8 +1,10 @@
 <div class="dt-container">
-  <app-page-header>Tool for converting colors between different formats (HEX, RGB, HSL, CMYK)</app-page-header>
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online color converter: HEX, RGB, HSL, HSV, CMYK, LAB</app-page-header>
   <div class="p-3">
-    <p>This <strong>online color converter</strong> transforms colors between HEX, RGB, HSL, CMYK, and other formats with real-time preview.</p>
-    <p>Quickly <strong>convert color formats</strong> and <strong>generate color palettes</strong> in your browser with no server upload.</p>
+    <p>This <strong>online color converter</strong> transforms colors between HEX, RGB, HSL, HSV, HWB, CMYK, LCH and LAB formats with a live color picker and real-time preview.</p>
+    <p>Quickly <strong>convert color formats</strong> and copy ready-to-use CSS color values in your browser with no server upload.</p>
   </div>
 
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -18,7 +20,7 @@
         </div>
 
         <!-- Format selection -->
-        <div class="mb-3">
+        <div class="mb-3" id="options">
           <h5 class="text-base font-medium text-800 mb-2">Input format</h5>
           <div class="flex flex-wrap gap-3">
             @for (format of colorFormats; track format) {
@@ -32,7 +34,7 @@
         </div>
 
         <!-- Text input -->
-        <div class="mb-4 p-fluid">
+        <div class="mb-4 p-fluid" id="input">
           <h5 class="text-base font-medium text-800 mb-2">Value in {{selectedFormat}} format</h5>
           <div class="flex">
             <input pInputText [(ngModel)]="inputColorValue" (ngModelChange)="onInputChange()"
@@ -55,7 +57,7 @@
     </div>
 
     <!-- Right column - Converted values -->
-    <div class="col flex flex-col">
+    <div class="col flex flex-col" id="output">
       <div class="card p-3 surface-card shadow-sm flex-1">
         <h5 class="text-xl font-medium text-800 mb-3">Converted values</h5>
 
@@ -153,169 +155,188 @@
     </div>
   }
 
-  <!-- Information section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About Color Converter</h4>
-    <p class="mb-2 text-sm">
-      Color Converter allows you to easily transform colors between different formats used in web development and
-      graphic design. You can either select a color using the visual picker or enter a color value in any of the supported formats.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>How it works:</strong>
-      The converter automatically detects the input format and provides real-time conversion to all supported color formats, ensuring seamless workflow integration for developers, designers, and digital artists.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Supported formats:</strong>
-    </p>
-    <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-      <li><span class="text-primary">HEX:</span> Hexadecimal notation (#RRGGBB)</li>
-      <li><span class="text-primary">RGB:</span> Red-Green-Blue (rgb(255, 255, 255))</li>
-      <li><span class="text-primary">RGBA:</span> RGB with alpha channel (rgba(255, 255, 255, 1))</li>
-      <li><span class="text-primary">HSL:</span> Hue-Saturation-Lightness (hsl(360, 100%, 100%))</li>
-      <li><span class="text-primary">HSV/HSB:</span> Hue-Saturation-Value/Brightness</li>
-      <li><span class="text-primary">HWB:</span> Hue-Whiteness-Blackness</li>
-      <li><span class="text-primary">CMYK:</span> Cyan-Magenta-Yellow-Key used in printing</li>
-      <li><span class="text-primary">LCH:</span> Lightness-Chroma-Hue perceptually uniform color space</li>
-      <li><span class="text-primary">LAB:</span> CIELAB color space, designed to be perceptually uniform with respect to
-    human color vision</li>
-  </ul>
-  <p class="text-sm">
-    Learn more about color theory at
-    <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>
-    and web color standards at
-    <a href="https://www.w3.org/TR/css-color-3/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C CSS Color Module</a>.
-  </p>
-  <p class="text-sm text-500">
-    <i class="pi pi-info-circle mr-1"></i> All color conversions are performed locally in your browser - no data is sent to any server.
-  </p>
-</div>
-
-<!-- Web Development and Graphic Design Applications -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Web Development & Graphic Design Applications</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Frontend Development & CSS</h5>
-      <p class="mb-2 text-sm">
-        Essential for web developers working with CSS, design systems, and user interfaces
-        who need precise color matching and format conversion for different browser requirements.
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is a Color Converter?</h2>
+      <p class="mt-3">
+        A color converter is an online utility that translates a color value from one notation to another - HEX to RGB, RGB to HSL, HSL to HSV, and so on. Our converter works in real time, so every time you pick a color or type a value, all supported formats are recalculated instantly.
       </p>
+      <p class="mt-3">
+        The tool supports HEX, RGB, RGBA, HSL, HSV/HSB, HWB, CMYK, LCH and LAB, covering modern CSS color notations as well as print and perceptually uniform color spaces used in design software.
+      </p>
+    </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Development Use Cases:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>CSS color property definitions</li>
-        <li>Design system color palette creation</li>
-        <li>Responsive design color adaptation</li>
-        <li>Cross-browser color compatibility</li>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Convert Between Color Formats?</h2>
+      <p class="mt-3">
+        Different contexts require different color notations. Web developers usually work with HEX and RGB, designers frequently adjust hue with HSL or HSV, print workflows rely on CMYK, and color-critical applications prefer perceptually uniform LCH or LAB.
+      </p>
+      <p class="mt-3">
+        Converting formats lets you move designs between Figma, CSS variables, brand guidelines and print, while keeping colors consistent and WCAG-compliant for accessibility.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Convert Colors Online</h2>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li><strong>Enter or pick a color</strong> - use the color picker or type a value (for example <code>#4ade80</code> or <code>rgb(74, 222, 128)</code>) in the input field.</li>
+        <li><strong>Choose the input format</strong> - select HEX, RGB, HSL, HSV, CMYK or another notation so the converter knows how to parse your value.</li>
+        <li><strong>Copy the converted result</strong> - every supported format is displayed on the right; click the copy icon next to any value to place it on your clipboard.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Color Converter?</h2>
+      <p class="mt-3">
+        Our converter runs entirely in your browser, so there is no upload, no tracking and no account required. It is free, unlimited and fast even on mobile devices.
+      </p>
+      <p class="mt-3">
+        You get a visual color picker, text-based input, live preview, history of recently used colors and one-click copy for every format - everything a developer or designer needs in a single page.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Color Conversion Works</h2>
+      <p class="mt-3">
+        Under the hood, every conversion starts from an RGB triplet. <strong>HEX ↔ RGB</strong> is a simple base-16 to base-10 mapping: <code>#RRGGBB</code> splits into three pairs of hexadecimal digits representing red, green and blue components from 0 to 255.
+      </p>
+      <p class="mt-3">
+        <strong>RGB ↔ HSL</strong> converts cartesian red/green/blue into a cylindrical hue (0-360°), saturation and lightness model. <strong>RGB ↔ HSV</strong> uses the same hue but replaces lightness with value (brightness). <strong>HSL ↔ HSV</strong> share hue but differ in how they model brightness.
+      </p>
+      <p class="mt-3">
+        <strong>CMYK</strong> is derived by subtracting the maximum RGB channel to find the key (black), then computing cyan, magenta and yellow percentages. <strong>LAB</strong> and <strong>LCH</strong> go through the XYZ color space with D65 white-point normalization, providing perceptually uniform distances between colors.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Convert between <strong>HEX, RGB, RGBA, HSL, HSV/HSB, HWB, CMYK, LCH and LAB</strong> in real time.</li>
+        <li>Support for CSS-ready output with alpha channel (<code>rgba()</code>).</li>
+        <li>Recognizes common named CSS colors and maps them to HEX for further conversion.</li>
+        <li>Interactive color picker with instant preview swatch.</li>
+        <li>One-click copy for any format, with clipboard confirmation toast.</li>
+        <li>Local color history with customizable columns so you never lose a picked value.</li>
+        <li>Client-side computation - no data leaves your browser.</li>
+        <li>Dark and light UI that adapts to your system theme.</li>
       </ul>
     </div>
 
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Digital Design & Branding</h5>
-      <p class="mb-2 text-sm">
-        Critical for graphic designers, UI/UX professionals, and brand managers
-        who need consistent color representation across different mediums and applications.
-      </p>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Web design and CSS</strong>: convert HEX brand colors into <code>rgba()</code> with alpha or HSL for easier hue tweaks.</li>
+        <li><strong>Branding</strong>: translate a primary HEX value into CMYK for print assets and LAB for color-critical proofing.</li>
+        <li><strong>Accessibility</strong>: iterate on HSL lightness to reach WCAG AA/AAA contrast ratios against backgrounds.</li>
+        <li><strong>CSS variables and design tokens</strong>: generate consistent palette values for Tailwind, CSS variables or design systems.</li>
+        <li><strong>UI theming</strong>: adjust hue and saturation in HSV when building color scales or dark-mode variants.</li>
+      </ul>
+    </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>Brand color guide development</li>
-        <li>Print-to-digital color matching</li>
-        <li>Accessibility contrast verification</li>
-        <li>Multi-platform design consistency</li>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Convert Colors Online?</h2>
+      <p class="mt-3">
+        Yes. All math happens locally in your browser using JavaScript - no color values are ever transmitted to our servers. There are no cookies or trackers tied to the tool itself, so you can use it on confidential brand work without exposing any sensitive data.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a growing suite of free, privacy-friendly utilities built for developers and designers. The Color Converter shares the same fast, ad-free, no-signup experience as the rest of our tools, so you can jump between converters without context switching.
+      </p>
+      <p class="mt-3">
+        Every tool is open to the public, keyboard-friendly and documented, which makes DevTools a reliable daily companion for both quick checks and deeper workflows.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Copy, Download and Related Tools</h2>
+      <p class="mt-3">
+        Every converted color has a dedicated copy button that places a ready-to-paste CSS value on your clipboard. The color history table lets you revisit recent picks and copy them again with a single click.
+      </p>
+      <p class="mt-3">
+        Looking for more color and image workflows? Pair this converter with other DevTools utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/image-color-picker'" class="text-primary hover:underline">Image Color Picker</a>
+          - extract exact pixel colors from any uploaded image.
+        </li>
+        <li>
+          <a [routerLink]="'/image-format-converter'" class="text-primary hover:underline">Image Format Converter</a>
+          - convert between PNG, JPG, WebP and other web formats.
+        </li>
+        <li>
+          <a [routerLink]="'/image-resize'" class="text-primary hover:underline">Image Resize</a>
+          - quickly resize images for hero banners, thumbnails or social media.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this color converter free to use?</h3>
+        <p class="mt-1">Yes, it is completely free with no registration, ads or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store the colors I convert?</h3>
+        <p class="mt-1">No. All conversions run locally in your browser and are never uploaded. A short color history is saved only in your browser's local storage.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which color formats are supported?</h3>
+        <p class="mt-1">HEX, RGB, RGBA, HSL, HSV/HSB, HWB, CMYK, LCH and LAB are all converted in real time.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the tool support alpha transparency?</h3>
+        <p class="mt-1">Yes. Use the RGBA format to keep or set an alpha channel; other formats are displayed without transparency by default.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What is the difference between HSL and HSV?</h3>
+        <p class="mt-1">Both use the same hue axis (0-360°), but HSL describes brightness as lightness (0% black, 100% white, 50% pure color) while HSV uses value (0% black, 100% pure color). HSV is common in design software; HSL is common in CSS.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How accurate is the CMYK conversion?</h3>
+        <p class="mt-1">The CMYK output is a device-independent approximation calculated from sRGB. For production printing, always calibrate against your printer's ICC profile.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I use the converted values in CSS directly?</h3>
+        <p class="mt-1">Yes. HEX, RGB/RGBA, HSL and HWB outputs are valid CSS color values and can be pasted straight into stylesheets.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the converter work offline?</h3>
+        <p class="mt-1">Once the page is loaded, all conversions are performed locally, so you can keep using the tool even with an unstable connection.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Color Theory Learning Resources</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://www.w3.org/TR/css-color-4/" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">W3C CSS Color Module Level 4</a>
+          - official specification for modern CSS color notations including HWB, LCH and LAB.
+        </li>
+        <li>
+          <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">WCAG 2.1 Contrast (Minimum) Success Criterion</a>
+          - accessibility guidance for choosing color combinations with sufficient contrast.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">MDN: CSS <code>&lt;color&gt;</code> value</a>
+          - reference for every color notation accepted by browsers and how they are parsed.
+        </li>
       </ul>
     </div>
   </div>
 
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Creative Industries & Media Production</h5>
-    <p class="text-sm mb-2">
-      This color converter is valuable for creative professionals, media producers,
-      and digital artists working across various platforms and output formats.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Creative Workflows:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Video production</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Animation workflows</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Game development</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Digital photography</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">3D rendering</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Mobile app design</span>
-    </div>
-  </div>
-</div>
-
-<!-- Color Spaces and Technical Standards -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-  <h4 class="text-xl font-semibold mb-3">Color Spaces & Technical Standards</h4>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Display & Web Color Spaces</h5>
-      <p class="mb-2 text-sm">
-        Modern displays and web browsers support various color spaces, each optimized
-        for specific applications and providing different color gamuts and perceptual accuracy.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Digital Color Formats:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>sRGB - Standard RGB for web and displays</li>
-        <li>HSL - Intuitive hue-based adjustments</li>
-        <li>HSV - Graphics software standard</li>
-        <li>HWB - CSS4 color specification</li>
-      </ul>
-    </div>
-
-    <div>
-      <h5 class="text-lg font-medium text-700 mb-2">Print & Professional Color Systems</h5>
-      <p class="mb-2 text-sm">
-        Professional printing and color-critical applications require precise color
-        representation using industry-standard color spaces and measurement systems.
-      </p>
-
-      <h6 class="text-base font-medium text-600 mb-1">Professional Standards:</h6>
-      <ul class="list-disc pl-5 text-sm space-y-1">
-        <li>CMYK - Printing industry standard</li>
-        <li>LAB - Device-independent color</li>
-        <li>LCH - Perceptually uniform space</li>
-        <li>Pantone - Spot color matching system</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="mt-4">
-    <h5 class="text-lg font-medium text-700 mb-2">Accessibility & Color Science</h5>
-    <p class="text-sm mb-2">
-      Understanding color perception and accessibility ensures inclusive design
-      and optimal user experience across different visual capabilities and conditions.
-    </p>
-
-    <h6 class="text-base font-medium text-600 mb-1">Accessibility Features:</h6>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Contrast ratios</span>
-      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Color blindness</span>
-      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">WCAG compliance</span>
-      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Visual perception</span>
-      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Cultural significance</span>
-      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Psychology of color</span>
-    </div>
-
-    <p class="text-sm mt-3 text-600">
-      <strong>Design Tip:</strong> Always test color combinations with accessibility tools
-      to ensure sufficient contrast for users with visual impairments.
-    </p>
-  </div>
-
-  <p class="text-sm mt-3">
-    For color accessibility guidelines, visit
-    <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">WCAG Color Contrast</a>
-    and for color science fundamentals, see
-    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN CSS Color Values</a>.
-  </p>
-</div>
-
-<!-- Toast for notifications -->
-<p-toast position="bottom-right"></p-toast>
+  <!-- Toast for notifications -->
+  <p-toast position="bottom-right"></p-toast>
 </div>

@@ -9,7 +9,7 @@
 upload.</p>
 </div>
 
-<div class="dt-editors">
+<div class="dt-editors" id="input">
   <!-- Left column - Input XML -->
   <div class="col flex flex-col h-full">
     <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
@@ -21,14 +21,14 @@ upload.</p>
       <div class="mb-1"></div>
 
       <!-- Fallback textarea for server-side rendering -->
-      @if (!isBrowser) {
+      @if (false) {
         <textarea [(ngModel)]="inputCode" (ngModelChange)="formatXml()"
           class="w-full p-2 surface-100 font-mono flex-1">
         </textarea>
       }
 
       <!-- Monaco editor for browser environment -->
-      @if (isBrowser) {
+      @if (true) {
         <div
           class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
           [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -65,21 +65,21 @@ upload.</p>
             </div>
             <hr>
             </div>
-            <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-              (ngModelChange)="formatXml()" class="w-full h-full" monacoScrollFix>
-            </ngx-monaco-editor>
+            <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+              (ngModelChange)="formatXml()" class="w-full h-full">
+            </app-monaco-editor-lazy>
           </div>
         }
       </div>
     </div>
 
     <!-- Right column - Formatted XML -->
-    <div class="col flex flex-col h-full">
+    <div class="col flex flex-col h-full" id="output">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
         <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
           <span class="text-xl font-medium text-800 m-0">Formatted XML</span>
-          <div class="flex gap-2 items-center">
+          <div class="flex gap-2 items-center" id="options">
 
             <p-select [options]="tagCaseOptions" [(ngModel)]="selectedTagCase" optionLabel="label"
               (onChange)="onTagCaseChange()" styleClass="p-select-sm custom-select"
@@ -107,14 +107,14 @@ upload.</p>
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="outputCode" readonly
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
@@ -151,9 +151,9 @@ upload.</p>
               </div>
               <hr>
               </div>
-              <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-                class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
+              <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+                class="w-full h-full">
+              </app-monaco-editor-lazy>
             </div>
           }
         </div>
@@ -200,19 +200,37 @@ upload.</p>
 
       <div class="dt-info-item">
         <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
-        <p class="mt-3"><strong>Is this XML formatter free?</strong><br>
-        Yes, it's completely free to use with no registration required.
-      </p>
-      <p class="mt-3"><strong>Do you store my XML data?</strong><br>
-      No, all processing is done locally in your browser. Nothing is sent to our servers.
-    </p>
-    <p class="mt-3"><strong>Can I format large XML files?</strong><br>
-    Yes, the tool supports large XML documents, depending on your browser's memory limits.
-  </p>
-  <p class="mt-3"><strong>Does the tool validate my XML?</strong><br>
-  Absolutely. It checks your XML for syntax errors and structural validity in real time.
-</p>
-</div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Is this XML formatter free?</h3>
+          <p class="mt-1">Yes, it's completely free to use with no registration required.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Do you store my XML data?</h3>
+          <p class="mt-1">No, all processing is done locally in your browser. Nothing is sent to our servers.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Can I format large XML files?</h3>
+          <p class="mt-1">Yes, the tool supports large XML documents, depending on your browser's memory limits.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Does the tool validate my XML?</h3>
+          <p class="mt-1">Absolutely. It checks your XML for syntax errors and structural validity in real time.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">Can I transform XML tag names while formatting?</h3>
+          <p class="mt-1">Yes. Use the tag case dropdown to convert all tag names to camelCase, snake_case, PascalCase or kebab-case while preserving the document structure.</p>
+        </div>
+
+        <div class="faq-item mt-3">
+          <h3 class="text-base font-semibold">What XML specification does the tool follow?</h3>
+          <p class="mt-1">The formatter follows the W3C XML 1.0 specification for well-formed documents. For schema validation against XSD, use a dedicated validator.</p>
+        </div>
+      </div>
 <div class="dt-info-item">
   <h2 class="text-xl text-primary" anchorHeading>How Does XML Beautification Work?</h2>
   <p class="mt-3">

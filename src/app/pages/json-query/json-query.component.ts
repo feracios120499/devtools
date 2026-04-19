@@ -1,20 +1,22 @@
 import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, HostBinding, ElementRef, HostListener, DOCUMENT } from '@angular/core';
 import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
+import { MonacoEditorLazyComponent } from '../../shared/components/monaco-editor-lazy/monaco-editor-lazy.component';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 
 import { ThemeService } from '../../services/theme.service';
 import { MonacoConfigService } from '../../services/monaco-config.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
-import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-fix.directive';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { UserPreferencesService, PageSettings } from '../../services/user-preferences.service';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 // Only declare Monaco type for type checking, don't use directly
 // It will be accessed dynamically only in browser context
@@ -35,11 +37,14 @@ export interface JsonQuerySettings extends PageSettings {
   standalone: true,
   imports: [
     FormsModule,
-    MonacoEditorModule,
-    PrimeNgModule,
+    MonacoEditorLazyComponent,
+    AutoCompleteModule,
+    ButtonModule,
+    ToastModule,
     PageHeaderComponent,
     IconsModule,
-    MonacoScrollFixDirective
+    AnchorHeadingDirective,
+    RouterModule,
 ],
   providers: [MessageService],
   templateUrl: './json-query.component.html',
@@ -198,19 +203,104 @@ export class JsonQueryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Настройка SEO для страницы
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/json-query';
+    const shortDescription = 'Free online JSON Query Explorer. Filter, search and transform JSON with JavaScript expressions and JSONPath-style selectors. Runs in your browser, no upload.';
+
     const metaData: MetaData = {
-      OgTitle: 'JSON Query Explorer | DevTools',
-      OgDescription: 'Free online JSON Query tool. Explore and extract data from complex JSON structures using JSONPath queries. Test and visualize results in real-time.',
-      description: 'Free online JSON Query Explorer tool for querying and extracting data from JSON using JavaScript expressions. Features live preview, sample data, and syntax highlighting. Perfect for working with JSON APIs and data.',
-      keywords: ['json query', 'jsonpath', 'json explorer', 'json query tool', 'jsonpath query', 'json search', 'query json online', 'json data extraction', 'json path expression', 'json filter online'],
+      OgTitle: 'JSON Query Explorer Online — JSONPath & JavaScript | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'json query',
+        'jsonpath',
+        'json explorer',
+        'json query tool',
+        'jsonpath query online',
+        'json search',
+        'query json online',
+        'json data extraction',
+        'json path expression',
+        'json filter online',
+        'jq online',
+        'json transform',
+        'json javascript query',
+        'online json query'
+      ],
       jsonLd: {
-        name: 'JSON Query Explorer',
-        description: 'Online tool to query and extract data from JSON using JSONPath expressions',
-        url: 'https://onlinewebdevtools.com/json-query'
-      }
+        name: 'JSON Query Explorer Online — JSONPath & JavaScript | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Live JSON querying with JavaScript expressions',
+          'JSONPath-style navigation (filters, wildcards, recursion)',
+          'Dual Monaco editors with syntax highlighting',
+          'Instant re-evaluation as you type',
+          'Query history and autocomplete suggestions',
+          'Copy to clipboard and download as .json',
+          'Client-side processing for privacy'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this JSON Query tool free to use?',
+          answer: "Yes, it's completely free with no registration, ads or usage limits."
+        },
+        {
+          question: 'Do you upload or store my JSON data?',
+          answer: 'No. All parsing and query evaluation happens in your browser. Your JSON never leaves your device.'
+        },
+        {
+          question: 'Which query syntax is supported?',
+          answer: 'Any valid JavaScript expression. Start from the data variable and chain methods like .filter(), .map(), .reduce(), .find(), or use destructuring and optional chaining.'
+        },
+        {
+          question: 'Can I use JSONPath expressions?',
+          answer: 'The tool uses JavaScript as its query language, which covers the same use cases as JSONPath. Every JSONPath pattern has a direct equivalent in JavaScript — for example $.users[*].name becomes data.users.map(u => u.name).'
+        },
+        {
+          question: 'Can the explorer handle large JSON files?',
+          answer: 'Yes. The parser is the native browser engine, so the only limit is the amount of memory your browser tab can allocate. Documents of several megabytes query smoothly.'
+        },
+        {
+          question: 'What happens when my query throws an error?',
+          answer: 'The error message is shown directly below the query input so you can fix the expression without losing your input JSON or previous results.'
+        },
+        {
+          question: 'Does the tool remember my previous queries?',
+          answer: 'Yes. Recently used queries are stored locally in your browser and resurface as autocomplete suggestions the next time you open the page.'
+        }
+      ],
+      howTo: {
+        name: 'How to query JSON online',
+        description: 'Extract data from a JSON document in three steps using JavaScript or JSONPath-style expressions.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste JSON',
+            text: 'Paste your JSON into the Input editor on the left, or click the Sample button to load a realistic example.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Write a query',
+            text: 'Type a JavaScript expression starting from the data variable, for example data.users.filter(u => u.active).map(u => u.name). The result updates on every keystroke.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download results',
+            text: 'Copy the pretty-printed output to your clipboard or download it as a .json file.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'JSON Tools', url: 'https://onlinewebdevtools.com/#json-tools' },
+        { name: 'JSON Query', url: pageUrl }
+      ]
     };
 
     this.seoService.setupSeo(metaData);

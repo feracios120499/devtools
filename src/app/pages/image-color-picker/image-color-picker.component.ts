@@ -2,13 +2,16 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, Hos
 import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 import { PageTitleService } from '../../services/page-title.service';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { ToastModule } from 'primeng/toast';
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { SeoService, MetaData } from '../../services/seo.service';
 import { IconsModule } from '../../shared/modules/icons.module';
+import { AnchorHeadingDirective } from '../../directives/anchor-heading.directive';
 
 interface ColorInfo {
   hex: string;
@@ -22,9 +25,13 @@ interface ColorInfo {
   standalone: true,
   imports: [
     FormsModule,
-    PrimeNgModule,
+    ButtonModule,
+    RippleModule,
+    ToastModule,
     PageHeaderComponent,
-    IconsModule
+    IconsModule,
+    AnchorHeadingDirective,
+    RouterModule
 ],
   providers: [MessageService],
   templateUrl: './image-color-picker.component.html',
@@ -120,21 +127,106 @@ export class ImageColorPickerComponent implements OnInit, AfterViewInit, OnDestr
   }
 
   /**
-   * Setup SEO for the page
+   * Configure page-level SEO via SeoService.
+   * FAQ/HowTo texts must mirror the visible content (Google FAQ/HowTo rich-results requirement).
    */
   private setupSeo() {
+    const pageUrl = 'https://onlinewebdevtools.com/image-color-picker';
+    const shortDescription = 'Free online image color picker. Drag and drop any image, hover or click to extract pixel-perfect HEX and RGB values with a magnifying glass preview. 100% client-side, no upload, no signup.';
+
     const metaData: MetaData = {
-      OgTitle: 'Image Color Picker | DevTools',
-      OgDescription: 'Free online image color picker tool. Extract colors from images with magnifying glass preview and get HEX and RGB values.',
-      description: 'Free online image color picker. Upload images via drag and drop, click to pick colors with magnifying glass preview. Get precise HEX and RGB color values from any image. Perfect for designers and developers.',
-      keywords: ['image color picker', 'color extractor', 'hex color picker', 'rgb color picker', 'color from image', 'eyedropper tool', 'color sampling', 'image color analysis'],
+      OgTitle: 'Image Color Picker Online - Extract HEX & RGB from Image | DevTools',
+      OgDescription: shortDescription,
+      description: shortDescription,
+      keywords: [
+        'image color picker',
+        'color picker from image',
+        'online color picker',
+        'hex color picker',
+        'rgb color picker',
+        'eyedropper tool',
+        'extract color from image',
+        'color extractor',
+        'pick color from photo',
+        'html5 canvas color picker',
+        'color sampling tool',
+        'image color analyzer',
+        'web color picker',
+        'designer color tool'
+      ],
       jsonLd: {
-        name: 'Image Color Picker',
-        description: 'Online tool to extract colors from images with magnifying glass preview',
-        url: 'https://onlinewebdevtools.com/image-color-picker'
-      }
+        name: 'Image Color Picker Online - Extract HEX & RGB from Image | DevTools',
+        description: shortDescription,
+        url: pageUrl,
+        featureList: [
+          'Drag and drop image upload (PNG, JPG, JPEG, GIF, WebP)',
+          'Magnifying glass eyedropper for pixel-perfect selection',
+          'Live HEX and RGB readout on hover and click',
+          'One-click copy of HEX or RGB to the clipboard',
+          'Direct handoff to the Color Converter for HSL, HSV and CMYK',
+          '100% client-side processing - images never leave the browser',
+          'Responsive UI for desktop, tablet and mobile'
+        ]
+      },
+      faq: [
+        {
+          question: 'Is this image color picker free to use?',
+          answer: 'Yes, the image color picker is completely free with no registration, ads, or usage limits.'
+        },
+        {
+          question: 'Do you upload my images to a server?',
+          answer: 'No. Images are read directly in your browser via the File and Canvas APIs and never leave your device.'
+        },
+        {
+          question: 'Which image formats are supported?',
+          answer: 'You can pick colors from PNG, JPG, JPEG, GIF and WebP images. Any raster format your browser can render on a canvas will work.'
+        },
+        {
+          question: 'What color formats can I copy?',
+          answer: 'The tool produces HEX and RGB values out of the box, and you can send the picked color to our Color Converter to get HSL, HSV, CMYK and named CSS colors.'
+        },
+        {
+          question: 'How accurate is the color picker?',
+          answer: 'It reads the exact RGB value of a single pixel using canvas.getImageData, so the accuracy is identical to the source image - no averaging or compression is applied.'
+        },
+        {
+          question: 'Can I use the picker on mobile?',
+          answer: 'Yes. The layout is fully responsive and the canvas accepts both mouse and touch events, so you can tap on an image to pick colors on phones and tablets.'
+        },
+        {
+          question: 'Why does the picked color look slightly different from the original?',
+          answer: 'Compressed formats like JPG and WebP can introduce small color shifts around edges. For absolute fidelity, upload a lossless PNG exported directly from your design tool.'
+        }
+      ],
+      howTo: {
+        name: 'How to pick a color from an image online',
+        description: 'Extract pixel-perfect HEX and RGB values from any image in three steps.',
+        totalTime: 'PT1M',
+        steps: [
+          {
+            name: 'Paste or upload your image',
+            text: 'Drag and drop an image into the upload area or click to browse your device. Supported formats include PNG, JPG, JPEG, GIF and WebP.',
+            url: pageUrl + '#input'
+          },
+          {
+            name: 'Configure and hover over the image',
+            text: 'Move your cursor over the canvas to preview pixels through the magnifying glass, then click to lock in the exact color.',
+            url: pageUrl + '#options'
+          },
+          {
+            name: 'Copy or download the color',
+            text: 'Copy the HEX or RGB value to the clipboard with one click, or send it to the Color Converter to export additional formats such as HSL and CMYK.',
+            url: pageUrl + '#output'
+          }
+        ]
+      },
+      breadcrumbs: [
+        { name: 'Home', url: 'https://onlinewebdevtools.com/' },
+        { name: 'Image Tools', url: 'https://onlinewebdevtools.com/#image-tools' },
+        { name: 'Image Color Picker', url: pageUrl }
+      ]
     };
-    
+
     this.seoService.setupSeo(metaData);
   }
 

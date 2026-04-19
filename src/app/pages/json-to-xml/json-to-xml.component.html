@@ -1,32 +1,32 @@
 <div class="dt-container">
-  <!-- Структурированные данные Schema.org добавляются в head через Renderer2 -->
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
 
-  <app-page-header>Tool for converting JSON data to XML format with customizable options</app-page-header>
+  <app-page-header>Free online JSON to XML converter and formatter</app-page-header>
   <div class="p-3">
-    <p>This <strong>online JSON to XML converter</strong> transforms JSON objects into well-formatted XML with customizable structure and formatting options.</p>
+    <p>This <strong>online JSON to XML converter</strong> transforms JSON objects into well-formatted XML with a customizable root element and key-case options.</p>
     <p>Quickly <strong>convert JSON to XML</strong> and <strong>format XML output</strong> in your browser with no server upload.</p>
   </div>
 
   <div class="dt-editors">
-    <!-- Левая колонка - Input JSON -->
-    <div class="col flex flex-col h-full">
+    <!-- Left column - Input JSON -->
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок с фиксированной высотой -->
+        <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">Input JSON</h3>
+          <span class="text-xl font-medium text-800 m-0">Input JSON</span>
         </div>
-        <!-- Отступ для выравнивания -->
+        <!-- Spacing for alignment -->
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        @if (!isBrowser) {
+        @if (false) {
           <textarea [(ngModel)]="inputCode" (ngModelChange)="convertJsonToXml()"
             class="w-full p-2 surface-100 font-mono flex-1">
           </textarea>
         }
 
         <!-- Monaco editor for browser environment -->
-        @if (isBrowser) {
+        @if (true) {
           <div
             class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
             [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
@@ -35,14 +35,14 @@
                 <div class="flex gap-3 align-items-center">
                   <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleJson()"
                     class="p-button-sm" severity="contrast">
-                    <i-tabler name="code" class="icon-sm"> </i-tabler>
+                    <i-tabler name="code" class="icon-sm"></i-tabler>
                   </button>
                   <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
                     (click)="pasteFromClipboard()" severity="contrast">
                     <i-tabler name="clipboard" class="icon-sm"></i-tabler>
                   </button>
                   <button pButton type="button" [outlined]="true" label="Clear" (click)="clearJson()" severity="danger"
-                    class=" p-button-sm">
+                    class="p-button-sm">
                     <i-tabler name="trash" class="icon-sm"></i-tabler>
                   </button>
                 </div>
@@ -62,305 +62,280 @@
                 </div>
               </div>
               <hr>
-              </div>
-              <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-                (ngModelChange)="convertJsonToXml()" class="w-full h-full" monacoScrollFix>
-              </ngx-monaco-editor>
             </div>
-          }
-        </div>
+            <app-monaco-editor-lazy #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+              (ngModelChange)="convertJsonToXml()" class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
       </div>
-
-      <!-- Правая колонка - XML Output -->
-      <div class="col flex flex-col h-full">
-        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-          <!-- Заголовок с фиксированной высотой -->
-          <div class="flex justify-between items-center h-10">
-            <h3 class="text-xl font-medium text-800 m-0">XML Output</h3>
-            <div class="flex gap-2 items-center">
-              <div class="flex items-center gap-2" style="height: 35px;">
-                <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
-                  (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
-                  [style]="{'min-width': '140px', 'height': '35px'}" [panelStyleClass]="'same-width-panel'"
-                  appendTo="body">
-                  <ng-template pTemplate="selectedItem">
-                    <div class="flex align-items-center">
-                      <span>Key: {{selectedKeyCase.label}}</span>
-                    </div>
-                  </ng-template>
-                  <ng-template let-option pTemplate="item">
-                    <div class="flex align-items-center">
-                      <span>{{option.label}}</span>
-                    </div>
-                  </ng-template>
-                </p-select>
-
-                <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
-                  <input pInputText id="root_name" [(ngModel)]="rootName" (ngModelChange)="convertJsonToXml()"
-                    autocomplete="off" class="h-full" />
-                  <label for="root_name">Root name</label>
-                </p-floatlabel>
-              </div>
-            </div>
-          </div>
-
-          <!-- Отступ для выравнивания -->
-          <div class="mb-1"></div>
-
-          <!-- Fallback textarea for server-side rendering -->
-          @if (!isBrowser) {
-            <textarea [(ngModel)]="outputCode" readonly
-              class="w-full p-2 surface-100 font-mono flex-1">
-            </textarea>
-          }
-
-          <!-- Monaco editor for browser environment -->
-          @if (isBrowser) {
-            <div
-              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-              <div class="dt-editors-editor-actions">
-                <div class="flex justify-between p-2">
-                  <div class="flex gap-3 align-items-center">
-                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()" class="p-button-sm" severity="contrast">
-                      <i-tabler name="copy" class="icon-sm"></i-tabler>
-                    </button>
-                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadXml()" class="p-button-sm" severity="contrast">
-                      <i-tabler name="download" class="icon-sm"></i-tabler>
-                    </button>
-                  </div>
-                  <div class="flex align-items-center">
-                    @if (!isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                    @if (isOutputFullscreen) {
-                      <button pButton type="button" (click)="toggleFullscreen('output')"
-                        severity="contrast" class="p-button-text p-button-sm">
-                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                      </button>
-                    }
-                  </div>
-                </div>
-                <hr>
-                </div>
-                <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-                  class="w-full h-full" monacoScrollFix>
-                </ngx-monaco-editor>
-              </div>
-            }
-          </div>
-        </div>
-      </div>
-
-      <!-- Information Section -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-        <h4 class="text-xl font-semibold mb-2">About JSON to XML Converter</h4>
-        <p class="mb-2 text-sm">
-          This tool allows you to convert JSON data to XML format with proper structure and formatting.
-          It's useful for transforming data between these common interchange formats for various applications.
-        </p>
-        <p class="mb-2 text-sm">
-          <strong>Features:</strong>
-        </p>
-        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-          <li><span class="text-primary">JSON to XML transformation:</span> Automatically converts JSON objects and arrays to structured XML format</li>
-          <li><span class="text-primary">Customizable root element:</span> Set your own XML root element name to fit your data structure requirements</li>
-          <li><span class="text-primary">Key case options:</span> Change case format of XML element names (preserve case, camelCase, snake_case, etc.)</li>
-          <li><span class="text-primary">XML formatting:</span> Output is automatically formatted with proper indentation for readability</li>
-          <li><span class="text-primary">Advanced editors:</span> Syntax highlighting, error indicators, and code completion for both JSON and XML</li>
-          <li><span class="text-primary">Export options:</span> Copy the converted XML or download it as a file</li>
-        </ul>
-        <p class="text-sm text-500">
-          <i class="pi pi-info-circle mr-1"></i> All processing happens in your browser - your data is never sent to any server.
-        </p>
-      </div>
-
-      <!-- API Development and Web Services Applications -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">API Development & Web Services Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">REST API & Web Service Integration</h5>
-            <p class="mb-2 text-sm">
-              Essential for API developers, integration engineers, and backend developers
-              working with legacy systems that require XML format while modern applications use JSON.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">API Integration Scenarios:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Legacy SOAP service integration</li>
-              <li>Enterprise system data exchange</li>
-              <li>Third-party XML API consumption</li>
-              <li>Payment gateway XML request formatting</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Enterprise Application Integration</h5>
-            <p class="mb-2 text-sm">
-              Critical for enterprise architects, system integrators, and middleware developers
-              bridging modern JSON-based applications with XML-based enterprise systems.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Enterprise Use Cases:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>ERP system data transformation</li>
-              <li>SAP interface configuration</li>
-              <li>Banking and financial system integration</li>
-              <li>Healthcare HL7 message formatting</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Web Service Standards & Protocols</h5>
-          <p class="text-sm mb-2">
-            This JSON to XML converter supports web service developers, API architects,
-            and protocol specialists working with different messaging standards and formats.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Protocol Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">SOAP Web Services</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">REST-XML APIs</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">XML-RPC protocols</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">RSS/Atom feeds</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">WSDL definitions</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Configuration files</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Data Integration and Enterprise Applications -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Data Integration & Enterprise Applications</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">ETL & Data Pipeline Processing</h5>
-            <p class="mb-2 text-sm">
-              Essential for data engineers, ETL developers, and data integration specialists
-              working with heterogeneous data sources and transformation workflows.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Data Processing Applications:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>Data warehouse ETL transformations</li>
-              <li>Real-time data streaming conversion</li>
-              <li>Business intelligence data preparation</li>
-              <li>Master data management workflows</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">Document Management & Content Systems</h5>
-            <p class="mb-2 text-sm">
-              Critical for content managers, document architects, and enterprise content specialists
-              working with structured document formats and content management systems.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Content Management Scenarios:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>CMS content structure conversion</li>
-              <li>Document template generation</li>
-              <li>Publishing workflow automation</li>
-              <li>Digital asset metadata transformation</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">Business System Integration</h5>
-          <p class="text-sm mb-2">
-            This converter facilitates integration architects, business analysts,
-            and system administrators working with cross-platform data exchange and business processes.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Business Applications:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">CRM integration</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">E-commerce platforms</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Supply chain systems</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Financial reporting</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Workflow automation</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Data synchronization</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Technical Standards and XML Implementation Details -->
-      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-        <h4 class="text-xl font-semibold mb-3">Technical Standards & XML Implementation Details</h4>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">XML Standards & Validation Compliance</h5>
-            <p class="mb-2 text-sm">
-              Following W3C XML standards and industry specifications ensures compatibility,
-              interoperability, and validation compliance across different systems and platforms.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">XML Standards:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>W3C XML 1.0/1.1 specification compliance</li>
-              <li>XML Schema Definition (XSD) validation</li>
-              <li>XML Namespace specification support</li>
-              <li>Well-formed XML document structure</li>
-            </ul>
-          </div>
-
-          <div>
-            <h5 class="text-lg font-medium text-700 mb-2">JSON to XML Mapping & Transformation</h5>
-            <p class="mb-2 text-sm">
-              Understanding data type mapping, element naming conventions,
-              and structural transformation rules is essential for accurate JSON-to-XML conversion.
-            </p>
-
-            <h6 class="text-base font-medium text-600 mb-1">Transformation Rules:</h6>
-            <ul class="list-disc pl-5 text-sm space-y-1">
-              <li>JSON object to XML element mapping</li>
-              <li>Array handling and repetition strategies</li>
-              <li>Data type preservation and conversion</li>
-              <li>Special character escaping and encoding</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="mt-4">
-          <h5 class="text-lg font-medium text-700 mb-2">XML Processing & Performance Considerations</h5>
-          <p class="text-sm mb-2">
-            Efficient XML processing requires understanding of parsing strategies,
-            memory usage patterns, and performance optimization techniques for large-scale data transformation.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Implementation Considerations:</h6>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">DOM vs SAX parsing</span>
-            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Memory optimization</span>
-            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Streaming processing</span>
-            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Character encoding</span>
-            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Error handling</span>
-            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Validation strategies</span>
-          </div>
-
-          <p class="text-sm mt-3 text-600">
-            <strong>Performance Note:</strong> Large JSON datasets may require chunked processing
-            or streaming transformation techniques for optimal memory usage and response times.
-          </p>
-        </div>
-
-        <p class="text-sm mt-3">
-          For XML standards and specifications, visit
-          <a href="https://www.w3.org/XML/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C XML Standards</a>
-          and for JSON specification details, see
-          <a href="https://tools.ietf.org/html/rfc7159" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 7159 JSON Specification</a>.
-        </p>
-      </div>
-
-      <!-- Toast component -->
-      <p-toast position="bottom-right"></p-toast>
     </div>
+
+    <!-- Right column - XML Output -->
+    <div class="col flex flex-col h-full" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+        <!-- Header with fixed height -->
+        <div class="flex justify-between items-center h-10">
+          <span class="text-xl font-medium text-800 m-0">XML Output</span>
+          <div class="flex gap-2 items-center" id="options" style="height: 35px;">
+            <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
+              (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
+              [style]="{'min-width': '140px', 'height': '35px'}" [panelStyleClass]="'same-width-panel'"
+              appendTo="body">
+              <ng-template pTemplate="selectedItem">
+                <div class="flex align-items-center">
+                  <span>Key: {{selectedKeyCase.label}}</span>
+                </div>
+              </ng-template>
+              <ng-template let-option pTemplate="item">
+                <div class="flex align-items-center">
+                  <span>{{option.label}}</span>
+                </div>
+              </ng-template>
+            </p-select>
+
+            <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
+              <input pInputText id="root_name" [(ngModel)]="rootName" (ngModelChange)="convertJsonToXml()"
+                autocomplete="off" class="h-full" />
+              <label for="root_name">Root name</label>
+            </p-floatlabel>
+          </div>
+        </div>
+
+        <!-- Spacing for alignment -->
+        <div class="mb-1"></div>
+
+        <!-- Fallback textarea for server-side rendering -->
+        @if (false) {
+          <textarea [(ngModel)]="outputCode" readonly
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
+
+        <!-- Monaco editor for browser environment -->
+        @if (true) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Download" (click)="downloadXml()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="download" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+            </div>
+            <app-monaco-editor-lazy #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+              class="w-full h-full">
+            </app-monaco-editor-lazy>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is JSON to XML Conversion?</h2>
+      <p class="mt-3">
+        JSON to XML conversion is the process of transforming data from JavaScript Object Notation (JSON) into Extensible Markup Language (XML). Both are structured text-based formats for representing data, but XML adds explicit element tags, attributes, and a strict hierarchical document structure. Converting JSON to XML lets modern JSON-first applications exchange data with XML-based systems such as SOAP web services, RSS/Atom feeds, and legacy enterprise pipelines.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Convert JSON to XML?</h2>
+      <p class="mt-3">
+        Many legacy systems, enterprise integrations, and industry-standard protocols still require XML input. Converting JSON to XML is essential when you need to talk to SOAP APIs, generate RSS/Atom feeds, produce XML configuration files, or feed XML-based reporting tools. A reliable converter saves hours of manual tag wrapping and guarantees well-formed output that downstream XML parsers can consume safely.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Convert JSON to XML Online (Step by Step)</h2>
+      <p class="mt-3">
+        Using our JSON to XML converter is straightforward:
+      </p>
+      <ol class="list-decimal pl-5 mt-3 space-y-1">
+        <li>Paste or type your JSON into the Input editor, or click <strong>Sample</strong> to load an example.</li>
+        <li>Choose a <strong>root element name</strong> and an optional <strong>key case</strong> transformation (camelCase, snake_case, PascalCase, kebab-case).</li>
+        <li>Read the generated XML on the right and click <strong>Copy</strong> or <strong>Download</strong> to export it as a <code>.xml</code> file.</li>
+      </ol>
+      <p class="mt-3">
+        The conversion happens in real time as you type, with instant feedback on invalid JSON.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our JSON to XML Tool?</h2>
+      <p class="mt-3">
+        Our converter prioritizes speed, privacy, and developer ergonomics. Unlike many online tools, it runs entirely client-side: your JSON never leaves your browser. Features include real-time JSON validation, a customizable XML root element, key-case transformation, syntax-highlighted Monaco editors for both input and output, fullscreen mode, and one-click copy/download.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How JSON to XML Conversion Works</h2>
+      <p class="mt-3">
+        The converter walks your JSON tree and emits XML following a set of simple, predictable rules so that the output stays well-formed and round-trippable:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><span class="text-primary">Root element:</span> the whole JSON document is wrapped in a single XML root element whose name you control via the <em>Root name</em> field.</li>
+        <li><span class="text-primary">Objects:</span> each JSON property becomes an XML child element named after the key.</li>
+        <li><span class="text-primary">Arrays:</span> array items are emitted as repeated sibling elements sharing the same tag name, mirroring XML collection conventions.</li>
+        <li><span class="text-primary">Primitives:</span> strings, numbers, and booleans become text content inside their element.</li>
+        <li><span class="text-primary">Null values:</span> emitted as self-closing elements with <code>xsi:nil="true"</code>.</li>
+        <li><span class="text-primary">Special characters:</span> <code>&amp;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>"</code> and <code>'</code> are escaped to keep the XML well-formed.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><span class="text-primary">Configurable root tag:</span> set any XML root element name to match your schema.</li>
+        <li><span class="text-primary">Pretty-printed indentation:</span> output is automatically formatted with consistent indentation for readability.</li>
+        <li><span class="text-primary">Key case transformation:</span> convert all element names to camelCase, snake_case, PascalCase, or kebab-case on the fly.</li>
+        <li><span class="text-primary">Syntax-highlighted editors:</span> Monaco-powered JSON and XML editors with error squiggles and code folding.</li>
+        <li><span class="text-primary">Copy &amp; download:</span> one-click clipboard copy or download the result as a <code>.xml</code> file.</li>
+        <li><span class="text-primary">Fullscreen mode:</span> focus on a single editor when working with large payloads.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        This JSON to XML converter is used every day by backend developers, integration engineers, and data analysts. Typical scenarios include:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Integrating with <strong>legacy SOAP APIs</strong> that only accept XML payloads.</li>
+        <li>Generating <strong>RSS and Atom feeds</strong> from JSON content sources.</li>
+        <li>Producing <strong>XML configuration files</strong> for enterprise applications.</li>
+        <li>Feeding <strong>XML-based reporting and ETL pipelines</strong> from JSON APIs.</li>
+        <li>Testing and prototyping <strong>cross-format integrations</strong> without writing code.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Convert JSON Online?</h2>
+      <p class="mt-3">
+        Yes. All parsing and conversion runs entirely inside your browser using JavaScript. Your JSON is never uploaded to a server, logged, or stored. This client-side architecture makes the tool safe to use with sensitive or internal data while still delivering instant results.
+      </p>
+      <p class="mt-3">
+        There are no accounts, no ads, and no trackers injected into your payload - just a clean, fast JSON to XML conversion experience.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a distraction-free, developer-first suite of free online utilities. The JSON to XML converter is designed for speed, reliability, and accuracy, and is backed by the same client-side architecture used across the rest of our tools. Whether you convert one payload or thousands per day, you get consistent, professional output without ever sending data to a third party.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download and Copy Options</h2>
+      <p class="mt-3">
+        After converting your JSON, you can copy the generated XML to your clipboard or download it as a <code>.xml</code> file with a single click. This makes it easy to share the output with teammates, commit it to a repository, or drop it into an XML-based pipeline.
+      </p>
+      <p class="mt-3">
+        The tool also integrates with the rest of the DevTools suite. From here you can jump to the
+        <a [routerLink]="'/xml-formatter'" class="text-primary hover:underline">XML Formatter</a> to prettify or validate the result, return to the
+        <a [routerLink]="'/json-formatter'" class="text-primary hover:underline">JSON Formatter</a> to clean up the input, convert the same data into
+        <a [routerLink]="'/json-to-env'" class="text-primary hover:underline">ENV variables</a>, or explore it with the
+        <a [routerLink]="'/json-query'" class="text-primary hover:underline">JSON Query Explorer</a>.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this JSON to XML converter free to use?</h3>
+        <p class="mt-1">Yes, it is completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you store my JSON or XML data?</h3>
+        <p class="mt-1">No. All conversion happens locally in your browser, so your data never touches our servers.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I customize the XML root element name?</h3>
+        <p class="mt-1">Yes. Use the <em>Root name</em> field above the output editor to set any valid XML root element name.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How are JSON arrays converted to XML?</h3>
+        <p class="mt-1">Each item in a JSON array becomes a repeated sibling XML element that shares the same tag name, which is the standard way to represent collections in XML.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How are null values handled?</h3>
+        <p class="mt-1">JSON <code>null</code> values are emitted as self-closing XML elements with the <code>xsi:nil="true"</code> attribute.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I transform key names while converting?</h3>
+        <p class="mt-1">Yes. Use the key case dropdown to convert all element names to camelCase, snake_case, PascalCase, or kebab-case while preserving the data structure.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I convert large JSON files?</h3>
+        <p class="mt-1">Yes. The tool handles large JSON documents efficiently, limited only by your browser's available memory.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>JSON &amp; XML Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your understanding of JSON, XML, and the tooling around them, here are trusted external references:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://www.w3.org/TR/xml/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            W3C XML 1.0 Specification
+          </a> - the official XML recommendation from the W3C.
+        </li>
+        <li>
+          <a href="https://www.json.org/" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            JSON.org
+          </a> - the original JSON specification and introduction by Douglas Crockford.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/DOMParser" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN DOMParser
+          </a> - guide to parsing XML documents in JavaScript using the browser's <code>DOMParser</code> API.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/XML" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            Wikipedia: XML
+          </a> - a broad overview of XML, its history, and its ecosystem.
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <p-toast position="bottom-right"></p-toast>
+</div>

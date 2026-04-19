@@ -1,181 +1,334 @@
 <div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online image format converter — JPG, PNG, WebP, BMP &amp; GIF</app-page-header>
+  <div class="p-3">
+    <p>This <strong>online image format converter</strong> converts images between JPG, PNG, WebP, BMP and GIF directly in your browser with no upload.</p>
+    <p>Instantly <strong>change image format</strong> with drag-and-drop, preview the result and download the converted image in one click.</p>
+  </div>
+
+  <!-- Format Selection Settings -->
+  @if (isImageLoaded) {
+    <div class="p-2" id="options">
+      <h4 class="text-lg font-medium text-700 mb-3">Conversion Settings</h4>
+      <div class="dt-border p-4">
+        <!-- Target Format -->
+        <div class="flex flex-col p-3">
+          <label for="targetFormat" class="text-sm font-medium text-700 mb-2">Convert To</label>
+          <p-selectButton
+            inputId="targetFormat"
+            [(ngModel)]="conversionSettings.targetFormat"
+            [options]="availableFormats"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onFormatChange()"
+            class="w-full">
+          </p-selectButton>
+        </div>
+      </div>
+    </div>
+  }
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <!-- Left column - Image upload and original canvas -->
+    <div class="col flex flex-col" id="input">
+      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+
+          @if (isImageLoaded && isBrowser) {
+            <div class="flex text-sm gap-2">
+              <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
+                class="p-button-outlined" (click)="openFileDialog()">
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- File upload area -->
+        @if (!isImageLoaded && isBrowser) {
+          <div
+            class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
+            [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
+            (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
+            (click)="openFileDialog()">
+            <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
+            <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
+            <p class="text-sm text-600 mb-3">or click to select from your device</p>
+            <p class="text-xs text-500">Supports all common image formats</p>
+          </div>
+        }
+
+        <!-- Loading message for SSR -->
+        @if (false) {
+          <div class="loading-placeholder text-center p-6 surface-ground border-round">
+            <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
+            <p class="text-sm text-600 m-0">Loading image format converter...</p>
+          </div>
+        }
+
+        <!-- Original Canvas area -->
+        @if (true) {
+          <div class="canvas-container relative">
+            <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
+              <h4 class="text-lg font-medium text-700 mb-2">Original Image ({{ getFormatLabel(conversionSettings.originalFormat) }})</h4>
+              <canvas #originalCanvas class="border rounded"></canvas>
+              <div class="mt-2 text-sm text-600">
+                File size: {{formatFileSize(conversionSettings.originalSize)}}
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Hidden file input -->
+        @if (true) {
+          <input #fileInput type="file" accept="image/*" class="hidden"
+            (change)="onFileSelected($event)">
+        }
+      </div>
+    </div>
+
+    <!-- Right column - Converted image and controls -->
+    <div class="col flex flex-col" id="output">
+      <div class="card p-3 surface-card shadow-sm flex-1">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xl font-medium text-800 mb-3">Converted Image</h3>
+          @if (isImageLoaded && isBrowser) {
+            <div class="flex text-sm gap-2">
+              <button pButton pRipple type="button" label="Download" icon="pi pi-download" severity="contrast"
+                class="p-button-outlined" (click)="downloadImage()">
+              </button>
+              <button pButton pRipple type="button" label="Copy" icon="pi pi-copy" severity="contrast"
+                class="p-button-outlined" (click)="copyImage()">
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Converted Canvas -->
+        @if (isImageLoaded && isBrowser) {
+          <div class="canvas-container mb-4">
+            <div class="canvas-wrapper dt-border p-3">
+              <h4 class="text-lg font-medium text-700 mb-2">Preview ({{ getFormatLabel(conversionSettings.targetFormat) }})</h4>
+              <canvas #convertedCanvas class="border rounded"></canvas>
+              <div class="mt-2 text-sm text-600">
+                Converted size: {{formatFileSize(conversionSettings.convertedSize)}}
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- Default instructions for SSR or when no image -->
+        @if (!isBrowser || !isImageLoaded) {
+          <div
+            class="text-center p-4 surface-ground dt-border resize-info-container-upload">
+            <div>
+              <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
+            </div>
+            <p class="text-lg font-medium text-700 mb-2">Upload an image to start converting</p>
+            <p class="text-sm text-600">Select target format and download your converted image</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is Image Format Conversion?</h2>
+      <p class="mt-3">
+        Image format conversion is the process of re-encoding a picture from one file container and compression scheme into another — for example from <strong>JPG to PNG</strong>, <strong>PNG to WebP</strong> or <strong>BMP to JPG</strong>. Each format stores pixel data differently: JPEG uses lossy DCT compression optimized for photos, PNG uses lossless DEFLATE with alpha transparency, WebP supports both lossy and lossless modes with better compression, BMP is an uncompressed bitmap, and GIF uses indexed color with optional animation.
+      </p>
+      <p class="mt-3">
+        Converting between formats lets you trade off file size, visual quality, transparency support and browser compatibility. Our free <strong>image format converter</strong> performs this re-encoding entirely in your browser so your files never leave your device.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Convert Between Image Formats?</h2>
+      <p class="mt-3">
+        Developers and designers convert images to reduce bandwidth, support modern browsers, preserve transparency, or meet upload requirements of specific platforms. Converting a heavy <strong>PNG screenshot to WebP</strong> can cut file size by 50–80%, while switching a photo from <strong>BMP to JPG</strong> can shrink it by an order of magnitude without visible quality loss.
+      </p>
+      <p class="mt-3">
+        Typical reasons to convert include: optimizing images for faster page load and better Core Web Vitals, preparing assets for platforms that accept only specific formats, extracting a PNG from a legacy BMP, or generating a shareable JPEG from a transparent PNG.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Convert Images Online</h2>
+      <p class="mt-3">
+        Using this tool is simple. Drop an image into the upload area or click to browse from your device. The original picture is decoded and rendered to a preview canvas. Pick the target format (JPG, PNG, WebP, BMP or GIF) and the tool instantly re-encodes the image through the browser's canvas API, showing a side-by-side preview and the resulting file size.
+      </p>
+      <p class="mt-3">
+        When you are happy with the result, click <em>Download</em> to save the converted image or <em>Copy</em> to place it on the clipboard. Everything happens locally — there is no upload, no queue and no server-side processing.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our Converter?</h2>
+      <p class="mt-3">
+        Unlike many online converters, our tool is fully client-side. Your images are decoded, re-encoded and displayed directly in the browser using the native HTML5 <code>canvas</code> and <code>Blob</code> APIs. No data is transmitted to a server, no account is required and there are no watermarks, ads or daily limits.
+      </p>
+      <p class="mt-3">
+        The interface is designed to get out of your way: one upload area, one format switch and a one-click download. It works on desktop and mobile and is fast enough to batch-convert dozens of images in a single session.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How Image Format Conversion Works</h2>
+      <p class="mt-3">
+        Behind the scenes, the tool loads your file into an <code>HTMLImageElement</code>, draws it onto a hidden <code>&lt;canvas&gt;</code> at its original resolution, and then calls <code>canvas.toBlob(callback, mimeType, quality)</code>. The browser re-encodes the pixels into the requested MIME type — for example <code>image/jpeg</code>, <code>image/png</code>, <code>image/webp</code> or <code>image/bmp</code>.
+      </p>
+      <p class="mt-3">
+        The second argument to <code>toBlob</code> is the MIME type of the target format; the optional <code>quality</code> parameter (0 to 1) applies to lossy encoders like JPEG and WebP and controls the compression/quality trade-off. Lossless formats such as PNG ignore this parameter. The resulting <code>Blob</code> is then used to build an object URL for download or a <code>ClipboardItem</code> for copy-to-clipboard.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Key Features</h2>
+      <p class="mt-3">
+        The converter is built around a short list of features developers actually need every day:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Multiple formats</strong> — convert between JPG, PNG, WebP, BMP and GIF.</li>
+        <li><strong>Drag-and-drop upload</strong> with fallback file picker for keyboard users.</li>
+        <li><strong>Instant preview</strong> of the converted image on a live canvas.</li>
+        <li><strong>Side-by-side file size</strong> comparison of original vs converted output.</li>
+        <li><strong>Download or copy</strong> the result as a <code>Blob</code> in one click.</li>
+        <li><strong>100% client-side</strong> — images never leave your browser.</li>
+        <li><strong>No limits</strong> — no login, no watermarks, no quotas.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>WebP vs JPEG vs PNG vs AVIF — Use Cases</h2>
+      <p class="mt-3">
+        Picking the right format depends on the content and delivery target. Here is a quick guide:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>JPEG</strong> — best for photographs and full-color scenes where small file size matters more than pixel-perfect accuracy. Lossy, no transparency.</li>
+        <li><strong>PNG</strong> — best for UI screenshots, logos, diagrams and anything requiring an alpha channel or pixel-exact reproduction. Lossless, larger files.</li>
+        <li><strong>WebP</strong> — the modern default for the web. Supports both lossy and lossless modes and typically beats JPEG and PNG by 25–35% at the same visual quality.</li>
+        <li><strong>AVIF</strong> — next-generation format based on AV1. Offers the best compression of all mainstream formats, strong HDR support and alpha transparency. Ideal when browser support allows, especially for hero images and photography.</li>
+        <li><strong>BMP</strong> — uncompressed legacy bitmap, useful mostly for system icons or as an intermediate format for desktop apps.</li>
+        <li><strong>GIF</strong> — indexed color, limited palette; still relevant for simple animations and stickers.</li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Convert Images Online?</h2>
+      <p class="mt-3">
+        Yes. This converter never uploads your images to a server. All decoding, re-encoding and previewing happens entirely in your browser using the HTML5 <code>File</code>, <code>Image</code>, <code>Canvas</code> and <code>Blob</code> APIs. Your files stay on your device at all times.
+      </p>
+      <p class="mt-3">
+        This makes the tool safe to use for confidential screenshots, NDA-protected product assets, personal photos, medical scans and anything else you would rather not trust to a third-party server. No tracking, no analytics on uploaded content, no residual copies in the cloud.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools is a curated suite of free, privacy-respecting utilities built for developers and designers. Every tool in the collection shares the same principles: client-side execution, clean modern UI, no ads, no mandatory sign-up and no rate limits.
+      </p>
+      <p class="mt-3">
+        The image format converter is part of a broader image-processing toolkit that covers resizing, compression, color picking and format conversion, so you can handle most image tasks without leaving the site or installing desktop software.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download, Copy and Related Image Tools</h2>
+      <p class="mt-3">
+        After conversion you can instantly <strong>download</strong> the result as a file named <code>converted-image.&lt;ext&gt;</code> or <strong>copy</strong> it to the system clipboard as a <code>ClipboardItem</code>, ready to paste into another app such as a chat client, document editor or design tool.
+      </p>
+      <p class="mt-3">
+        Need more than format conversion? Combine this tool with the rest of our image workflow:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/image-resize'" class="text-primary hover:underline">Image Resize</a> — change the dimensions of an image before or after converting its format.
+        </li>
+        <li>
+          <a [routerLink]="'/image-compressor'" class="text-primary hover:underline">Image Compressor</a> — reduce the file size of JPG, PNG and WebP images while keeping quality high.
+        </li>
+        <li>
+          <a [routerLink]="'/image-color-picker'" class="text-primary hover:underline">Image Color Picker</a> — pick exact colors and build palettes from any uploaded image.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this image format converter free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, watermarks or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Are my images uploaded to a server?</h3>
+        <p class="mt-1">No. All conversion is performed locally in your browser using the HTML5 canvas API, so your images never leave your device.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which image formats are supported?</h3>
+        <p class="mt-1">You can convert between JPG, PNG, WebP, BMP and GIF. Input can be any image format your browser can decode, including HEIC on compatible browsers.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Will converting reduce the quality of my image?</h3>
+        <p class="mt-1">It depends on the target format. Converting to lossy formats like JPEG or WebP may introduce minor compression artifacts, while converting to lossless formats like PNG or BMP preserves every pixel of the source image.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I convert PNG to WebP or JPG to PNG?</h3>
+        <p class="mt-1">Yes. Any supported input format can be converted to any supported output format — PNG to WebP, JPG to PNG, BMP to JPG, WebP to PNG and every other combination work out of the box.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is there a file size limit?</h3>
+        <p class="mt-1">There is no hard limit imposed by the tool; the only constraint is your browser's available memory, which is usually enough for typical photographs and screenshots.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Does the converter preserve transparency?</h3>
+        <p class="mt-1">Transparency is preserved when converting to formats that support an alpha channel such as PNG and WebP. Converting to JPG, BMP or GIF will flatten transparent regions.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Image Format Learning Resources</h2>
+      <p class="mt-3">
+        Want to dig deeper into how modern image formats work? These external references are excellent starting points:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/Media/Formats/Image_types" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN — Image file type and format guide
+          </a> - Comprehensive overview of JPEG, PNG, WebP, AVIF, GIF and BMP on the web.
+        </li>
+        <li>
+          <a href="https://web.dev/articles/serve-images-webp" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            web.dev — Use WebP images
+          </a> - Google's guide to adopting WebP for faster, smaller image delivery.
+        </li>
+        <li>
+          <a href="https://web.dev/articles/compress-images-avif" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            web.dev — Compress images with AVIF
+          </a> - Introduction to AVIF, the next-generation format built on AV1.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/HTMLCanvasElement/toBlob" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">
+            MDN — HTMLCanvasElement.toBlob()
+          </a> - Reference for the browser API that powers this converter.
+        </li>
+      </ul>
+    </div>
+  </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-  <app-page-header>Convert images between different formats with ease</app-page-header>
-  <div class="p-3">
-    <p>This <strong>image format converter</strong> allows you to convert images between JPG, PNG, WebP, BMP, and GIF formats.</p>
-    <p>Simply <strong>drag and drop an image</strong> or click to upload, select the target format, and get your converted image.
-    <strong>All formats supported</strong> with high-quality conversion.
-  </p>
-</div>
-
-<!-- Format Selection Settings -->
-@if (isImageLoaded) {
-  <div class="p-2">
-    <h4 class="text-lg font-medium text-700 mb-3">Conversion Settings</h4>
-    <div class="dt-border p-4">
-      <!-- Target Format -->
-      <div class="flex flex-col p-3">
-        <label for="targetFormat" class="text-sm font-medium text-700 mb-2">Convert To</label>
-        <p-selectButton
-          inputId="targetFormat"
-          [(ngModel)]="conversionSettings.targetFormat"
-          [options]="availableFormats"
-          optionLabel="label"
-          optionValue="value"
-          (onChange)="onFormatChange()"
-          class="w-full">
-        </p-selectButton>
-      </div>
-    </div>
-  </div>
-}
-
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-  <!-- Left column - Image upload and original canvas -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
-
-        @if (isImageLoaded && isBrowser) {
-          <div class="flex text-sm gap-2">
-            <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
-              class="p-button-outlined" (click)="openFileDialog()">
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- File upload area -->
-      @if (!isImageLoaded && isBrowser) {
-        <div
-          class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
-          [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
-          (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
-          (click)="openFileDialog()">
-          <i class="pi pi-cloud-upload text-4xl text-600 mb-3 block"></i>
-          <p class="text-lg font-medium text-700 mb-2">Drop an image here</p>
-          <p class="text-sm text-600 mb-3">or click to select from your device</p>
-          <p class="text-xs text-500">Supports all common image formats</p>
-        </div>
-      }
-
-      <!-- Loading message for SSR -->
-      @if (!isBrowser) {
-        <div class="loading-placeholder text-center p-6 surface-ground border-round">
-          <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
-          <p class="text-sm text-600 m-0">Loading image format converter...</p>
-        </div>
-      }
-
-      <!-- Original Canvas area -->
-      @if (isBrowser) {
-        <div class="canvas-container relative">
-          <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
-            <h4 class="text-lg font-medium text-700 mb-2">Original Image ({{ getFormatLabel(conversionSettings.originalFormat) }})</h4>
-            <canvas #originalCanvas class="border rounded"></canvas>
-            <div class="mt-2 text-sm text-600">
-              File size: {{formatFileSize(conversionSettings.originalSize)}}
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Hidden file input -->
-      @if (isBrowser) {
-        <input #fileInput type="file" accept="image/*" class="hidden"
-          (change)="onFileSelected($event)">
-      }
-    </div>
-  </div>
-
-  <!-- Right column - Converted image and controls -->
-  <div class="col flex flex-col">
-    <div class="card p-3 surface-card shadow-sm flex-1">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xl font-medium text-800 mb-3">Converted Image</h3>
-        @if (isImageLoaded && isBrowser) {
-          <div class="flex text-sm gap-2">
-            <button pButton pRipple type="button" label="Download" icon="pi pi-download" severity="contrast"
-              class="p-button-outlined" (click)="downloadImage()">
-            </button>
-            <button pButton pRipple type="button" label="Copy" icon="pi pi-copy" severity="contrast"
-              class="p-button-outlined" (click)="copyImage()">
-            </button>
-          </div>
-        }
-      </div>
-
-      <!-- Converted Canvas -->
-      @if (isImageLoaded && isBrowser) {
-        <div class="canvas-container mb-4">
-          <div class="canvas-wrapper dt-border p-3">
-            <h4 class="text-lg font-medium text-700 mb-2">Preview ({{ getFormatLabel(conversionSettings.targetFormat) }})</h4>
-            <canvas #convertedCanvas class="border rounded"></canvas>
-            <div class="mt-2 text-sm text-600">
-              Converted size: {{formatFileSize(conversionSettings.convertedSize)}}
-            </div>
-          </div>
-        </div>
-      }
-
-      <!-- Default instructions for SSR or when no image -->
-      @if (!isBrowser || !isImageLoaded) {
-        <div
-          class="text-center p-4 surface-ground dt-border resize-info-container-upload">
-          <div>
-            <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
-          </div>
-          <p class="text-lg font-medium text-700 mb-2">Upload an image to start converting</p>
-          <p class="text-sm text-600">Select target format and download your converted image</p>
-        </div>
-      }
-    </div>
-  </div>
-</div>
-
-<!-- Information section -->
-<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-  <h4 class="text-xl font-semibold mb-2">About Image Format Converter</h4>
-  <p class="mb-2 text-sm">
-    Image Format Converter allows you to easily convert images between different formats including JPG, PNG, WebP, BMP, and GIF.
-    Simply upload your image, select the target format, and download the converted result.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>How it works:</strong>
-    Upload an image via drag and drop or file selection. Select your desired target format from the dropdown menu.
-    Preview your converted image in real-time with file size comparison and download or copy when ready.
-  </p>
-  <p class="mb-2 text-sm">
-    <strong>Supported formats:</strong>
-  </p>
-  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-    <li><span class="text-primary">JPG/JPEG:</span> Best for photos with many colors</li>
-    <li><span class="text-primary">PNG:</span> Best for images with transparency</li>
-    <li><span class="text-primary">WebP:</span> Modern format with excellent compression</li>
-    <li><span class="text-primary">BMP:</span> Uncompressed bitmap format</li>
-    <li><span class="text-primary">GIF:</span> Best for simple animations and graphics</li>
-  </ul>
-  <p class="mb-2 text-sm">
-    <strong>Key features:</strong>
-  </p>
-  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-    <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
-    <li><span class="text-primary">Multiple Formats:</span> Convert between JPG, PNG, WebP, BMP, and GIF</li>
-    <li><span class="text-primary">Real-time Preview:</span> See converted image and file size instantly</li>
-    <li><span class="text-primary">Size Comparison:</span> View original vs converted file sizes</li>
-    <li><span class="text-primary">Download & Copy:</span> Download converted image or copy to clipboard</li>
-    <li><span class="text-primary">High Quality:</span> Maximum resolution preservation during conversion</li>
-    <li><span class="text-primary">Privacy:</span> All processing done locally in your browser</li>
-  </ul>
-  <p class="text-sm">
-    Perfect for web developers, graphic designers, content creators, and anyone who needs to convert images between different formats.
-    Learn more about image formats at
-    <a href="https://en.wikipedia.org/wiki/Image_file_formats" target="_blank" rel="noopener noreferrer"
-    class="text-blue-600 underline hover:text-blue-800">Wikipedia Image File Formats</a>.
-  </p>
-</div>
-
 </div>

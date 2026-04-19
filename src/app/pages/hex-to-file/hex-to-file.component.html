@@ -1,13 +1,15 @@
-<div class="flex flex-col w-full h-full">
-  <app-page-header>Tool for converting hexadecimal data to downloadable files</app-page-header>
+<div class="dt-container">
+  <!-- Schema.org structured data (WebApplication, FAQPage, HowTo, BreadcrumbList) injected into <head> via SeoService -->
+
+  <app-page-header>Free online HEX to File converter &amp; decoder</app-page-header>
   <div class="p-3">
-    <p>This <strong>online HEX to file converter</strong> allows you to convert hexadecimal data into binary files and download them directly.</p>
-    <p>Quickly <strong>convert HEX to file</strong> and download in your browser with no server upload.</p>
+    <p>This <strong>online HEX to file converter</strong> decodes hexadecimal strings back into downloadable binary files with automatic file type detection.</p>
+    <p>Quickly <strong>convert HEX to file</strong> and <strong>decode hex to binary</strong> in your browser with no server upload and full privacy.</p>
   </div>
 
   <div class="grid grid-cols-1 gap-4 flex-1">
     <!-- HEX Input Section -->
-    <div class="col flex flex-col h-full">
+    <div class="col flex flex-col h-full" id="input">
       <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
         <!-- Header with fixed height -->
         <div class="flex justify-between items-center h-10">
@@ -55,8 +57,8 @@
           </div>
         }
 
-        <!-- File Name Input -->
-        <div class="mt-4">
+        <!-- File Name & Type Options -->
+        <div class="mt-4" id="options">
           <div class="field">
             <p-floatlabel variant="on" styleClass="custom-floatlabel h-full" [style]="{'height': '35px'}">
               <input pInputText id="file_name" [(ngModel)]="fileName"
@@ -113,7 +115,7 @@
           </div>
 
           <!-- Convert & Download Button -->
-          <div class="mt-4">
+          <div class="mt-4" id="output">
             <button pButton type="button" label="Convert & Download" icon="pi pi-download"
               (click)="convertAndDownload()"
               [disabled]="!inputHex || !fileName"
@@ -123,174 +125,183 @@
       </div>
     </div>
 
-    <!-- Information Section -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
-      <h4 class="text-xl font-semibold mb-2">About HEX to File Converter</h4>
-      <p class="mb-2 text-sm">
-        This tool allows you to convert hexadecimal (HEX) encoded data back into downloadable files. It automatically detects common file types from the data signature and supports multiple HEX input formats for maximum compatibility.
+  <div class="dt-info mt-4 p-3">
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>What is HEX to File Conversion?</h2>
+      <p class="mt-3">
+        HEX to file conversion is the process of decoding a hexadecimal (base-16) string back into its original binary representation and saving it as a downloadable file. Every two hex characters represent one byte, so a HEX string like <code>89504E47</code> maps to the first four bytes of a PNG image. This is the inverse operation of a file-to-hex encoder and is essential whenever you receive binary data as a hex dump, log line, or payload.
       </p>
-      <p class="mb-2 text-sm">
-        <strong>How it works:</strong>
-        The converter parses hexadecimal data in various formats, converts it back to binary form, then uses magic number detection to identify file types and generate downloadable files with appropriate extensions.
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Convert HEX Strings Back to Files?</h2>
+      <p class="mt-3">
+        Binary data is often transported or stored as HEX for safety and readability - inside logs, API responses, database columns, firmware dumps, or packet captures. To actually use that data as an image, PDF, archive or executable, you must decode the HEX back into raw bytes. A reliable <strong>HEX to file decoder</strong> lets you recover the original file without writing custom scripts.
       </p>
-      <p class="mb-2 text-sm">
-        <strong>Supported HEX formats:</strong>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How to Decode HEX to File (Step-by-Step)</h2>
+      <p class="mt-3">
+        Using our HEX to File tool is simple:
       </p>
-      <ul class="list-disc pl-5 mb-2 text-sm space-y-1">
-        <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
-        <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
-        <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
-        <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
-        <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
+      <ol class="list-decimal pl-5 mt-3 space-y-2">
+        <li>Paste or type your HEX string into the input editor. Formats with dashes, colons, spaces, or <code>0x</code> prefixes are all accepted.</li>
+        <li>Review the auto-detected file type and adjust the filename or extension in the options section if needed.</li>
+        <li>Click <strong>Convert &amp; Download</strong> to generate and save the decoded binary file directly from your browser.</li>
+      </ol>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our HEX to File Tool?</h2>
+      <p class="mt-3">
+        Our HEX to File converter prioritizes speed, privacy, and compatibility. It handles large hex inputs efficiently, automatically recognizes common binary signatures (magic numbers), and runs entirely in your browser with no uploads. Unlike command-line utilities, you get instant visual feedback, MIME type hints, and safe downloads without installing anything.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>How HEX to File Decoding Works</h2>
+      <p class="mt-3">
+        Internally the tool normalizes your input (stripping whitespace, dashes, colons and <code>0x</code> prefixes), then pairs every two hex characters into a single byte. The sequence of bytes is stored in a <code>Uint8Array</code>, wrapped in a <code>Blob</code> with the detected MIME type, and finally exposed via <code>URL.createObjectURL</code> so the browser can trigger a native download.
+      </p>
+      <p class="mt-3">
+        The pipeline is: <strong>pair hex chars → byte → Uint8Array → Blob → download</strong>. This keeps decoding fully client-side, deterministic, and compatible with any binary format.
+      </p>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Features</h2>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>Accepts multiple HEX formats: plain, dashed (<code>DE-AD-BE-EF</code>), colon-separated (<code>DE:AD:BE:EF</code>), space-separated, and <code>0x</code>-prefixed bytes.</li>
+        <li>Custom filename with editable extension - override the auto-detected one when needed.</li>
+        <li>Automatic MIME type detection based on file signatures (PNG, JPEG, PDF, ZIP, and many more).</li>
+        <li>Real-time HEX validation with clear error messages for malformed input.</li>
+        <li>Display truncation for very large inputs while preserving the full data for decoding.</li>
+        <li>One-click sample data and clipboard paste for faster testing.</li>
       </ul>
-      <p class="mb-2 text-sm">
-        <strong>Supported file types:</strong>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases</h2>
+      <p class="mt-3">
+        HEX to file decoding is used across many technical domains:
       </p>
-      <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-        <li><span class="text-primary">Images:</span> JPG, PNG, GIF, BMP, TIFF, WEBP, SVG, ICO</li>
-        <li><span class="text-primary">Documents:</span> PDF, DOC, DOCX, RTF, XML, HTML, TXT, CSV</li>
-        <li><span class="text-primary">Archives:</span> ZIP, RAR, GZ, BZ2, 7Z, TAR</li>
-        <li><span class="text-primary">Audio:</span> MP3, AAC, OGG, FLAC, WAV, M4A</li>
-        <li><span class="text-primary">Video:</span> MP4, MPG, MKV, AVI, WMV, MOV</li>
-        <li><span class="text-primary">Fonts:</span> TTF, OTF, WOFF, WOFF2, EOT</li>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li><strong>Digital forensics</strong> - reconstruct files from memory dumps, disk carvers, or evidence logs.</li>
+        <li><strong>Firmware &amp; embedded systems</strong> - extract binary blobs from datasheets, Intel HEX files, or flashing tools.</li>
+        <li><strong>Binary inspection</strong> - turn a hex dump from a debugger or hex editor back into a real file for testing.</li>
+        <li><strong>Protocol analysis</strong> - reassemble payloads from network captures (Wireshark, tcpdump) into images, audio, or documents.</li>
       </ul>
-      <p class="text-sm">
-        Learn more about hexadecimal encoding at
-        <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-        and file signatures at
-        <a href="https://en.wikipedia.org/wiki/List_of_file_signatures" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia File Signatures</a>.
-      </p>
-      <p class="text-sm text-500">
-        <i class="pi pi-info-circle mr-1"></i> If the file type cannot be detected, the file will be saved as a .bin file. You can also manually specify the file name with the desired extension. All conversion is performed locally in your browser.
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Decode HEX Online?</h2>
+      <p class="mt-3">
+        Yes. The entire conversion runs in your browser using JavaScript - your HEX data and the decoded file never leave your device. No uploads, no tracking, no account required. This client-side architecture protects sensitive forensic evidence, proprietary firmware, or personal files while still delivering fast, reliable results.
       </p>
     </div>
 
-    <!-- System Administration and Digital Forensics Applications -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-      <h4 class="text-xl font-semibold mb-3">System Administration & Digital Forensics Applications</h4>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">Digital Forensics & Security Analysis</h5>
-          <p class="mb-2 text-sm">
-            Essential for cybersecurity professionals, forensic investigators, and security analysts
-            who need to reconstruct files from hexadecimal dumps, memory captures, and network traffic.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Forensics Use Cases:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>Memory dump file reconstruction</li>
-            <li>Network packet payload extraction</li>
-            <li>Malware sample recovery and analysis</li>
-            <li>Digital evidence file restoration</li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">System Administration & Recovery</h5>
-          <p class="mb-2 text-sm">
-            Critical for system administrators, IT support professionals, and data recovery specialists
-            who work with low-level system data, backup files, and corrupted storage recovery.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Administrative Tasks:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>System backup file reconstruction</li>
-            <li>Corrupted file recovery operations</li>
-            <li>Boot sector and partition analysis</li>
-            <li>Hardware diagnostic data processing</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <h5 class="text-lg font-medium text-700 mb-2">Development & Reverse Engineering</h5>
-        <p class="text-sm mb-2">
-          This HEX to file converter is valuable for software developers, reverse engineers,
-          and researchers working with binary data analysis and file format research.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Development Applications:</h6>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-          <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Firmware analysis</span>
-          <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file research</span>
-          <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Protocol reverse engineering</span>
-          <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Embedded system debugging</span>
-          <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Game asset extraction</span>
-          <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">File format development</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Technical Implementation and Data Recovery Details -->
-    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
-      <h4 class="text-xl font-semibold mb-3">Technical Implementation & Data Recovery Capabilities</h4>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">Magic Number Detection & File Type Recognition</h5>
-          <p class="mb-2 text-sm">
-            Advanced file type detection using magic numbers (file signatures) enables automatic
-            identification of file formats without relying on filename extensions or metadata.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Detection Examples:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>PNG: 89 50 4E 47 0D 0A 1A 0A (8-byte signature)</li>
-            <li>JPEG: FF D8 FF (starts with these bytes)</li>
-            <li>PDF: 25 50 44 46 (%PDF in hex)</li>
-            <li>ZIP: 50 4B 03 04 (PK file signature)</li>
-          </ul>
-        </div>
-
-        <div>
-          <h5 class="text-lg font-medium text-700 mb-2">Hexadecimal Format Parsing & Validation</h5>
-          <p class="mb-2 text-sm">
-            Robust parsing engine handles various hexadecimal representations and formatting
-            conventions used by different tools, systems, and documentation standards.
-          </p>
-
-          <h6 class="text-base font-medium text-600 mb-1">Format Support:</h6>
-          <ul class="list-disc pl-5 text-sm space-y-1">
-            <li>Memory dump formats (space-separated)</li>
-            <li>Network protocol analysis (colon-separated)</li>
-            <li>Programming literals (0x prefixed)</li>
-            <li>Documentation formats (dash-separated)</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="mt-4">
-        <h5 class="text-lg font-medium text-700 mb-2">Data Integrity & Error Handling</h5>
-        <p class="text-sm mb-2">
-          Comprehensive error detection and correction capabilities ensure reliable file reconstruction
-          even from partially corrupted or incomplete hexadecimal data sources.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Reliability Features:</h6>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-          <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Input validation</span>
-          <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Format normalization</span>
-          <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Error detection</span>
-          <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Partial recovery</span>
-          <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Checksum verification</span>
-          <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Integrity checking</span>
-        </div>
-
-        <p class="text-sm mt-3 text-600">
-          <strong>Security Note:</strong> Always verify the integrity and safety of reconstructed files,
-          especially when working with data from untrusted sources or forensic investigations.
-        </p>
-      </div>
-
-      <p class="text-sm mt-3">
-        For comprehensive file format documentation, visit
-        <a href="https://www.fileformat.info/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">FileFormat.Info</a>
-        and for hexadecimal fundamentals, see
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN parseInt Hexadecimal</a>.
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools?</h2>
+      <p class="mt-3">
+        DevTools provides a curated suite of developer utilities focused on privacy, speed, and a distraction-free UI. Our HEX to File converter is ad-free, requires no signup, and works consistently across desktop and mobile browsers. It's part of a broader ecosystem of encoding, conversion, and formatting tools designed to streamline day-to-day engineering work.
       </p>
     </div>
 
-    <!-- Toast component -->
-    <p-toast position="bottom-right"></p-toast>
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>Download Options &amp; Related Tools</h2>
+      <p class="mt-3">
+        Once decoded, the file is delivered via a native browser download using the correct MIME type and extension. You can also continue your workflow with related DevTools utilities:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a [routerLink]="'/hex'" class="text-primary hover:underline">HEX Encoder / Decoder</a>
+          - convert text to and from hexadecimal strings.
+        </li>
+        <li>
+          <a [routerLink]="'/hex-to-base64'" class="text-primary hover:underline">HEX to Base64</a>
+          - transform hex payloads into Base64 for JSON and APIs.
+        </li>
+        <li>
+          <a [routerLink]="'/base64-to-file'" class="text-primary hover:underline">Base64 to File</a>
+          - the Base64 equivalent of this tool for decoding Base64 strings into files.
+        </li>
+        <li>
+          <a [routerLink]="'/base64-to-hex'" class="text-primary hover:underline">Base64 to HEX</a>
+          - convert between Base64 and HEX representations.
+        </li>
+      </ul>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Is this HEX to File converter free to use?</h3>
+        <p class="mt-1">Yes, it's completely free with no registration, ads, or usage limits.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Do you upload my HEX data to a server?</h3>
+        <p class="mt-1">No, all decoding is done locally in your browser. Your HEX string and the resulting file never leave your device.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Which HEX formats are supported?</h3>
+        <p class="mt-1">Plain hex (<code>DEADBEEF</code>), dashed (<code>DE-AD-BE-EF</code>), colon-separated (<code>DE:AD:BE:EF</code>), space-separated (<code>DE AD BE EF</code>), and <code>0x</code>-prefixed bytes are all accepted.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">How is the file type detected?</h3>
+        <p class="mt-1">The decoder inspects the first bytes of your data (magic numbers / file signatures) and matches them against known formats such as PNG, JPEG, PDF, ZIP, MP4, and many others. If no match is found, the file is saved as a generic <code>.bin</code> file.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I override the detected file extension?</h3>
+        <p class="mt-1">Yes. You can edit the filename field and either pick a different type from the dropdown or type an explicit extension (for example <code>report.pdf</code>) before downloading.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">Can I decode very large HEX strings?</h3>
+        <p class="mt-1">Yes. The display is truncated for readability but the full input is always used when decoding. Practical limits depend on your browser's memory.</p>
+      </div>
+
+      <div class="faq-item mt-3">
+        <h3 class="text-base font-semibold">What happens if my HEX is invalid?</h3>
+        <p class="mt-1">The tool validates the input in real time and shows a clear error if it contains non-hex characters or has an odd length. Fix the input and the decoder will re-enable the download.</p>
+      </div>
+    </div>
+
+    <div class="dt-info-item">
+      <h2 class="text-xl text-primary" anchorHeading>HEX Learning Resources</h2>
+      <p class="mt-3">
+        To deepen your knowledge of hexadecimal encoding and binary file handling, explore these external resources:
+      </p>
+      <ul class="list-disc pl-5 mt-3 space-y-2">
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia: Hexadecimal</a>
+          - overview of the base-16 numeral system and its uses in computing.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/Blob" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN Blob API</a>
+          - how browsers wrap raw binary data for downloads and file handling.
+        </li>
+        <li>
+          <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">MDN Uint8Array</a>
+          - the typed array used to represent the decoded byte stream.
+        </li>
+        <li>
+          <a href="https://en.wikipedia.org/wiki/Binary_file" target="_blank" rel="noopener noreferrer"
+            class="text-primary hover:underline">Wikipedia: Binary file</a>
+          - introduction to binary file formats and how they differ from text.
+        </li>
+      </ul>
+    </div>
   </div>
+
+  <!-- Toast component -->
+  <p-toast position="bottom-right"></p-toast>
+</div>
