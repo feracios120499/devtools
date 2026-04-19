@@ -23,7 +23,12 @@ import {
   UserPreferencesService,
 } from '../../services/user-preferences.service';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'app-file-to-hex',
@@ -31,10 +36,15 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
   imports: [
     CommonModule,
     FormsModule,
-    PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     RouterModule,
+    ButtonModule,
+    SelectModule,
+    TextareaModule,
+    TieredMenuModule,
+    ToastModule,
+    RippleModule,
   ],
   providers: [MessageService],
   templateUrl: './file-to-hex.component.html',

@@ -4,6 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { SelectModule } from 'primeng/select';
+import { TextareaModule } from 'primeng/textarea';
+import { TieredMenuModule } from 'primeng/tieredmenu';
+import { ToastModule } from 'primeng/toast';
 
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
 import { PageTitleService } from '../../services/page-title.service';
@@ -11,7 +17,6 @@ import { MetaData, SeoService } from '../../services/seo.service';
 import { ThemeService } from '../../services/theme.service';
 import { FileToBase64Settings, UserPreferencesService } from '../../services/user-preferences.service';
 import { IconsModule } from '../../shared/modules/icons.module';
-import { PrimeNgModule } from '../../shared/modules/primeng.module';
 
 @Component({
   selector: 'app-file-to-base64',
@@ -19,10 +24,15 @@ import { PrimeNgModule } from '../../shared/modules/primeng.module';
   imports: [
     CommonModule,
     FormsModule,
-    PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     RouterModule,
+    ButtonModule,
+    SelectModule,
+    TextareaModule,
+    TieredMenuModule,
+    ToastModule,
+    RippleModule,
   ],
   providers: [MessageService],
   templateUrl: './file-to-base64.component.html',
