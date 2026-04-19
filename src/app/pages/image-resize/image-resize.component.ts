@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, HostBinding, Inject, PLATFORM_ID, ChangeDetectorRef } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, HostBinding, Inject, PLATFORM_ID, ChangeDetectorRef, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
@@ -22,12 +22,11 @@ interface ResizeSettings {
   selector: 'app-image-resize',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule 
-  ],
+    IconsModule
+],
   providers: [MessageService],
   templateUrl: './image-resize.component.html',
   styleUrl: './image-resize.component.scss'

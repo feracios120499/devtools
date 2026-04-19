@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, HostBinding, effect, ViewChild, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, HostBinding, effect, ViewChild, ElementRef, HostListener, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
@@ -27,14 +27,13 @@ export interface SvgToReactSettings {
   selector: 'app-svg-to-react-component',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     MonacoEditorModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './svg-to-react-component.component.html',
   styleUrl: './svg-to-react-component.component.scss'
@@ -619,7 +618,7 @@ export class SvgToReactComponentComponent implements OnInit, OnDestroy {
    * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
    */
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;

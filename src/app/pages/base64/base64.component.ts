@@ -1,5 +1,5 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, Renderer2, effect, ElementRef, HostListener, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, Inject, PLATFORM_ID, Renderer2, effect, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 
@@ -28,7 +28,6 @@ import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-
   selector: 'app-base64',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     ReactiveFormsModule,
     CardModule,
@@ -41,7 +40,7 @@ import { MonacoScrollFixDirective } from '../../shared/directives/monaco-scroll-
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './base64.component.html',
   styleUrl: './base64.component.scss'
@@ -125,7 +124,7 @@ export class Base64Component implements OnInit, AfterViewInit, OnDestroy {
    * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
    */
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;

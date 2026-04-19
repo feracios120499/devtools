@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, AfterViewInit, Inject, PLATFORM_ID, effect, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
@@ -26,14 +26,13 @@ interface KeyCaseOption {
   selector: 'app-json-to-xml',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './json-to-xml.component.html',
   styleUrl: './json-to-xml.component.scss'
@@ -465,7 +464,7 @@ export class JsonToXmlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;

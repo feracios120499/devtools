@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, HostBinding } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule } from '@angular/router';
 
 // PrimeNG imports
@@ -17,12 +17,11 @@ import { SeoService } from '../../services/seo.service';
   selector: 'app-not-found',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     CardModule,
     ButtonModule,
     IconsModule
-  ],
+],
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.scss'
 })

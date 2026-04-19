@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { RouterModule, Router, ActivatedRoute } from '@angular/router';
 
 // PrimeNG imports
@@ -28,14 +28,13 @@ interface FeatureCard {
   selector: 'app-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     RouterModule,
     CardModule,
     ButtonModule,
     ImageModule,
     TooltipModule,
     IconsModule
-  ],
+],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })

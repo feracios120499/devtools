@@ -3,23 +3,24 @@
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
   <app-page-header>Pick colors from images with magnifying glass preview and get precise HEX and RGB
-    values</app-page-header>
+  values</app-page-header>
   <div class="p-3">
     <p>This <strong>image color picker</strong> allows you to extract colors from any image with precision using a
-      magnifying glass preview.</p>
-    <p>Simply <strong>drag and drop an image</strong> or click to upload, then click anywhere on the image to get
-      <strong>HEX and RGB color values</strong>.
-    </p>
-  </div>
+  magnifying glass preview.</p>
+  <p>Simply <strong>drag and drop an image</strong> or click to upload, then click anywhere on the image to get
+  <strong>HEX and RGB color values</strong>.
+</p>
+</div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <!-- Left column - Image upload and canvas -->
-    <div class="col flex flex-col">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-        <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- Left column - Image upload and canvas -->
+  <div class="col flex flex-col">
+    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+      <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
 
-        <!-- File upload area -->
-        <div *ngIf="!isImageLoaded && isBrowser"
+      <!-- File upload area -->
+      @if (!isImageLoaded && isBrowser) {
+        <div
           class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
           [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
@@ -29,21 +30,24 @@
           <p class="text-sm text-600 mb-3">or click to select from your device</p>
           <p class="text-xs text-500">Supports: PNG, JPG, JPEG, GIF, WebP</p>
         </div>
+      }
 
-        <!-- Loading message for SSR -->
-        <div *ngIf="!isBrowser" class="loading-placeholder text-center p-6 surface-ground border-round">
+      <!-- Loading message for SSR -->
+      @if (!isBrowser) {
+        <div class="loading-placeholder text-center p-6 surface-ground border-round">
           <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
           <p class="text-sm text-600 m-0">Loading image color picker...</p>
         </div>
+      }
 
-        <!-- Canvas area -->
-        <div *ngIf="isBrowser" class="canvas-container relative">
+      <!-- Canvas area -->
+      @if (isBrowser) {
+        <div class="canvas-container relative">
           <div class="canvas-wrapper dt-border p-2" [style.display]="isImageLoaded ? 'inline-block' : 'none'">
             <canvas #mainCanvas class="cursor-crosshair" (mousemove)="onCanvasMouseMove($event)"
               (mouseleave)="onCanvasMouseLeave()" (click)="onCanvasClick($event)">
             </canvas>
           </div>
-
           <!-- Zoom preview -->
           <div
             class="zoom-preview absolute border-2 border-primary rounded-lg bg-white p-2 shadow-lg pointer-events-none"
@@ -53,206 +57,218 @@
             <p class="text-xs text-center text-600 mt-1 m-0">Magnifying Glass</p>
           </div>
         </div>
+      }
 
-        <!-- Upload another image button -->
-        <div *ngIf="isImageLoaded && isBrowser" class="mt-3">
+      <!-- Upload another image button -->
+      @if (isImageLoaded && isBrowser) {
+        <div class="mt-3">
           <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload"
             class="p-button-outlined" (click)="openFileDialog()">
           </button>
         </div>
+      }
 
-        <!-- Hidden file input -->
-        <input *ngIf="isBrowser" #fileInput type="file" accept="image/*" class="hidden"
+      <!-- Hidden file input -->
+      @if (isBrowser) {
+        <input #fileInput type="file" accept="image/*" class="hidden"
           (change)="onFileSelected($event)">
-      </div>
+      }
     </div>
+  </div>
 
-    <!-- Right column - Color information -->
-    <div class="col flex flex-col">
-      <div class="card p-3 surface-card shadow-sm flex-1">
-        <h3 class="text-xl font-medium text-800 mb-3">Color Information</h3>
+  <!-- Right column - Color information -->
+  <div class="col flex flex-col">
+    <div class="card p-3 surface-card shadow-sm flex-1">
+      <h3 class="text-xl font-medium text-800 mb-3">Color Information</h3>
 
-        <!-- Color information -->
-        <div class="mb-4">
+      <!-- Color information -->
+      <div class="mb-4">
 
-          <!-- Selected color -->
-          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3" *ngIf="isImageLoaded">
+        <!-- Selected color -->
+        @if (isImageLoaded) {
+          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
             <h4 class="text-lg font-medium text-700 mb-3">Selected Color</h4>
-
             <div class="color-info-container">
-              <div *ngIf="selectedColor">
-                <!-- Color preview -->
-                <div class="flex items-center p-2 surface-ground border-round">
-                  <div class="color-preview mr-3 border-round" [style.background-color]="selectedColor.hex">
+              @if (selectedColor) {
+                <div>
+                  <!-- Color preview -->
+                  <div class="flex items-center p-2 surface-ground border-round">
+                    <div class="color-preview mr-3 border-round" [style.background-color]="selectedColor.hex">
+                    </div>
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0">Clicked Color</p>
+                      <p class="text-sm text-600 m-0">Position: {{selectedColor.x}}, {{selectedColor.y}}</p>
+                    </div>
+                    <button pButton type="button" [outlined]="true" label="Use in Color Converter"
+                      (click)="useColorInConverter(selectedColor.hex)" class="p-button-sm" severity="contrast">
+                      <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+                    </button>
                   </div>
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0">Clicked Color</p>
-                    <p class="text-sm text-600 m-0">Position: {{selectedColor.x}}, {{selectedColor.y}}</p>
+                  <!-- HEX value -->
+                  <div class="flex items-center justify-between p-2 surface-ground border-round">
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0 mb-1">HEX</p>
+                      <p class="text-sm text-600 m-0 font-mono">{{selectedColor.hex}}</p>
+                    </div>
+                    <button pButton type="button" [outlined]="true" label="Copy"
+                      (click)="copyColor(selectedColor.hex, 'HEX')" class="p-button-sm" severity="contrast">
+                      <i-tabler name="copy" class="icon-sm"></i-tabler>
+                    </button>
                   </div>
-                  <button pButton type="button" [outlined]="true" label="Use in Color Converter"
-                    (click)="useColorInConverter(selectedColor.hex)" class="p-button-sm" severity="contrast">
-                    <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
-                  </button>
+                  <!-- RGB value -->
+                  <div class="flex items-center justify-between p-2 surface-ground border-round">
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0 mb-1">RGB</p>
+                      <p class="text-sm text-600 m-0 font-mono">{{selectedColor.rgb}}</p>
+                    </div>
+                    <button pButton type="button" [outlined]="true" label="Copy"
+                      (click)="copyColor(selectedColor.rgb, 'RGB')" class="p-button-sm" severity="contrast">
+                      <i-tabler name="copy" class="icon-sm"></i-tabler>
+                    </button>
+                  </div>
                 </div>
-
-                <!-- HEX value -->
-                <div class="flex items-center justify-between p-2 surface-ground border-round">
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0 mb-1">HEX</p>
-                    <p class="text-sm text-600 m-0 font-mono">{{selectedColor.hex}}</p>
-                  </div>
-                  <button pButton type="button" [outlined]="true" label="Copy"
-                    (click)="copyColor(selectedColor.hex, 'HEX')" class="p-button-sm" severity="contrast">
-                    <i-tabler name="copy" class="icon-sm"></i-tabler>
-                  </button>
+              }
+              @if (!selectedColor) {
+                <div class="color-info-container-empty">
+                  <p class="text-md text-600 m-0">Click on the image to select a color</p>
                 </div>
-
-                <!-- RGB value -->
-                <div class="flex items-center justify-between p-2 surface-ground border-round">
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0 mb-1">RGB</p>
-                    <p class="text-sm text-600 m-0 font-mono">{{selectedColor.rgb}}</p>
-                  </div>
-                  <button pButton type="button" [outlined]="true" label="Copy"
-                    (click)="copyColor(selectedColor.rgb, 'RGB')" class="p-button-sm" severity="contrast">
-                    <i-tabler name="copy" class="icon-sm"></i-tabler>
-                  </button>
-                </div>
-              </div>
-              <div *ngIf="!selectedColor" class="color-info-container-empty">
-                <p class="text-md text-600 m-0">Click on the image to select a color</p>
-              </div>
+              }
             </div>
           </div>
-          <!-- Hover color -->
-          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3" *ngIf="isImageLoaded">
+        }
+        <!-- Hover color -->
+        @if (isImageLoaded) {
+          <div class="mb-4 dt-border grid grid-cols-1 gap-3 p-3">
             <h4 class="text-lg font-medium text-700 mb-3">Hover Color</h4>
-
             <div class="color-info-container">
-              <div *ngIf="hoverColor">
-                <!-- Color preview -->
-                <div class="flex items-center p-2 surface-ground border-round">
-                  <div class="color-preview mr-3 border-round" [style.background-color]="hoverColor.hex">
+              @if (hoverColor) {
+                <div>
+                  <!-- Color preview -->
+                  <div class="flex items-center p-2 surface-ground border-round">
+                    <div class="color-preview mr-3 border-round" [style.background-color]="hoverColor.hex">
+                    </div>
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0">Live Preview</p>
+                      <p class="text-sm text-600 m-0">Position: {{hoverColor.x}}, {{hoverColor.y}}</p>
+                    </div>
                   </div>
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0">Live Preview</p>
-                    <p class="text-sm text-600 m-0">Position: {{hoverColor.x}}, {{hoverColor.y}}</p>
+                  <!-- HEX value -->
+                  <div class="flex items-center justify-between p-2 surface-ground border-round">
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0 mb-1">HEX</p>
+                      <p class="text-sm text-600 m-0 font-mono">{{hoverColor.hex}}</p>
+                    </div>
+                  </div>
+                  <!-- RGB value -->
+                  <div class="flex items-center justify-between p-2 surface-ground border-round">
+                    <div class="flex-1">
+                      <p class="font-medium text-800 m-0 mb-1">RGB</p>
+                      <p class="text-sm text-600 m-0 font-mono">{{hoverColor.rgb}}</p>
+                    </div>
                   </div>
                 </div>
-
-                <!-- HEX value -->
-                <div class="flex items-center justify-between p-2 surface-ground border-round">
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0 mb-1">HEX</p>
-                    <p class="text-sm text-600 m-0 font-mono">{{hoverColor.hex}}</p>
-                  </div>
+              }
+              @if (!hoverColor) {
+                <div class="color-info-container-empty">
+                  <p class="text-md text-600 m-0">Move mouse over the image to see colors, click to select</p>
                 </div>
-
-                <!-- RGB value -->
-                <div class="flex items-center justify-between p-2 surface-ground border-round">
-                  <div class="flex-1">
-                    <p class="font-medium text-800 m-0 mb-1">RGB</p>
-                    <p class="text-sm text-600 m-0 font-mono">{{hoverColor.rgb}}</p>
-                  </div>
-                </div>
-              </div>
-              <div *ngIf="!hoverColor" class="color-info-container-empty">
-                <p class="text-md text-600 m-0">Move mouse over the image to see colors, click to select</p>
-              </div>
+              }
             </div>
-
           </div>
+        }
 
 
-        </div>
+      </div>
 
 
-        <!-- Default instructions for SSR or when no image -->
-        <div *ngIf="!isBrowser || (!selectedColor && !hoverColor && !isImageLoaded)"
+      <!-- Default instructions for SSR or when no image -->
+      @if (!isBrowser || (!selectedColor && !hoverColor && !isImageLoaded)) {
+        <div
           class="text-center p-4 surface-ground dt-border color-info-container-upload">
           <div>
             <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
           </div>
           <p class="text-lg font-medium text-700 mb-2">Upload an image to start picking colors</p>
         </div>
-      </div>
+      }
     </div>
   </div>
+</div>
 
-  <!-- Information section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About Image Color Picker</h4>
-    <p class="mb-2 text-sm">
-      Image Color Picker is a powerful tool that allows you to extract precise color values from any image.
-      Simply upload an image and click anywhere to get accurate HEX and RGB color codes with a magnifying glass preview
-      for pixel-perfect selection.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>How it works:</strong>
-      Upload an image via drag and drop or file selection. Move your mouse over the image to see a magnified view of the
-      area under your cursor.
-      Click to select a color and get its exact HEX and RGB values.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Key features:</strong>
-    </p>
-    <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-      <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
-      <li><span class="text-primary">Magnifying Glass:</span> Real-time zoom preview for precise color selection</li>
-      <li><span class="text-primary">Multiple Formats:</span> Get color values in both HEX and RGB formats</li>
-      <li><span class="text-primary">One-Click Copy:</span> Copy color values to clipboard with a single click</li>
-      <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
-      </li>
-    </ul>
-    <p class="text-sm">
-      Perfect for web designers, graphic designers, developers, and anyone who needs to extract exact colors from images
-      for their projects.
-      Learn more about color theory at
-      <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer"
-        class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All image processing is performed locally in your browser - no data is sent
-      to any server.
-    </p>
-  </div>
+<!-- Information section -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
+  <h4 class="text-xl font-semibold mb-2">About Image Color Picker</h4>
+  <p class="mb-2 text-sm">
+    Image Color Picker is a powerful tool that allows you to extract precise color values from any image.
+    Simply upload an image and click anywhere to get accurate HEX and RGB color codes with a magnifying glass preview
+    for pixel-perfect selection.
+  </p>
+  <p class="mb-2 text-sm">
+    <strong>How it works:</strong>
+    Upload an image via drag and drop or file selection. Move your mouse over the image to see a magnified view of the
+    area under your cursor.
+    Click to select a color and get its exact HEX and RGB values.
+  </p>
+  <p class="mb-2 text-sm">
+    <strong>Key features:</strong>
+  </p>
+  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
+    <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
+    <li><span class="text-primary">Magnifying Glass:</span> Real-time zoom preview for precise color selection</li>
+    <li><span class="text-primary">Multiple Formats:</span> Get color values in both HEX and RGB formats</li>
+    <li><span class="text-primary">One-Click Copy:</span> Copy color values to clipboard with a single click</li>
+    <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
+  </li>
+</ul>
+<p class="text-sm">
+  Perfect for web designers, graphic designers, developers, and anyone who needs to extract exact colors from images
+  for their projects.
+  Learn more about color theory at
+  <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer"
+  class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>.
+</p>
+<p class="text-sm text-500">
+  <i class="pi pi-info-circle mr-1"></i> All image processing is performed locally in your browser - no data is sent
+  to any server.
+</p>
+</div>
 
-  <!-- Use Cases -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Use Cases & Applications</h4>
+<!-- Use Cases -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+  <h4 class="text-xl font-semibold mb-3">Use Cases & Applications</h4>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Web Design & Development</h5>
-        <p class="mb-2 text-sm">
-          Extract colors from design mockups, existing websites, or brand assets to maintain consistent color schemes
-          across your projects.
-        </p>
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Web Design & Development</h5>
+      <p class="mb-2 text-sm">
+        Extract colors from design mockups, existing websites, or brand assets to maintain consistent color schemes
+        across your projects.
+      </p>
 
-        <h6 class="text-base font-medium text-600 mb-1">Common Uses:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Color matching for brand consistency</li>
-          <li>CSS color property definitions</li>
-          <li>Theme color extraction</li>
-          <li>Style guide creation</li>
-        </ul>
-      </div>
+      <h6 class="text-base font-medium text-600 mb-1">Common Uses:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Color matching for brand consistency</li>
+        <li>CSS color property definitions</li>
+        <li>Theme color extraction</li>
+        <li>Style guide creation</li>
+      </ul>
+    </div>
 
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Graphic Design & Digital Art</h5>
-        <p class="mb-2 text-sm">
-          Sample colors from reference images, photographs, or artwork to create harmonious color palettes for your
-          designs.
-        </p>
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Graphic Design & Digital Art</h5>
+      <p class="mb-2 text-sm">
+        Sample colors from reference images, photographs, or artwork to create harmonious color palettes for your
+        designs.
+      </p>
 
-        <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Color palette creation from photos</li>
-          <li>Logo color extraction</li>
-          <li>Print design color matching</li>
-          <li>Digital artwork color sampling</li>
-        </ul>
-      </div>
+      <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Color palette creation from photos</li>
+        <li>Logo color extraction</li>
+        <li>Print design color matching</li>
+        <li>Digital artwork color sampling</li>
+      </ul>
     </div>
   </div>
+</div>
 </div>

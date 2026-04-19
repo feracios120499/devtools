@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit, PLATFORM_ID } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { Router } from '@angular/router';
 import { FavoritesService } from '../../services/favorites.service';
@@ -13,10 +13,9 @@ import { IconStar, IconStarFilled } from 'angular-tabler-icons/icons';
   selector: 'app-page-header',
   standalone: true,
   imports: [
-    CommonModule,
     ButtonModule,
     TablerIconComponent
-  ],
+],
   providers: [provideTablerIcons({ IconStar, IconStarFilled })],
   templateUrl: './page-header.component.html',
   styleUrl: './page-header.component.scss'

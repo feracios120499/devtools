@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
@@ -57,14 +57,13 @@ export interface JsonToEnvSettings extends PageSettings {
   selector: 'app-json-to-env',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './json-to-env.component.html',
   styleUrl: './json-to-env.component.scss'
@@ -812,7 +811,7 @@ export class JsonToEnvComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;

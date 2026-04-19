@@ -7,7 +7,7 @@
   transition: all 0.3s ease;
 
   &:hover {
-    @apply border-primary;
+    border-color: var(--p-primary-color);
     color: var(--primary-color);
   }
 }

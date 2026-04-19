@@ -14,18 +14,20 @@
         <!-- Color picker -->
         <div class="mb-4">
           <p-colorPicker [(ngModel)]="selectedColor" (onChange)="onColorChange()" format="hex" inline="true"
-            class="w-full color-picker-custom"></p-colorPicker>
+          class="w-full color-picker-custom"></p-colorPicker>
         </div>
 
         <!-- Format selection -->
         <div class="mb-3">
           <h5 class="text-base font-medium text-800 mb-2">Input format</h5>
           <div class="flex flex-wrap gap-3">
-            <div *ngFor="let format of colorFormats" class="field-radiobutton">
-              <p-radioButton [inputId]="format" name="format" [value]="format" [(ngModel)]="selectedFormat"
+            @for (format of colorFormats; track format) {
+              <div class="field-radiobutton">
+                <p-radioButton [inputId]="format" name="format" [value]="format" [(ngModel)]="selectedFormat"
                 (onClick)="onFormatChange()"></p-radioButton>
-              <label [for]="format" class="ml-2">{{format}}</label>
-            </div>
+                <label [for]="format" class="ml-2">{{format}}</label>
+              </div>
+            }
           </div>
         </div>
 
@@ -36,7 +38,9 @@
             <input pInputText [(ngModel)]="inputColorValue" (ngModelChange)="onInputChange()"
               placeholder="Enter color value" class="w-full" />
           </div>
-          <small class="text-red-500 block mt-1" *ngIf="inputError">{{inputError}}</small>
+          @if (inputError) {
+            <small class="text-red-500 block mt-1">{{inputError}}</small>
+          }
         </div>
 
         <!-- Preview -->
@@ -58,20 +62,19 @@
         <!-- List of converted colors -->
         <div class="converted-colors-list">
           <div class="grid grid-cols-2 gap-4">
-            <div *ngFor="let color of convertedColors"
-              class="converted-color-item mb-3 p-3 surface-ground border-round">
-              <div class="flex justify-content-between align-items-center">
-                <div>
-                  <span class="font-medium text-800">{{color.name}} <button pButton pRipple type="button"
+            @for (color of convertedColors; track color) {
+              <div
+                class="converted-color-item mb-3 p-3 surface-ground border-round">
+                <div class="flex justify-content-between align-items-center">
+                  <div>
+                    <span class="font-medium text-800">{{color.name}} <button pButton pRipple type="button"
                       icon="pi pi-copy" class="p-button-rounded p-button-text p-button-sm"
-                      (click)="copyColorValue(color)"></button></span>
-                  <div class="mt-1 text-sm">{{color.value}}</div>
-
+                    (click)="copyColorValue(color)"></button></span>
+                    <div class="mt-1 text-sm">{{color.value}}</div>
+                  </div>
                 </div>
-
-
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>
@@ -79,75 +82,79 @@
   </div>
 
   <!-- Color History Table -->
-  <div class="mt-4 card p-3 surface-card shadow-sm" *ngIf="colorHistory.length > 0">
-    <div class="flex justify-between items-center mb-3">
-      <h3 class="text-xl font-medium text-800 m-0">Color History</h3>
-
-      <div class="flex gap-2">
-        <p-multiSelect [options]="historyColumns" [(ngModel)]="selectedHistoryColumns" optionLabel="header"
-          selectedItemsLabel="{0} columns selected" [style]="{'min-width': '14rem'}" placeholder="Select Columns"
-          styleClass="p-multiselect-sm" (onChange)="onHistoryColumnChange()">
-          <ng-template let-value pTemplate="selectedItems">
-            <div class="flex align-items-center gap-2" *ngIf="value">
-              <span *ngIf="value.length > 0">{{value.length}} columns selected</span>
-              <span *ngIf="value.length === 0">All columns</span>
-            </div>
-          </ng-template>
-        </p-multiSelect>
-
-        <button pButton pRipple type="button" icon="pi pi-trash"
-          class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="clearHistory()"
+  @if (colorHistory.length > 0) {
+    <div class="mt-4 card p-3 surface-card shadow-sm">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-xl font-medium text-800 m-0">Color History</h3>
+        <div class="flex gap-2">
+          <p-multiSelect [options]="historyColumns" [(ngModel)]="selectedHistoryColumns" optionLabel="header"
+            selectedItemsLabel="{0} columns selected" [style]="{'min-width': '14rem'}" placeholder="Select Columns"
+            styleClass="p-multiselect-sm" (onChange)="onHistoryColumnChange()">
+            <ng-template let-value pTemplate="selectedItems">
+              @if (value) {
+                <div class="flex align-items-center gap-2">
+                  @if (value.length > 0) {
+                    <span>{{value.length}} columns selected</span>
+                  }
+                  @if (value.length === 0) {
+                    <span>All columns</span>
+                  }
+                </div>
+              }
+            </ng-template>
+          </p-multiSelect>
+          <button pButton pRipple type="button" icon="pi pi-trash"
+            class="p-button-rounded p-button-danger p-button-text p-button-sm" (click)="clearHistory()"
           pTooltip="Clear history"></button>
+        </div>
       </div>
+      <p-table [value]="colorHistory" stripedRows [columns]="selectedHistoryColumns"
+        styleClass="p-datatable-sm p-datatable-striped" [scrollable]="true" [resizableColumns]="true"
+        [reorderableColumns]="true">
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            @for (col of columns; track col) {
+              <th>
+                {{col.header}}
+              </th>
+            }
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item let-columns="columns">
+          <tr (click)="loadFromHistory(item)" class="cursor-pointer">
+            @for (col of columns; track col) {
+              <td>
+                @if (col.field === 'timestamp') {
+                  {{formatDateTime(item.timestamp)}}
+                }
+                @if (col.field === 'color') {
+                  <div class="flex items-center">
+                    <div class="color-preview mr-2" [style.background-color]="item.color"></div>
+                    <span>{{item.color}}</span>
+                  </div>
+                }
+                @if (col.field !== 'timestamp' && col.field !== 'color') {
+                  @if (item.values && item.values[col.field]) {
+                    {{item.values[col.field]}}
+                  }
+                }
+              </td>
+            }
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td [attr.colspan]="selectedHistoryColumns.length" class="text-center p-4">
+              No color history available. Copy a color value to add to history.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
-
-    <p-table [value]="colorHistory" stripedRows [columns]="selectedHistoryColumns"
-      styleClass="p-datatable-sm p-datatable-striped" [scrollable]="true" [resizableColumns]="true"
-      [reorderableColumns]="true">
-
-      <ng-template pTemplate="header" let-columns>
-        <tr>
-          <th *ngFor="let col of columns">
-            {{col.header}}
-          </th>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="body" let-item let-columns="columns">
-        <tr (click)="loadFromHistory(item)" class="cursor-pointer">
-          <td *ngFor="let col of columns">
-            <ng-container *ngIf="col.field === 'timestamp'">
-              {{formatDateTime(item.timestamp)}}
-            </ng-container>
-
-            <ng-container *ngIf="col.field === 'color'">
-              <div class="flex items-center">
-                <div class="color-preview mr-2" [style.background-color]="item.color"></div>
-                <span>{{item.color}}</span>
-              </div>
-            </ng-container>
-
-            <ng-container *ngIf="col.field !== 'timestamp' && col.field !== 'color'">
-              <ng-container *ngIf="item.values && item.values[col.field]">
-                {{item.values[col.field]}}
-              </ng-container>
-            </ng-container>
-          </td>
-        </tr>
-      </ng-template>
-
-      <ng-template pTemplate="emptymessage">
-        <tr>
-          <td [attr.colspan]="selectedHistoryColumns.length" class="text-center p-4">
-            No color history available. Copy a color value to add to history.
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
+  }
 
   <!-- Information section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
     <h4 class="text-xl font-semibold mb-2">About Color Converter</h4>
     <p class="mb-2 text-sm">
       Color Converter allows you to easily transform colors between different formats used in web development and
@@ -170,145 +177,145 @@
       <li><span class="text-primary">CMYK:</span> Cyan-Magenta-Yellow-Key used in printing</li>
       <li><span class="text-primary">LCH:</span> Lightness-Chroma-Hue perceptually uniform color space</li>
       <li><span class="text-primary">LAB:</span> CIELAB color space, designed to be perceptually uniform with respect to
-        human color vision</li>
-    </ul>
-    <p class="text-sm">
-      Learn more about color theory at 
-      <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>
-      and web color standards at 
-      <a href="https://www.w3.org/TR/css-color-3/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C CSS Color Module</a>.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All color conversions are performed locally in your browser - no data is sent to any server.
-    </p>
-  </div>
+    human color vision</li>
+  </ul>
+  <p class="text-sm">
+    Learn more about color theory at
+    <a href="https://en.wikipedia.org/wiki/Color_theory" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Color Theory</a>
+    and web color standards at
+    <a href="https://www.w3.org/TR/css-color-3/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">W3C CSS Color Module</a>.
+  </p>
+  <p class="text-sm text-500">
+    <i class="pi pi-info-circle mr-1"></i> All color conversions are performed locally in your browser - no data is sent to any server.
+  </p>
+</div>
 
-  <!-- Web Development and Graphic Design Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Web Development & Graphic Design Applications</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Frontend Development & CSS</h5>
-        <p class="mb-2 text-sm">
-          Essential for web developers working with CSS, design systems, and user interfaces 
-          who need precise color matching and format conversion for different browser requirements.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Development Use Cases:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>CSS color property definitions</li>
-          <li>Design system color palette creation</li>
-          <li>Responsive design color adaptation</li>
-          <li>Cross-browser color compatibility</li>
-        </ul>
-      </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Digital Design & Branding</h5>
-        <p class="mb-2 text-sm">
-          Critical for graphic designers, UI/UX professionals, and brand managers 
-          who need consistent color representation across different mediums and applications.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Brand color guide development</li>
-          <li>Print-to-digital color matching</li>
-          <li>Accessibility contrast verification</li>
-          <li>Multi-platform design consistency</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Creative Industries & Media Production</h5>
-      <p class="text-sm mb-2">
-        This color converter is valuable for creative professionals, media producers, 
-        and digital artists working across various platforms and output formats.
+<!-- Web Development and Graphic Design Applications -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+  <h4 class="text-xl font-semibold mb-3">Web Development & Graphic Design Applications</h4>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Frontend Development & CSS</h5>
+      <p class="mb-2 text-sm">
+        Essential for web developers working with CSS, design systems, and user interfaces
+        who need precise color matching and format conversion for different browser requirements.
       </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">Creative Workflows:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Video production</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Animation workflows</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Game development</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Digital photography</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">3D rendering</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Mobile app design</span>
-      </div>
+
+      <h6 class="text-base font-medium text-600 mb-1">Development Use Cases:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>CSS color property definitions</li>
+        <li>Design system color palette creation</li>
+        <li>Responsive design color adaptation</li>
+        <li>Cross-browser color compatibility</li>
+      </ul>
+    </div>
+
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Digital Design & Branding</h5>
+      <p class="mb-2 text-sm">
+        Critical for graphic designers, UI/UX professionals, and brand managers
+        who need consistent color representation across different mediums and applications.
+      </p>
+
+      <h6 class="text-base font-medium text-600 mb-1">Design Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Brand color guide development</li>
+        <li>Print-to-digital color matching</li>
+        <li>Accessibility contrast verification</li>
+        <li>Multi-platform design consistency</li>
+      </ul>
     </div>
   </div>
 
-  <!-- Color Spaces and Technical Standards -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Color Spaces & Technical Standards</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Display & Web Color Spaces</h5>
-        <p class="mb-2 text-sm">
-          Modern displays and web browsers support various color spaces, each optimized 
-          for specific applications and providing different color gamuts and perceptual accuracy.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Digital Color Formats:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>sRGB - Standard RGB for web and displays</li>
-          <li>HSL - Intuitive hue-based adjustments</li>
-          <li>HSV - Graphics software standard</li>
-          <li>HWB - CSS4 color specification</li>
-        </ul>
-      </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Print & Professional Color Systems</h5>
-        <p class="mb-2 text-sm">
-          Professional printing and color-critical applications require precise color 
-          representation using industry-standard color spaces and measurement systems.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Professional Standards:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>CMYK - Printing industry standard</li>
-          <li>LAB - Device-independent color</li>
-          <li>LCH - Perceptually uniform space</li>
-          <li>Pantone - Spot color matching system</li>
-        </ul>
-      </div>
+  <div class="mt-4">
+    <h5 class="text-lg font-medium text-700 mb-2">Creative Industries & Media Production</h5>
+    <p class="text-sm mb-2">
+      This color converter is valuable for creative professionals, media producers,
+      and digital artists working across various platforms and output formats.
+    </p>
+
+    <h6 class="text-base font-medium text-600 mb-1">Creative Workflows:</h6>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Video production</span>
+      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Animation workflows</span>
+      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Game development</span>
+      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Digital photography</span>
+      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">3D rendering</span>
+      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Mobile app design</span>
     </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Accessibility & Color Science</h5>
-      <p class="text-sm mb-2">
-        Understanding color perception and accessibility ensures inclusive design 
-        and optimal user experience across different visual capabilities and conditions.
+  </div>
+</div>
+
+<!-- Color Spaces and Technical Standards -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+  <h4 class="text-xl font-semibold mb-3">Color Spaces & Technical Standards</h4>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Display & Web Color Spaces</h5>
+      <p class="mb-2 text-sm">
+        Modern displays and web browsers support various color spaces, each optimized
+        for specific applications and providing different color gamuts and perceptual accuracy.
       </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">Accessibility Features:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Contrast ratios</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Color blindness</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">WCAG compliance</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Visual perception</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Cultural significance</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Psychology of color</span>
-      </div>
-      
-      <p class="text-sm mt-3 text-600">
-        <strong>Design Tip:</strong> Always test color combinations with accessibility tools 
-        to ensure sufficient contrast for users with visual impairments.
-      </p>
+
+      <h6 class="text-base font-medium text-600 mb-1">Digital Color Formats:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>sRGB - Standard RGB for web and displays</li>
+        <li>HSL - Intuitive hue-based adjustments</li>
+        <li>HSV - Graphics software standard</li>
+        <li>HWB - CSS4 color specification</li>
+      </ul>
     </div>
-    
-    <p class="text-sm mt-3">
-      For color accessibility guidelines, visit 
-      <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">WCAG Color Contrast</a>
-      and for color science fundamentals, see 
-      <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN CSS Color Values</a>.
+
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Print & Professional Color Systems</h5>
+      <p class="mb-2 text-sm">
+        Professional printing and color-critical applications require precise color
+        representation using industry-standard color spaces and measurement systems.
+      </p>
+
+      <h6 class="text-base font-medium text-600 mb-1">Professional Standards:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>CMYK - Printing industry standard</li>
+        <li>LAB - Device-independent color</li>
+        <li>LCH - Perceptually uniform space</li>
+        <li>Pantone - Spot color matching system</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h5 class="text-lg font-medium text-700 mb-2">Accessibility & Color Science</h5>
+    <p class="text-sm mb-2">
+      Understanding color perception and accessibility ensures inclusive design
+      and optimal user experience across different visual capabilities and conditions.
+    </p>
+
+    <h6 class="text-base font-medium text-600 mb-1">Accessibility Features:</h6>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Contrast ratios</span>
+      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Color blindness</span>
+      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">WCAG compliance</span>
+      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Visual perception</span>
+      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Cultural significance</span>
+      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Psychology of color</span>
+    </div>
+
+    <p class="text-sm mt-3 text-600">
+      <strong>Design Tip:</strong> Always test color combinations with accessibility tools
+      to ensure sufficient contrast for users with visual impairments.
     </p>
   </div>
 
-  <!-- Toast for notifications -->
-  <p-toast position="bottom-right"></p-toast>
+  <p class="text-sm mt-3">
+    For color accessibility guidelines, visit
+    <a href="https://www.w3.org/WAI/WCAG21/Understanding/contrast-minimum.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">WCAG Color Contrast</a>
+    and for color science fundamentals, see
+    <a href="https://developer.mozilla.org/en-US/docs/Web/CSS/color_value" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN CSS Color Values</a>.
+  </p>
+</div>
+
+<!-- Toast for notifications -->
+<p-toast position="bottom-right"></p-toast>
 </div>

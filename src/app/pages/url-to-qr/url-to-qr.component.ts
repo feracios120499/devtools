@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, ViewChild, ElementRef } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, ViewChild, ElementRef, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
@@ -18,12 +18,11 @@ import { SeoService, MetaData } from '../../services/seo.service';
   selector: 'app-url-to-qr',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
-    PrimeNgModule,  
+    PrimeNgModule,
     QRCodeComponent,
     PageHeaderComponent
-  ],
+],
   providers: [MessageService],
   templateUrl: './url-to-qr.component.html',
   styleUrl: './url-to-qr.component.scss'

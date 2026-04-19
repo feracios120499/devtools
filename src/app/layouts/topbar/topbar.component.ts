@@ -3,7 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import { ThemeService } from '../../services/theme.service';
 import { PageTitleService } from '../../services/page-title.service';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { TablerIconComponent } from 'angular-tabler-icons';
 import { IconsModule } from '../../shared/modules/icons.module';
 import { DialogModule } from 'primeng/dialog';
@@ -20,7 +20,7 @@ import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [ButtonModule, MenubarModule, CommonModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule, RouterModule, ToastModule, TooltipModule],
+  imports: [ButtonModule, MenubarModule, TablerIconComponent, IconsModule, DialogModule, InputTextModule, InputIconModule, IconFieldModule, FormsModule, AutoFocusModule, RouterModule, ToastModule, TooltipModule],
   providers: [MessageService],
   templateUrl: './topbar.component.html',
   styleUrls: ['./topbar.component.scss']

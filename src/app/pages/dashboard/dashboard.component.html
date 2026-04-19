@@ -5,32 +5,34 @@
       Collection of free online tools to help you in web development tasks
     </p>
   </div>
-  
+
   <div class="mb-4">
     <h2 class="text-2xl font-semibold">Available Tools</h2>
   </div>
-  
+
   <!-- Tool Cards Grid -->
   <div class="grid-container">
-    <div *ngFor="let card of featureCards" class="tool-card">
-      <a [routerLink]="card.route" class="card-link">
-        <div class="card-content">
-          <div class="icon-container">
-            <i-tabler [name]="card.icon" class="icon-lg"></i-tabler>
+    @for (card of featureCards; track card) {
+      <div class="tool-card">
+        <a [routerLink]="card.route" class="card-link">
+          <div class="card-content">
+            <div class="icon-container">
+              <i-tabler [name]="card.icon" class="icon-lg"></i-tabler>
+            </div>
+            <div class="tool-title"><strong>{{card.title}}</strong></div>
+            <div class="tool-description">{{card.description}}</div>
           </div>
-          <div class="tool-title"><strong>{{card.title}}</strong></div>
-          <div class="tool-description">{{card.description}}</div>
-        </div>
-        <div class="hover-overlay">
-          <span class="open-text">Open</span>
-          <i-tabler name="arrow-right" class="open-icon"></i-tabler>
-        </div>
-      </a>
-    </div>
+          <div class="hover-overlay">
+            <span class="open-text">Open</span>
+            <i-tabler name="arrow-right" class="open-icon"></i-tabler>
+          </div>
+        </a>
+      </div>
+    }
   </div>
-  
+
   <!-- About section -->
-  <div class="mt-5 p-4 border-round-lg surface-card shadow-1 border-1 surface-border">
+  <div class="mt-5 p-4 border-round-lg surface-card shadow-1 surface-border">
     <div class="grid">
       <div class="col-12 md:col-8">
         <h3 class="text-xl font-semibold mb-3">About DevTools</h3>
@@ -44,4 +46,4 @@
       </div>
     </div>
   </div>
-</div> 
+</div>

@@ -1,6 +1,6 @@
-import { Inject, Injectable, PLATFORM_ID } from '@angular/core';
+import { Inject, Injectable, PLATFORM_ID, DOCUMENT } from '@angular/core';
 import { Meta } from '@angular/platform-browser';
-import { DOCUMENT, isPlatformBrowser, isPlatformServer } from '@angular/common';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 
 export interface JsonLdSchema {
     name: string;

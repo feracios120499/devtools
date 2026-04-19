@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
@@ -30,14 +30,13 @@ interface LanguageOption {
   selector: 'app-sql-formatter',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './sql-formatter.component.html',
   styleUrl: './sql-formatter.component.scss'
@@ -121,7 +120,7 @@ export class SqlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle ESC key press to exit fullscreen mode
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Exit fullscreen mode
       this.isInputFullscreen = false;

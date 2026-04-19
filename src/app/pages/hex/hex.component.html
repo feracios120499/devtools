@@ -4,7 +4,7 @@
     <p>This <strong>online HEX encoder and decoder</strong> supports multiple formatting options and allows you to convert text to hexadecimal.</p>
     <p>Quickly <strong>convert text to HEX</strong> or <strong>decode HEX to text</strong> in your browser with no server upload.</p>
   </div>
-  
+
   <!-- Блок переключателей операций -->
   <div class="mb-3 px-3 flex items-center">
     <div class="flex items-center gap-3">
@@ -15,7 +15,7 @@
       <label for="decode">Decode from HEX to Text</label>
     </div>
   </div>
-  
+
   <!-- Основной контейнер с редакторами -->
   <div class="dt-editors">
     <!-- Левая колонка - Input Text -->
@@ -29,287 +29,305 @@
         <div class="mb-1"></div>
 
         <!-- Textarea для серверного рендеринга -->
-        <textarea *ngIf="!isBrowser" 
-          [(ngModel)]="inputCode" 
-          (ngModelChange)="processText()"
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
-        
-        <!-- Monaco editor для браузера -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="code" class="icon-sm"> </i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                  (click)="pasteFromClipboard()" severity="contrast">
-                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearText()" severity="danger"
-                  class=" p-button-sm">
-                  <i-tabler name="trash" class="icon-sm"></i-tabler>
-                </button>
-              </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
-              </div>
-            </div>
-            <hr>
-          </div>
-          <ngx-monaco-editor
-            #inputMonacoEditor
-            [options]="inputEditorOptions" 
-            [(ngModel)]="inputCode" 
+        @if (!isBrowser) {
+          <textarea
+            [(ngModel)]="inputCode"
             (ngModelChange)="processText()"
-            class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Правая колонка - Output Text -->
-    <div class="col flex flex-col h-full">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок -->
-        <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h3>
-          <!-- Выпадающий список с форматами для режима кодирования текста в HEX -->
-          <div class="flex gap-2 items-center" *ngIf="activeTab == 1">
-            <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
-              (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
-              [panelStyleClass]="'same-width-panel'" appendTo="body">
-              <ng-template pTemplate="selectedItem">
-                <div class="flex align-items-center">
-                  <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
-                </div>
-              </ng-template>
-              <ng-template let-option pTemplate="item">
-                <div class="flex align-items-center">
-                  <span>{{option.label}} ({{option.example}})</span>
-                </div>
-              </ng-template>
-            </p-select>
-          </div>
-        </div>
-        <!-- Отступ для дропдауна -->
-        <div class="mb-1"></div>
-        
-        <!-- Textarea для серверного рендеринга -->
-        <textarea *ngIf="!isBrowser" 
-          [(ngModel)]="outputCode" 
-          readonly
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
-        
-        <!-- Monaco editor для браузера -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                  [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                  <i-tabler name="copy" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
-                  [disabled]="!outputCode" class="p-button-sm" severity="contrast">
-                  <i-tabler name="download" class="icon-sm"></i-tabler>
-                </button>
-              </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
-              </div>
-            </div>
-            <hr>
-          </div>
-          <ngx-monaco-editor
-            #outputMonacoEditor
-            [options]="outputEditorOptions" 
-            [(ngModel)]="outputCode" 
-            class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-  <!-- Информационный раздел -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About HEX Encoding</h4>
-    <p class="mb-2 text-sm">
-      Hexadecimal (HEX) is a base-16 numeral system used to represent binary data in a human-readable format. Each hexadecimal digit represents 4 bits (half a byte), so a byte can be represented by two hexadecimal digits.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>When to use HEX encoding:</strong>
-      HEX encoding is commonly used in programming and computer science for various purposes, including:
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-      <li><span class="text-primary">Binary data representation:</span> For viewing and editing binary files in a readable format</li>
-      <li><span class="text-primary">Color codes:</span> In web development for defining colors (e.g., #FF5733)</li>
-      <li><span class="text-primary">Memory addresses:</span> For displaying memory addresses in debugging</li>
-      <li><span class="text-primary">Binary protocols:</span> For analyzing and documenting network and binary protocols</li>
-      <li><span class="text-primary">Cryptography:</span> For representing cryptographic values like hashes and keys</li>
-    </ul>
-    <p class="mb-2 text-sm">
-      <strong>Supported HEX formats for decoding:</strong>
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-      <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
-      <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
-      <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
-      <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
-      <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
-    </ul>
-    <p class="text-sm">
-      Learn more about hexadecimal encoding at 
-      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-      and character encoding at 
-      <a href="https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN TextEncoder</a>.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All encoding and decoding is performed locally in your browser - your data never leaves your device.
-    </p>
-  </div>
-  
-  <!-- Development and System Administration Use Cases -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Development & System Administration Applications</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">System Programming & Debugging</h5>
-        <p class="mb-2 text-sm">
-          Essential for low-level programming, system debugging, and analyzing binary data structures 
-          in operating systems and embedded systems development.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">System Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Analyze memory dumps and core files</li>
-          <li>Debug binary file formats and protocols</li>
-          <li>Examine hardware register values</li>
-          <li>Process firmware and BIOS data</li>
-        </ul>
-      </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Network & Security Analysis</h5>
-        <p class="mb-2 text-sm">
-          Critical for network protocol analysis, cybersecurity investigations, and forensic data examination 
-          where binary data needs to be inspected in readable format.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Security Tasks:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Network packet payload analysis</li>
-          <li>Malware binary examination</li>
-          <li>Digital forensics evidence processing</li>
-          <li>Cryptographic hash verification</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Web Development & Data Processing</h5>
-      <p class="text-sm mb-2">
-        This HEX encoder/decoder is valuable for web developers working with binary data, 
-        character encoding issues, and data format conversions in modern web applications.
-      </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">Web Development Scenarios:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Color code conversion</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file analysis</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Unicode debugging</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Protocol development</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data validation</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Encoding conversion</span>
-      </div>
-    </div>
-  </div>
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
 
-  <!-- Technical Standards and Programming Languages -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Programming Languages & Technical Standards</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
+        <!-- Monaco editor для браузера -->
+        @if (isBrowser) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSample()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="code" class="icon-sm"> </i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteFromClipboard()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearText()" severity="danger"
+                    class=" p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+              </div>
+              <ngx-monaco-editor
+                #inputMonacoEditor
+                [options]="inputEditorOptions"
+                [(ngModel)]="inputCode"
+                (ngModelChange)="processText()"
+                class="w-full h-full" monacoScrollFix>
+              </ngx-monaco-editor>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Правая колонка - Output Text -->
+      <div class="col flex flex-col h-full">
+        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+          <!-- Заголовок -->
+          <div class="flex justify-between items-center h-10">
+            <h3 class="text-xl font-medium text-800 m-0">{{ activeTab == 1 ? 'HEX Output' : 'Decoded Text' }}</h3>
+            <!-- Выпадающий список с форматами для режима кодирования текста в HEX -->
+            @if (activeTab == 1) {
+              <div class="flex gap-2 items-center">
+                <p-select [options]="hexFormatOptions" [(ngModel)]="selectedFormat" optionLabel="label"
+                  (onChange)="onFormatChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '350px'}"
+                  [panelStyleClass]="'same-width-panel'" appendTo="body">
+                  <ng-template pTemplate="selectedItem">
+                    <div class="flex align-items-center">
+                      <span>Format: {{selectedFormat.label}} ({{selectedFormat.example}})</span>
+                    </div>
+                  </ng-template>
+                  <ng-template let-option pTemplate="item">
+                    <div class="flex align-items-center">
+                      <span>{{option.label}} ({{option.example}})</span>
+                    </div>
+                  </ng-template>
+                </p-select>
+              </div>
+            }
+          </div>
+          <!-- Отступ для дропдауна -->
+          <div class="mb-1"></div>
+
+          <!-- Textarea для серверного рендеринга -->
+          @if (!isBrowser) {
+            <textarea
+              [(ngModel)]="outputCode"
+              readonly
+              class="w-full p-2 surface-100 font-mono flex-1">
+            </textarea>
+          }
+
+          <!-- Monaco editor для браузера -->
+          @if (isBrowser) {
+            <div
+              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+              <div class="dt-editors-editor-actions">
+                <div class="flex justify-between p-2">
+                  <div class="flex gap-3 align-items-center">
+                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                      <i-tabler name="copy" class="icon-sm"></i-tabler>
+                    </button>
+                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadText()"
+                      [disabled]="!outputCode" class="p-button-sm" severity="contrast">
+                      <i-tabler name="download" class="icon-sm"></i-tabler>
+                    </button>
+                  </div>
+                  <div class="flex align-items-center">
+                    @if (!isOutputFullscreen) {
+                      <button pButton type="button" (click)="toggleFullscreen('output')"
+                        severity="contrast" class="p-button-text p-button-sm">
+                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                      </button>
+                    }
+                    @if (isOutputFullscreen) {
+                      <button pButton type="button" (click)="toggleFullscreen('output')"
+                        severity="contrast" class="p-button-text p-button-sm">
+                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                      </button>
+                    }
+                  </div>
+                </div>
+                <hr>
+                </div>
+                <ngx-monaco-editor
+                  #outputMonacoEditor
+                  [options]="outputEditorOptions"
+                  [(ngModel)]="outputCode"
+                  class="w-full h-full" monacoScrollFix>
+                </ngx-monaco-editor>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Информационный раздел -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
+        <h4 class="text-xl font-semibold mb-2">About HEX Encoding</h4>
         <p class="mb-2 text-sm">
-          Hexadecimal encoding is universally supported across programming languages 
-          with built-in functions and libraries for conversion operations.
+          Hexadecimal (HEX) is a base-16 numeral system used to represent binary data in a human-readable format. Each hexadecimal digit represents 4 bits (half a byte), so a byte can be represented by two hexadecimal digits.
         </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>JavaScript: parseInt(), toString(16), Buffer.from()</li>
-          <li>Python: hex(), bytes.fromhex(), codecs.encode()</li>
-          <li>Java: Integer.toHexString(), Hex.encodeHexString()</li>
-          <li>C/C++: sprintf(), sscanf(), std::hex</li>
-        </ul>
-      </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Industry Standards & Formats</h5>
         <p class="mb-2 text-sm">
-          Hexadecimal representation follows established industry standards for 
-          data interchange, file formats, and protocol specifications.
+          <strong>When to use HEX encoding:</strong>
+          HEX encoding is commonly used in programming and computer science for various purposes, including:
         </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Standard Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>ASCII/Unicode character codes (U+0041)</li>
-          <li>RGB color values in CSS (#FF5733)</li>
-          <li>MAC addresses (00:1B:44:11:3A:B7)</li>
-          <li>Binary file signatures and magic numbers</li>
+        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+          <li><span class="text-primary">Binary data representation:</span> For viewing and editing binary files in a readable format</li>
+          <li><span class="text-primary">Color codes:</span> In web development for defining colors (e.g., #FF5733)</li>
+          <li><span class="text-primary">Memory addresses:</span> For displaying memory addresses in debugging</li>
+          <li><span class="text-primary">Binary protocols:</span> For analyzing and documenting network and binary protocols</li>
+          <li><span class="text-primary">Cryptography:</span> For representing cryptographic values like hashes and keys</li>
         </ul>
+        <p class="mb-2 text-sm">
+          <strong>Supported HEX formats for decoding:</strong>
+        </p>
+        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+          <li><code class="text-primary px-1 rounded">Plain</code> - Simple uppercase or lowercase hex characters (DEADBEEF or deadbeef)</li>
+          <li><code class="text-primary px-1 rounded">With Dashes</code> - Pairs separated by dashes (DE-AD-BE-EF)</li>
+          <li><code class="text-primary px-1 rounded">With 0x Prefix</code> - Each byte has 0x prefix (0xDE 0xAD 0xBE 0xEF)</li>
+          <li><code class="text-primary px-1 rounded">With Colons</code> - Pairs separated by colons (DE:AD:BE:EF)</li>
+          <li><code class="text-primary px-1 rounded">With Spaces</code> - Pairs separated by spaces (DE AD BE EF)</li>
+        </ul>
+        <p class="text-sm">
+          Learn more about hexadecimal encoding at
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+          and character encoding at
+          <a href="https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN TextEncoder</a>.
+        </p>
+        <p class="text-sm text-500">
+          <i class="pi pi-info-circle mr-1"></i> All encoding and decoding is performed locally in your browser - your data never leaves your device.
+        </p>
       </div>
-    </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Hex Dump Analysis & Binary Tools</h5>
-      <p class="text-sm mb-2">
-        This tool complements traditional hex dump utilities like hexdump, xxd, and od, 
-        providing a browser-based solution for hexadecimal data analysis and conversion.
-      </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">Related Tools & Commands:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">hexdump -C</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">xxd -p</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">od -x</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">objdump</span>
+
+      <!-- Development and System Administration Use Cases -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+        <h4 class="text-xl font-semibold mb-3">Development & System Administration Applications</h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">System Programming & Debugging</h5>
+            <p class="mb-2 text-sm">
+              Essential for low-level programming, system debugging, and analyzing binary data structures
+              in operating systems and embedded systems development.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">System Applications:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Analyze memory dumps and core files</li>
+              <li>Debug binary file formats and protocols</li>
+              <li>Examine hardware register values</li>
+              <li>Process firmware and BIOS data</li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Network & Security Analysis</h5>
+            <p class="mb-2 text-sm">
+              Critical for network protocol analysis, cybersecurity investigations, and forensic data examination
+              where binary data needs to be inspected in readable format.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">Security Tasks:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Network packet payload analysis</li>
+              <li>Malware binary examination</li>
+              <li>Digital forensics evidence processing</li>
+              <li>Cryptographic hash verification</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h5 class="text-lg font-medium text-700 mb-2">Web Development & Data Processing</h5>
+          <p class="text-sm mb-2">
+            This HEX encoder/decoder is valuable for web developers working with binary data,
+            character encoding issues, and data format conversions in modern web applications.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">Web Development Scenarios:</h6>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Color code conversion</span>
+            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Binary file analysis</span>
+            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Unicode debugging</span>
+            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Protocol development</span>
+            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Data validation</span>
+            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Encoding conversion</span>
+          </div>
+        </div>
       </div>
+
+      <!-- Technical Standards and Programming Languages -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+        <h4 class="text-xl font-semibold mb-3">Programming Languages & Technical Standards</h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Programming Language Support</h5>
+            <p class="mb-2 text-sm">
+              Hexadecimal encoding is universally supported across programming languages
+              with built-in functions and libraries for conversion operations.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">Language Examples:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>JavaScript: parseInt(), toString(16), Buffer.from()</li>
+              <li>Python: hex(), bytes.fromhex(), codecs.encode()</li>
+              <li>Java: Integer.toHexString(), Hex.encodeHexString()</li>
+              <li>C/C++: sprintf(), sscanf(), std::hex</li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Industry Standards & Formats</h5>
+            <p class="mb-2 text-sm">
+              Hexadecimal representation follows established industry standards for
+              data interchange, file formats, and protocol specifications.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">Standard Applications:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>ASCII/Unicode character codes (U+0041)</li>
+              <li>RGB color values in CSS (#FF5733)</li>
+              <li>MAC addresses (00:1B:44:11:3A:B7)</li>
+              <li>Binary file signatures and magic numbers</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h5 class="text-lg font-medium text-700 mb-2">Hex Dump Analysis & Binary Tools</h5>
+          <p class="text-sm mb-2">
+            This tool complements traditional hex dump utilities like hexdump, xxd, and od,
+            providing a browser-based solution for hexadecimal data analysis and conversion.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">Related Tools & Commands:</h6>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">hexdump -C</span>
+            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">xxd -p</span>
+            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">od -x</span>
+            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">objdump</span>
+          </div>
+        </div>
+
+        <p class="text-sm mt-3">
+          For comprehensive hexadecimal documentation, visit
+          <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
+          and for character encoding standards, refer to
+          <a href="https://www.unicode.org/standard/standard.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Unicode Standard</a>.
+        </p>
+      </div>
+
+      <!-- Toast -->
+      <p-toast position="bottom-right"></p-toast>
     </div>
-    
-    <p class="text-sm mt-3">
-      For comprehensive hexadecimal documentation, visit 
-      <a href="https://en.wikipedia.org/wiki/Hexadecimal" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Hexadecimal</a>
-      and for character encoding standards, refer to 
-      <a href="https://www.unicode.org/standard/standard.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Unicode Standard</a>.
-    </p>
-  </div>
-  
-  <!-- Toast -->
-  <p-toast position="bottom-right"></p-toast>
-</div> 

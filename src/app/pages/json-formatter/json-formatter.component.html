@@ -19,298 +19,308 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="inputCode" (ngModelChange)="formatJson()"
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
+        @if (!isBrowser) {
+          <textarea [(ngModel)]="inputCode" (ngModelChange)="formatJson()"
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
 
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleJson()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="code" class="icon-sm"> </i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                  (click)="pasteFromClipboard()" severity="contrast">
-                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                </button>
-
-                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearJson()" severity="danger"
-                  class=" p-button-sm">
-                  <i-tabler name="trash" class="icon-sm"></i-tabler>
-                </button>
-              </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isInputFullscreen" pButton type="button" (click)="toggleFullscreen('input')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
-              </div>
-            </div>
-            <hr>
-          </div>
-          <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
-            (ngModelChange)="formatJson()" class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
-
-        </div>
-      </div>
-    </div>
-
-    <!-- Правая колонка - Formatted JSON -->
-    <div class="col flex flex-col h-full">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <!-- Заголовок с фиксированной высотой -->
-        <div class="flex justify-between items-center h-10">
-          <span class="text-xl font-medium text-800 m-0">Formatted JSON</span>
-          <div class="flex gap-2 items-center">
-
-            <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
-              (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
-              [panelStyleClass]="'same-width-panel'" appendTo="body" [style]="{'min-width': '120px'}">
-              <ng-template pTemplate="selectedItem">
-                <div class="flex align-items-center">
-                  <span>{{selectedKeyCase.label}}</span>
-                </div>
-              </ng-template>
-              <ng-template let-option pTemplate="item">
-                <div class="flex align-items-center">
-                  <span>{{option.label}}</span>
-                </div>
-              </ng-template>
-            </p-select>
-
-            <p-select [options]="spacingOptions" [(ngModel)]="selectedSpacing" optionLabel="label"
-              (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
-              [panelStyleClass]="'same-width-panel'" appendTo="body">
-            </p-select>
-          </div>
-        </div>
-
-        <!-- Отступ для дропдауна -->
-        <div class="mb-1"></div>
-
-        <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="outputCode" readonly
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
-
-        <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Use in Input" (click)="inputCode = outputCode"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="arrow-left" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="copy" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Download" (click)="downloadJson()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="download" class="icon-sm"></i-tabler>
-                </button>
-
-                <div class="relative">
-                  <!-- <p-splitButton [model]="useJsonInItems" severity="contrast" [outlined]="true">
-                    <ng-template #content>
-                      <i-tabler name="file-type-xml" class="icon-sm"></i-tabler>
-                      <span class="ml-2">Use in JSON to XML</span>
-                    </ng-template>
-                    <ng-template #dropdownicon>
-
-                    </ng-template>
-                  </p-splitButton> -->
-
-                  <button pButton type="button" [outlined]="true" label="Use Json in" (click)="menu.toggle($event)"
+        @if (isBrowser) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isInputFullscreen" #inputEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleJson()"
                     class="p-button-sm" severity="contrast">
-                    <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+                    <i-tabler name="code" class="icon-sm"> </i-tabler>
                   </button>
-                  <!-- <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true"></p-tieredMenu>  -->
-                  <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true">
-                    <ng-template #item let-item>
-                      <a pRipple class="flex items-center p-tieredmenu-item-link" (click)="sendData(item.routerLink)">
-                        <i-tabler [name]="item.icon" class="icon-sm"></i-tabler>
-                        <span class="ml-2">{{ item.label }}</span>
-                      </a>
-                    </ng-template>
-                  </p-tieredMenu>
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteFromClipboard()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearJson()" severity="danger"
+                    class=" p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
                 </div>
-
+                <div class="flex align-items-center">
+                  @if (!isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isInputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('input')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
               </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isOutputFullscreen" pButton type="button" (click)="toggleFullscreen('output')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
+              <hr>
               </div>
+              <ngx-monaco-editor #inputMonacoEditor [options]="inputEditorOptions" [(ngModel)]="inputCode"
+                (ngModelChange)="formatJson()" class="w-full h-full" monacoScrollFix>
+              </ngx-monaco-editor>
             </div>
-            <hr>
+          }
+        </div>
+      </div>
+
+      <!-- Правая колонка - Formatted JSON -->
+      <div class="col flex flex-col h-full">
+        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+          <!-- Заголовок с фиксированной высотой -->
+          <div class="flex justify-between items-center h-10">
+            <span class="text-xl font-medium text-800 m-0">Formatted JSON</span>
+            <div class="flex gap-2 items-center">
+
+              <p-select [options]="keyCaseOptions" [(ngModel)]="selectedKeyCase" optionLabel="label"
+                (onChange)="onKeyCaseChange()" styleClass="p-select-sm custom-select"
+                [panelStyleClass]="'same-width-panel'" appendTo="body" [style]="{'min-width': '120px'}">
+                <ng-template pTemplate="selectedItem">
+                  <div class="flex align-items-center">
+                    <span>{{selectedKeyCase.label}}</span>
+                  </div>
+                </ng-template>
+                <ng-template let-option pTemplate="item">
+                  <div class="flex align-items-center">
+                    <span>{{option.label}}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+
+              <p-select [options]="spacingOptions" [(ngModel)]="selectedSpacing" optionLabel="label"
+                (onChange)="onSpacingChange()" styleClass="p-select-sm custom-select" [style]="{'min-width': '120px'}"
+                [panelStyleClass]="'same-width-panel'" appendTo="body">
+              </p-select>
+            </div>
           </div>
-          <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
-            class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
+
+          <!-- Отступ для дропдауна -->
+          <div class="mb-1"></div>
+
+          <!-- Fallback textarea for server-side rendering -->
+          @if (!isBrowser) {
+            <textarea [(ngModel)]="outputCode" readonly
+              class="w-full p-2 surface-100 font-mono flex-1">
+            </textarea>
+          }
+
+          <!-- Monaco editor for browser environment -->
+          @if (isBrowser) {
+            <div
+              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+              [class.fullscreen-editor]="isOutputFullscreen" #outputEditorContainer>
+              <div class="dt-editors-editor-actions">
+                <div class="flex justify-between p-2">
+                  <div class="flex gap-3 align-items-center">
+                    <button pButton type="button" [outlined]="true" label="Use in Input" (click)="inputCode = outputCode"
+                      class="p-button-sm" severity="contrast">
+                      <i-tabler name="arrow-left" class="icon-sm"></i-tabler>
+                    </button>
+                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                      class="p-button-sm" severity="contrast">
+                      <i-tabler name="copy" class="icon-sm"></i-tabler>
+                    </button>
+                    <button pButton type="button" [outlined]="true" label="Download" (click)="downloadJson()"
+                      class="p-button-sm" severity="contrast">
+                      <i-tabler name="download" class="icon-sm"></i-tabler>
+                    </button>
+                    <div class="relative">
+                      <!-- <p-splitButton [model]="useJsonInItems" severity="contrast" [outlined]="true">
+                      <ng-template #content>
+                        <i-tabler name="file-type-xml" class="icon-sm"></i-tabler>
+                        <span class="ml-2">Use in JSON to XML</span>
+                      </ng-template>
+                      <ng-template #dropdownicon>
+                      </ng-template>
+                    </p-splitButton> -->
+                    <button pButton type="button" [outlined]="true" label="Use Json in" (click)="menu.toggle($event)"
+                      class="p-button-sm" severity="contrast">
+                      <i-tabler name="arrow-right" class="icon-sm"></i-tabler>
+                    </button>
+                    <!-- <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true"></p-tieredMenu>  -->
+                    <p-tieredMenu #menu [model]="useJsonInItems" [popup]="true">
+                      <ng-template #item let-item>
+                        <a pRipple class="flex items-center p-tieredmenu-item-link" (click)="sendData(item.routerLink)">
+                          <i-tabler [name]="item.icon" class="icon-sm"></i-tabler>
+                          <span class="ml-2">{{ item.label }}</span>
+                        </a>
+                      </ng-template>
+                    </p-tieredMenu>
+                  </div>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOutputFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('output')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
+              </div>
+              <hr>
+              </div>
+              <ngx-monaco-editor #outputMonacoEditor [options]="outputEditorOptions" [(ngModel)]="outputCode"
+                class="w-full h-full" monacoScrollFix>
+              </ngx-monaco-editor>
+            </div>
+          }
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="dt-info mt-4 p-3">
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>What is JSON?</h2>
-      <p class="mt-3">
-        JSON (JavaScript Object Notation) is a lightweight, text-based data interchange format. Despite its name, JSON is language-independent and is used across virtually all modern programming languages. It's designed to be easy for humans to read and write, and easy for machines to parse and generate.
-      </p>
-    </div>
+    <div class="dt-info mt-4 p-3">
+      <div class="dt-info-item">
+        <h2 class="text-xl text-primary" anchorHeading>What is JSON?</h2>
+        <p class="mt-3">
+          JSON (JavaScript Object Notation) is a lightweight, text-based data interchange format. Despite its name, JSON is language-independent and is used across virtually all modern programming languages. It's designed to be easy for humans to read and write, and easy for machines to parse and generate.
+        </p>
+      </div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Why Use a JSON Formatter?</h2>
-      <p class="mt-3">
-        Raw JSON data is often minified or poorly formatted, making it difficult to read and debug. A JSON formatter beautifies your code with proper indentation, making it easier to understand data structures, identify syntax errors, and maintain consistent formatting across projects. This is essential for API development, configuration files, and data analysis.
-      </p>
-    </div>
+      <div class="dt-info-item">
+        <h2 class="text-xl text-primary" anchorHeading>Why Use a JSON Formatter?</h2>
+        <p class="mt-3">
+          Raw JSON data is often minified or poorly formatted, making it difficult to read and debug. A JSON formatter beautifies your code with proper indentation, making it easier to understand data structures, identify syntax errors, and maintain consistent formatting across projects. This is essential for API development, configuration files, and data analysis.
+        </p>
+      </div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>How to Format and Validate JSON Online</h2>
-      <p class="mt-3">
-        Using our JSON formatter is straightforward. Paste your JSON data into the input editor, and the tool automatically formats and validates it in real-time. The formatter applies proper indentation, validates syntax according to RFC 7159 standards, and highlights any errors. All processing happens locally in your browser for maximum privacy and speed.
-      </p>
-    </div>
+      <div class="dt-info-item">
+        <h2 class="text-xl text-primary" anchorHeading>How to Format and Validate JSON Online</h2>
+        <p class="mt-3">
+          Using our JSON formatter is straightforward. Paste your JSON data into the input editor, and the tool automatically formats and validates it in real-time. The formatter applies proper indentation, validates syntax according to RFC 7159 standards, and highlights any errors. All processing happens locally in your browser for maximum privacy and speed.
+        </p>
+      </div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Why Choose Our JSON Formatter Tool?</h2>
-      <p class="mt-3">
-        Our JSON formatter prioritizes performance, privacy, and usability. Unlike other tools, it processes data entirely client-side, ensuring your sensitive data never leaves your browser. Features include real-time validation, customizable key case transformation, adjustable indentation, syntax highlighting, and instant copy/download functionality.
-      </p>
-    </div>
+      <div class="dt-info-item">
+        <h2 class="text-xl text-primary" anchorHeading>Why Choose Our JSON Formatter Tool?</h2>
+        <p class="mt-3">
+          Our JSON formatter prioritizes performance, privacy, and usability. Unlike other tools, it processes data entirely client-side, ensuring your sensitive data never leaves your browser. Features include real-time validation, customizable key case transformation, adjustable indentation, syntax highlighting, and instant copy/download functionality.
+        </p>
+      </div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
-      <p class="mt-3"><strong>Is this JSON formatter free to use?</strong><br>
+      <div class="dt-info-item">
+        <h2 class="text-xl text-primary" anchorHeading>FAQ</h2>
+        <p class="mt-3"><strong>Is this JSON formatter free to use?</strong><br>
         Yes, it's completely free with no registration, ads, or usage limits.
       </p>
       <p class="mt-3"><strong>Do you store my JSON data?</strong><br>
-        No, all processing is done locally in your browser. Your data never touches our servers.
-      </p>
-      <p class="mt-3"><strong>Can I format large JSON files?</strong><br>
-        Yes, the tool handles large JSON documents efficiently, limited only by your browser's memory.
-      </p>
-      <p class="mt-3"><strong>Does the tool validate JSON syntax?</strong><br>
-        Absolutely. It provides real-time syntax validation and error highlighting according to JSON standards.
-      </p>
-    </div>
+      No, all processing is done locally in your browser. Your data never touches our servers.
+    </p>
+    <p class="mt-3"><strong>Can I format large JSON files?</strong><br>
+    Yes, the tool handles large JSON documents efficiently, limited only by your browser's memory.
+  </p>
+  <p class="mt-3"><strong>Does the tool validate JSON syntax?</strong><br>
+  Absolutely. It provides real-time syntax validation and error highlighting according to JSON standards.
+</p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>How Does JSON Beautification Work?</h2>
-      <p class="mt-3">
-        JSON beautification transforms minified or poorly formatted JSON into a readable structure with consistent indentation and line breaks. Our formatter parses the JSON structure, validates syntax, and applies formatting rules based on your preferences for spacing and key case styling.
-      </p>
-      <p class="mt-3">
-        The tool intelligently handles nested objects and arrays, maintaining optimal readability while preserving data integrity. Unlike manual formatting, our automated approach eliminates human error and ensures consistent results every time.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>How Does JSON Beautification Work?</h2>
+  <p class="mt-3">
+    JSON beautification transforms minified or poorly formatted JSON into a readable structure with consistent indentation and line breaks. Our formatter parses the JSON structure, validates syntax, and applies formatting rules based on your preferences for spacing and key case styling.
+  </p>
+  <p class="mt-3">
+    The tool intelligently handles nested objects and arrays, maintaining optimal readability while preserving data integrity. Unlike manual formatting, our automated approach eliminates human error and ensures consistent results every time.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>JSON Viewer Features</h2>
-      <p class="mt-3">
-        The integrated JSON viewer provides syntax highlighting that distinguishes between strings, numbers, booleans, and null values. The side-by-side layout allows you to compare raw and formatted JSON instantly, making it easy to understand the transformation and verify your data structure.
-      </p>
-      <p class="mt-3">
-        Advanced features include customizable key case transformation (camelCase, snake_case, PascalCase, kebab-case), adjustable indentation levels, and array compacting to keep simple arrays on single lines for better readability.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>JSON Viewer Features</h2>
+  <p class="mt-3">
+    The integrated JSON viewer provides syntax highlighting that distinguishes between strings, numbers, booleans, and null values. The side-by-side layout allows you to compare raw and formatted JSON instantly, making it easy to understand the transformation and verify your data structure.
+  </p>
+  <p class="mt-3">
+    Advanced features include customizable key case transformation (camelCase, snake_case, PascalCase, kebab-case), adjustable indentation levels, and array compacting to keep simple arrays on single lines for better readability.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Common Use Cases for Developers</h2>
-      <p class="mt-3">
-        This JSON formatter is essential for API developers, frontend engineers, data analysts, and DevOps professionals. Common uses include debugging REST API responses, formatting configuration files, preparing data for testing, validating API payloads, and cleaning up exported data from databases or third-party services.
-      </p>
-      <p class="mt-3">
-        It's particularly valuable when working with complex nested JSON structures, microservices communication, webhook payloads, or when integrating with external APIs that return minified JSON responses.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>Common Use Cases for Developers</h2>
+  <p class="mt-3">
+    This JSON formatter is essential for API developers, frontend engineers, data analysts, and DevOps professionals. Common uses include debugging REST API responses, formatting configuration files, preparing data for testing, validating API payloads, and cleaning up exported data from databases or third-party services.
+  </p>
+  <p class="mt-3">
+    It's particularly valuable when working with complex nested JSON structures, microservices communication, webhook payloads, or when integrating with external APIs that return minified JSON responses.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Format JSON Online?</h2>
-      <p class="mt-3">
-        Yes, our tool is built with security and privacy as top priorities. All JSON processing occurs entirely within your browser using JavaScript - no data is transmitted to external servers. This client-side approach protects sensitive information while providing instant results.
-      </p>
-      <p class="mt-3">
-        This architecture not only ensures data privacy but also delivers superior performance, even with large JSON files. No account creation, no tracking, no ads - just a clean, fast JSON formatting experience.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>Is It Safe to Format JSON Online?</h2>
+  <p class="mt-3">
+    Yes, our tool is built with security and privacy as top priorities. All JSON processing occurs entirely within your browser using JavaScript - no data is transmitted to external servers. This client-side approach protects sensitive information while providing instant results.
+  </p>
+  <p class="mt-3">
+    This architecture not only ensures data privacy but also delivers superior performance, even with large JSON files. No account creation, no tracking, no ads - just a clean, fast JSON formatting experience.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools JSON Formatter?</h2>
-      <p class="mt-3">
-        Among numerous JSON tools available online, DevTools JSON Formatter excels in speed, simplicity, and privacy protection. It's a 100% free, ad-free utility designed by developers for developers, focusing on distraction-free productivity and reliable performance.
-      </p>
-      <p class="mt-3">
-        Whether you're formatting JSON once or hundreds of times daily, our tool provides a consistent, professional environment that streamlines your workflow. It's part of our comprehensive suite of developer tools designed to solve common coding challenges efficiently and securely.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>Why Choose DevTools JSON Formatter?</h2>
+  <p class="mt-3">
+    Among numerous JSON tools available online, DevTools JSON Formatter excels in speed, simplicity, and privacy protection. It's a 100% free, ad-free utility designed by developers for developers, focusing on distraction-free productivity and reliable performance.
+  </p>
+  <p class="mt-3">
+    Whether you're formatting JSON once or hundreds of times daily, our tool provides a consistent, professional environment that streamlines your workflow. It's part of our comprehensive suite of developer tools designed to solve common coding challenges efficiently and securely.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>Download and Export Options</h2>
-      <p class="mt-3">
-        After formatting your JSON, you can instantly copy the result to your clipboard or download it as a `.json` file. This is particularly useful for sharing formatted data with team members, preparing files for deployment, or creating readable documentation from complex API responses.
-      </p>
-      <p class="mt-3">
-        The tool also supports easy data transfer to other DevTools utilities like JSON to XML converter, JSON to ENV converter, and JSON Query Explorer, creating a seamless workflow for data transformation tasks.
-      </p>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>Download and Export Options</h2>
+  <p class="mt-3">
+    After formatting your JSON, you can instantly copy the result to your clipboard or download it as a `.json` file. This is particularly useful for sharing formatted data with team members, preparing files for deployment, or creating readable documentation from complex API responses.
+  </p>
+  <p class="mt-3">
+    The tool also supports easy data transfer to other DevTools utilities like JSON to XML converter, JSON to ENV converter, and JSON Query Explorer, creating a seamless workflow for data transformation tasks.
+  </p>
+</div>
 
-    <div class="dt-info-item">
-      <h2 class="text-xl text-primary" anchorHeading>JSON Learning Resources</h2>
-      <p class="mt-3">
-        To enhance your JSON knowledge and skills, here are valuable external resources for learning and reference:
-      </p>
-      <ul class="list-disc pl-5 mt-3 space-y-2">
-        <li>
-          <a href="https://www.json.org/" target="_blank" rel="noopener noreferrer" 
-             class="text-primary hover:underline">
-            JSON.org
-          </a> - The official JSON specification and introduction by Douglas Crockford
-        </li>
-        <li>
-          <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON" target="_blank" rel="noopener noreferrer" 
-             class="text-primary hover:underline">
-            MDN JSON Guide
-          </a> - Comprehensive guide to working with JSON in JavaScript and web development
-        </li>
-        <li>
-          <a href="https://jsonschema.org/" target="_blank" rel="noopener noreferrer" 
-             class="text-primary hover:underline">
-            JSON Schema
-          </a> - Learn how to validate JSON structure and create robust data contracts
-        </li>
-        <li>
-          <a href="https://jsonapi.org/" target="_blank" rel="noopener noreferrer" 
-             class="text-primary hover:underline">
-            JSON:API
-          </a> - Specification for building efficient and consistent RESTful APIs with JSON
-        </li>
-      </ul>
-    </div>
+<div class="dt-info-item">
+  <h2 class="text-xl text-primary" anchorHeading>JSON Learning Resources</h2>
+  <p class="mt-3">
+    To enhance your JSON knowledge and skills, here are valuable external resources for learning and reference:
+  </p>
+  <ul class="list-disc pl-5 mt-3 space-y-2">
+    <li>
+      <a href="https://www.json.org/" target="_blank" rel="noopener noreferrer"
+        class="text-primary hover:underline">
+        JSON.org
+      </a> - The official JSON specification and introduction by Douglas Crockford
+    </li>
+    <li>
+      <a href="https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Objects/JSON" target="_blank" rel="noopener noreferrer"
+        class="text-primary hover:underline">
+        MDN JSON Guide
+      </a> - Comprehensive guide to working with JSON in JavaScript and web development
+    </li>
+    <li>
+      <a href="https://jsonschema.org/" target="_blank" rel="noopener noreferrer"
+        class="text-primary hover:underline">
+        JSON Schema
+      </a> - Learn how to validate JSON structure and create robust data contracts
+    </li>
+    <li>
+      <a href="https://jsonapi.org/" target="_blank" rel="noopener noreferrer"
+        class="text-primary hover:underline">
+        JSON:API
+      </a> - Specification for building efficient and consistent RESTful APIs with JSON
+    </li>
+  </ul>
+</div>
 
-  </div>
+</div>
 
-  <!-- Toast component -->
-  <p-toast position="bottom-right"></p-toast>
+<!-- Toast component -->
+<p-toast position="bottom-right"></p-toast>
 </div>

@@ -1,4 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
+@import "primeicons/primeicons.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --primary-color: var(--p-primary-color);
@@ -12,12 +16,12 @@
   --vscode-editor-background: #1e1e1e;
 }
 
-// /* Reset styles */
-// * {
-//   margin: 0;
-//   padding: 0;
-//   box-sizing: border-box;
-// }
+/* Reset styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
   font-family: var(--font-family);

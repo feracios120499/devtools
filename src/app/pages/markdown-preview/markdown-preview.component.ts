@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
@@ -19,14 +19,13 @@ import { IconsModule } from '../../shared/modules/icons.module';
   selector: 'app-markdown-preview',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './markdown-preview.component.html',
   styleUrl: './markdown-preview.component.scss'
@@ -296,7 +295,7 @@ console.log(greet('World'));
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKey(event: KeyboardEvent): void {
+  onEscapeKey(event: Event): void {
     if (this.isFullscreen) {
       this.toggleFullscreen();
       event.preventDefault();

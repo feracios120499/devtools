@@ -3,28 +3,31 @@
   <app-page-header>Word Counter - Analyze your text and count words</app-page-header>
   <div class="p-3">
     <p>This <strong>Word Counter</strong> tool helps you analyze text and count words, characters, and view word
-      frequency distribution.</p>
-    <p>Paste your text and get instant <strong>word count</strong>, character count, and detailed word distribution
-      analysis.</p>
-  </div>
+  frequency distribution.</p>
+  <p>Paste your text and get instant <strong>word count</strong>, character count, and detailed word distribution
+analysis.</p>
+</div>
 
-  <div class="dt-editors">
-    <!-- Left column - Text Input -->
-    <div class="col flex flex-col h-full">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">Input Text</h3>
-        </div>
-        <div class="mb-1"></div>
+<div class="dt-editors">
+  <!-- Left column - Text Input -->
+  <div class="col flex flex-col h-full">
+    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+      <div class="flex justify-between items-center h-10">
+        <h3 class="text-xl font-medium text-800 m-0">Input Text</h3>
+      </div>
+      <div class="mb-1"></div>
 
-        <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="inputText" (ngModelChange)="onTextChange()"
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
+      <!-- Fallback textarea for server-side rendering -->
+      @if (!isBrowser) {
+        <textarea [(ngModel)]="inputText" (ngModelChange)="onTextChange()"
+          class="w-full p-2 surface-100 font-mono flex-1">
         </textarea>
+      }
 
-        <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+      <!-- Monaco editor for browser environment -->
+      @if (isBrowser) {
+        <div
+          class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
           [class.fullscreen-editor]="isFullscreen">
           <div class="dt-editors-editor-actions">
             <div class="flex justify-between p-2">
@@ -47,22 +50,27 @@
                 </button>
               </div>
               <div class="flex align-items-center">
-                <button *ngIf="!isFullscreen" pButton type="button" (click)="toggleFullscreen()" severity="contrast"
-                  class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isFullscreen" pButton type="button" (click)="toggleFullscreen()" severity="contrast"
-                  class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
+                @if (!isFullscreen) {
+                  <button pButton type="button" (click)="toggleFullscreen()" severity="contrast"
+                    class="p-button-text p-button-sm">
+                    <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                  </button>
+                }
+                @if (isFullscreen) {
+                  <button pButton type="button" (click)="toggleFullscreen()" severity="contrast"
+                    class="p-button-text p-button-sm">
+                    <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                  </button>
+                }
               </div>
             </div>
             <hr>
+            </div>
+            <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
+              (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
+            </ngx-monaco-editor>
           </div>
-          <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
-            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
-        </div>
+        }
       </div>
     </div>
 
@@ -77,33 +85,39 @@
         <div class="dt-editors-editor">
           <!-- Summary Statistics -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div class="p-3 border-1 surface-border border-round text-center">
+            <div class="p-3 surface-border border-round text-center">
               <div class="text-2xl font-bold text-primary">{{totalWords}}</div>
               <div class="text-sm text-500">Words</div>
             </div>
-            <div class="p-3 border-1 surface-border border-round text-center">
+            <div class="p-3 surface-border border-round text-center">
               <div class="text-2xl font-bold text-primary">{{totalCharacters}}</div>
               <div class="text-sm text-500">Characters</div>
             </div>
           </div>
 
-                      <h4 class="text-lg font-medium text-800 mb-2">Word Distribution <span class="text-xs text-500 font-normal">(hover on word for highlight)</span></h4>
+          <h4 class="text-lg font-medium text-800 mb-2">Word Distribution <span class="text-xs text-500 font-normal">(hover on word for highlight)</span></h4>
 
-          <div *ngIf="wordDistribution.length === 0" class="text-center text-500 mt-4">
-            <i class="pi pi-info-circle text-2xl mb-2"></i>
-            <p>Enter some text to see word distribution</p>
-          </div>
+          @if (wordDistribution.length === 0) {
+            <div class="text-center text-500 mt-4">
+              <i class="pi pi-info-circle text-2xl mb-2"></i>
+              <p>Enter some text to see word distribution</p>
+            </div>
+          }
 
-          <div *ngIf="wordDistribution.length > 0" class="flex-1 overflow-y-auto wordDistribution">
-            <div class="space-y-2">
-              <div *ngFor="let item of wordDistribution; trackBy: trackByWord"
-                class="flex justify-between items-center p-2 border-1 surface-border border-round cursor-pointer transition-colors word-item"
-                (mouseenter)="highlightWord(item.word)" (mouseleave)="clearHighlight()">
-                <span class="font-mono text-sm word-text">{{item.word}}</span>
-                <p-badge [value]="item.count.toString()" severity="contrast" class="word-badge"></p-badge>
+          @if (wordDistribution.length > 0) {
+            <div class="flex-1 overflow-y-auto wordDistribution">
+              <div class="space-y-2">
+                @for (item of wordDistribution; track trackByWord($index, item)) {
+                  <div
+                    class="flex justify-between items-center p-2 surface-border border-round cursor-pointer transition-colors word-item"
+                    (mouseenter)="highlightWord(item.word)" (mouseleave)="clearHighlight()">
+                    <span class="font-mono text-sm word-text">{{item.word}}</span>
+                    <p-badge [value]="item.count.toString()" severity="contrast" class="word-badge"></p-badge>
+                  </div>
+                }
               </div>
             </div>
-          </div>
+          }
         </div>
 
       </div>
@@ -111,7 +125,7 @@
   </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
     <h4 class="text-xl font-semibold mb-2">About Word Counter</h4>
     <p class="mb-2 text-sm">
       This <strong>Word Counter</strong> tool provides comprehensive text analysis including word count, character
@@ -124,144 +138,144 @@
     </p>
     <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
       <li><span class="text-primary">Real-time word counting:</span> Get instant word and character counts as you type
-      </li>
-      <li><span class="text-primary">Word frequency analysis:</span> See how often each word appears in your text</li>
-      <li><span class="text-primary">Interactive highlighting:</span> Hover over words in the distribution to highlight
-        them in the editor</li>
-      <li><span class="text-primary">Advanced text editor:</span> Monaco editor with syntax highlighting and
-        professional editing features</li>
-      <li><span class="text-primary">Copy and paste support:</span> Easy text manipulation with clipboard integration
-      </li>
-      <li><span class="text-primary">Sample text loading:</span> Load example text to test the functionality</li>
-      <li><span class="text-primary">Privacy focused:</span> All processing happens locally in your browser - no server
-        upload</li>
-    </ul>
-    <p class="mb-2 text-sm">
-      <strong>Use cases:</strong> Content writing, blog post analysis, academic paper review, social media content
-      optimization,
-      SEO content analysis, and text editing workflows.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All text analysis happens in your browser - your content is never sent to
-      any server.
-    </p>
-  </div>
+    </li>
+    <li><span class="text-primary">Word frequency analysis:</span> See how often each word appears in your text</li>
+    <li><span class="text-primary">Interactive highlighting:</span> Hover over words in the distribution to highlight
+  them in the editor</li>
+  <li><span class="text-primary">Advanced text editor:</span> Monaco editor with syntax highlighting and
+professional editing features</li>
+<li><span class="text-primary">Copy and paste support:</span> Easy text manipulation with clipboard integration
+</li>
+<li><span class="text-primary">Sample text loading:</span> Load example text to test the functionality</li>
+<li><span class="text-primary">Privacy focused:</span> All processing happens locally in your browser - no server
+upload</li>
+</ul>
+<p class="mb-2 text-sm">
+  <strong>Use cases:</strong> Content writing, blog post analysis, academic paper review, social media content
+  optimization,
+  SEO content analysis, and text editing workflows.
+</p>
+<p class="text-sm text-500">
+  <i class="pi pi-info-circle mr-1"></i> All text analysis happens in your browser - your content is never sent to
+  any server.
+</p>
+</div>
 
-  <!-- Content Writing Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Content Writing & SEO Applications</h4>
+<!-- Content Writing Applications -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+  <h4 class="text-xl font-semibold mb-3">Content Writing & SEO Applications</h4>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Content Creation & Blogging</h5>
-        <p class="mb-2 text-sm">
-          Essential for content writers, bloggers, and digital marketers who need to optimize
-          their content for specific word counts and keyword density requirements.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Writing Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Blog post word count optimization</li>
-          <li>Article length requirements verification</li>
-          <li>Social media content analysis</li>
-          <li>Newsletter content planning</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">SEO & Marketing Analysis</h5>
-        <p class="mb-2 text-sm">
-          Critical for SEO specialists, content marketers, and digital strategists
-          working with keyword optimization and content performance metrics.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">SEO Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Keyword density analysis</li>
-          <li>Content length optimization</li>
-          <li>Meta description word count</li>
-          <li>Title tag optimization</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Academic & Professional Writing</h5>
-      <p class="text-sm mb-2">
-        This <strong>Word Counter</strong> supports students, researchers, and professionals
-        working with word count requirements and text analysis needs.
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Content Creation & Blogging</h5>
+      <p class="mb-2 text-sm">
+        Essential for content writers, bloggers, and digital marketers who need to optimize
+        their content for specific word counts and keyword density requirements.
       </p>
 
-      <h6 class="text-base font-medium text-600 mb-1">Academic Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Essay word limits</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Research papers</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Thesis chapters</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Grant proposals</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Abstract limits</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Conference papers</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- Publishing and Media Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Publishing & Media Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Publishing & Editorial</h5>
-        <p class="mb-2 text-sm">
-          Essential for publishers, editors, and authors working with manuscript requirements,
-          publication guidelines, and editorial standards.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Publishing Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Manuscript word count verification</li>
-          <li>Chapter length consistency</li>
-          <li>Magazine article requirements</li>
-          <li>Book proposal specifications</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Journalism & Media</h5>
-        <p class="mb-2 text-sm">
-          Critical for journalists, copywriters, and media professionals
-          working with strict word limits and content specifications.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Media Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>News article word limits</li>
-          <li>Press release optimization</li>
-          <li>Advertisement copy analysis</li>
-          <li>Script word count tracking</li>
-        </ul>
-      </div>
+      <h6 class="text-base font-medium text-600 mb-1">Writing Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Blog post word count optimization</li>
+        <li>Article length requirements verification</li>
+        <li>Social media content analysis</li>
+        <li>Newsletter content planning</li>
+      </ul>
     </div>
 
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Creative Writing & Literature</h5>
-      <p class="text-sm mb-2">
-        This tool supports creative writers, novelists, and literary professionals
-        with word count tracking and text analysis for various writing projects.
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">SEO & Marketing Analysis</h5>
+      <p class="mb-2 text-sm">
+        Critical for SEO specialists, content marketers, and digital strategists
+        working with keyword optimization and content performance metrics.
       </p>
 
-      <h6 class="text-base font-medium text-600 mb-1">Creative Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
-        <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Novel chapters</span>
-        <span class="px-2 py-1 bg-violet-50 text-violet-700 rounded">Short stories</span>
-        <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded">Poetry analysis</span>
-        <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Screenplay formatting</span>
-        <span class="px-2 py-1 bg-amber-50 text-amber-700 rounded">Contest submissions</span>
-        <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Flash fiction</span>
-        <span class="px-2 py-1 bg-lime-50 text-lime-700 rounded">Literary magazines</span>
-        <span class="px-2 py-1 bg-sky-50 text-sky-700 rounded">Writing prompts</span>
-      </div>
+      <h6 class="text-base font-medium text-600 mb-1">SEO Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Keyword density analysis</li>
+        <li>Content length optimization</li>
+        <li>Meta description word count</li>
+        <li>Title tag optimization</li>
+      </ul>
     </div>
   </div>
-    <!-- Toast component -->
-    <p-toast position="bottom-right"></p-toast>
+
+  <div class="mt-4">
+    <h5 class="text-lg font-medium text-700 mb-2">Academic & Professional Writing</h5>
+    <p class="text-sm mb-2">
+      This <strong>Word Counter</strong> supports students, researchers, and professionals
+      working with word count requirements and text analysis needs.
+    </p>
+
+    <h6 class="text-base font-medium text-600 mb-1">Academic Applications:</h6>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+      <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Essay word limits</span>
+      <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Research papers</span>
+      <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Thesis chapters</span>
+      <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Grant proposals</span>
+      <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Abstract limits</span>
+      <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Conference papers</span>
+    </div>
+  </div>
+</div>
+
+<!-- Publishing and Media Applications -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+  <h4 class="text-xl font-semibold mb-3">Publishing & Media Applications</h4>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Publishing & Editorial</h5>
+      <p class="mb-2 text-sm">
+        Essential for publishers, editors, and authors working with manuscript requirements,
+        publication guidelines, and editorial standards.
+      </p>
+
+      <h6 class="text-base font-medium text-600 mb-1">Publishing Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>Manuscript word count verification</li>
+        <li>Chapter length consistency</li>
+        <li>Magazine article requirements</li>
+        <li>Book proposal specifications</li>
+      </ul>
+    </div>
+
+    <div>
+      <h5 class="text-lg font-medium text-700 mb-2">Journalism & Media</h5>
+      <p class="mb-2 text-sm">
+        Critical for journalists, copywriters, and media professionals
+        working with strict word limits and content specifications.
+      </p>
+
+      <h6 class="text-base font-medium text-600 mb-1">Media Applications:</h6>
+      <ul class="list-disc pl-5 text-sm space-y-1">
+        <li>News article word limits</li>
+        <li>Press release optimization</li>
+        <li>Advertisement copy analysis</li>
+        <li>Script word count tracking</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <h5 class="text-lg font-medium text-700 mb-2">Creative Writing & Literature</h5>
+    <p class="text-sm mb-2">
+      This tool supports creative writers, novelists, and literary professionals
+      with word count tracking and text analysis for various writing projects.
+    </p>
+
+    <h6 class="text-base font-medium text-600 mb-1">Creative Applications:</h6>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
+      <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Novel chapters</span>
+      <span class="px-2 py-1 bg-violet-50 text-violet-700 rounded">Short stories</span>
+      <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded">Poetry analysis</span>
+      <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Screenplay formatting</span>
+      <span class="px-2 py-1 bg-amber-50 text-amber-700 rounded">Contest submissions</span>
+      <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Flash fiction</span>
+      <span class="px-2 py-1 bg-lime-50 text-lime-700 rounded">Literary magazines</span>
+      <span class="px-2 py-1 bg-sky-50 text-sky-700 rounded">Writing prompts</span>
+    </div>
+  </div>
+</div>
+<!-- Toast component -->
+<p-toast position="bottom-right"></p-toast>
 </div>

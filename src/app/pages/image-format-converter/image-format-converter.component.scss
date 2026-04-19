@@ -19,7 +19,7 @@
   transition: all 0.3s ease;
 
   &:hover {
-    @apply border-primary;
+    border-color: var(--p-primary-color);
     color: var(--primary-color);
   }
 }
@@ -61,11 +61,11 @@
   }
 }
 
-// Dropdown styling
-:host ::ng-deep .p-dropdown {
+// Select styling
+:host ::ng-deep .p-select {
   width: 100%;
-  
-  .p-dropdown-label {
+
+  .p-select-label {
     padding: 0.75rem;
   }
 }

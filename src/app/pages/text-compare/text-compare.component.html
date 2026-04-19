@@ -15,282 +15,304 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="originalText" (ngModelChange)="onTextChange()"
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
+        @if (!isBrowser) {
+          <textarea [(ngModel)]="originalText" (ngModelChange)="onTextChange()"
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
 
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isOriginalFullscreen" #originalEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleText()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="code" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                  (click)="pasteToOriginal()" severity="contrast">
-                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
-                  class="p-button-sm">
-                  <i-tabler name="trash" class="icon-sm"></i-tabler>
-                </button>
+        @if (isBrowser) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isOriginalFullscreen" #originalEditorContainer>
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleText()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="code" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteToOriginal()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
+                    class="p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isOriginalFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('original')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isOriginalFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen('original')"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
               </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isOriginalFullscreen" pButton type="button" (click)="toggleFullscreen('original')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isOriginalFullscreen" pButton type="button" (click)="toggleFullscreen('original')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
+              <hr>
               </div>
+              <ngx-monaco-editor #originalMonacoEditor [options]="originalEditorOptions" [(ngModel)]="originalText"
+                (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
+              </ngx-monaco-editor>
             </div>
-            <hr>
-          </div>
-          <ngx-monaco-editor #originalMonacoEditor [options]="originalEditorOptions" [(ngModel)]="originalText"
-            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
+          }
         </div>
       </div>
-    </div>
 
-    <!-- Правая колонка - Modified Text -->
-    <div class="col flex flex-col h-full">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
-        <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">Modified Text</h3>
+      <!-- Правая колонка - Modified Text -->
+      <div class="col flex flex-col h-full">
+        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col overflow-hidden h-full">
+          <div class="flex justify-between items-center h-10">
+            <h3 class="text-xl font-medium text-800 m-0">Modified Text</h3>
+          </div>
+          <div class="mb-1"></div>
+
+          <!-- Fallback textarea for server-side rendering -->
+          @if (!isBrowser) {
+            <textarea [(ngModel)]="modifiedText" (ngModelChange)="onTextChange()"
+              class="w-full p-2 surface-100 font-mono flex-1">
+            </textarea>
+          }
+
+          <!-- Monaco editor for browser environment -->
+          @if (isBrowser) {
+            <div
+              class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+              [class.fullscreen-editor]="isModifiedFullscreen" #modifiedEditorContainer>
+              <div class="dt-editors-editor-actions">
+                <div class="flex justify-between p-2">
+                  <div class="flex gap-3 align-items-center">
+                    <button pButton type="button" [outlined]="true" label="Copy" (click)="copyModifiedToClipboard()"
+                      class="p-button-sm" severity="contrast">
+                      <i-tabler name="copy" class="icon-sm"></i-tabler>
+                    </button>
+                    <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                      (click)="pasteToModified()" severity="contrast">
+                      <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                    </button>
+                    <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
+                      class="p-button-sm">
+                      <i-tabler name="trash" class="icon-sm"></i-tabler>
+                    </button>
+                  </div>
+                  <div class="flex align-items-center">
+                    @if (!isModifiedFullscreen) {
+                      <button pButton type="button" (click)="toggleFullscreen('modified')"
+                        severity="contrast" class="p-button-text p-button-sm">
+                        <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                      </button>
+                    }
+                    @if (isModifiedFullscreen) {
+                      <button pButton type="button" (click)="toggleFullscreen('modified')"
+                        severity="contrast" class="p-button-text p-button-sm">
+                        <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                      </button>
+                    }
+                  </div>
+                </div>
+                <hr>
+                </div>
+                <ngx-monaco-editor #modifiedMonacoEditor [options]="modifiedEditorOptions" [(ngModel)]="modifiedText"
+                  (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
+                </ngx-monaco-editor>
+              </div>
+            }
+          </div>
         </div>
-        <div class="mb-1"></div>
+      </div>
 
-        <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="modifiedText" (ngModelChange)="onTextChange()" 
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
+      <!-- Comparison Results Section -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border">
+        <div class="flex align-items-center gap-2 mb-3">
+          <h4 class="text-lg font-semibold m-0">Comparison Results</h4>
+          @if (comparisonResult.hasChanges) {
+            <p-badge [value]="comparisonResult.totalChanges.toString()"
+            severity="warn" class="ml-2"></p-badge>
+          }
+        </div>
 
-        <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isModifiedFullscreen" #modifiedEditorContainer>
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyModifiedToClipboard()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="copy" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                  (click)="pasteToModified()" severity="contrast">
-                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearTexts()" severity="danger"
-                  class="p-button-sm">
-                  <i-tabler name="trash" class="icon-sm"></i-tabler>
-                </button>
-              </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isModifiedFullscreen" pButton type="button" (click)="toggleFullscreen('modified')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-                </button>
-                <button *ngIf="isModifiedFullscreen" pButton type="button" (click)="toggleFullscreen('modified')"
-                  severity="contrast" class="p-button-text p-button-sm">
-                  <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-                </button>
-              </div>
+        <!-- No changes detected -->
+        @if (!comparisonResult.hasChanges) {
+          <div class="status-success">
+            <i class="pi pi-check-circle text-xl"></i>
+            <div>
+              <p class="font-medium m-0">No differences detected</p>
+              <p class="text-sm m-0 text-500">Both texts are identical</p>
             </div>
-            <hr>
           </div>
-          <ngx-monaco-editor #modifiedMonacoEditor [options]="modifiedEditorOptions" [(ngModel)]="modifiedText"
-            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
+        }
+
+        <!-- Changes detected -->
+        @if (comparisonResult.hasChanges) {
+          <div class="status-warning">
+            <i class="pi pi-exclamation-triangle text-xl"></i>
+            <div>
+              <p class="font-medium m-0">{{comparisonResult.totalChanges}} difference(s) found</p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Information Section -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
+        <h4 class="text-xl font-semibold mb-2">About Text Diff Checker</h4>
+        <p class="mb-2 text-sm">
+          This <strong>Text Diff Checker</strong> and <strong>text compare</strong> tool helps you compare two text files side by side with highlighted differences.
+          Perfect for comparing code files, configuration files, or any text documents to identify changes and modifications.
+        </p>
+        <p class="mb-2 text-sm">
+          <strong>How it works:</strong>
+          The <strong>Text Diff Checker</strong> uses advanced diff algorithms to analyze both texts and highlight insertions, deletions, and modifications.
+          The side-by-side view makes it easy to understand what has changed between versions using sophisticated <strong>text compare</strong> algorithms.
+        </p>
+        <p class="mb-2 text-sm">
+          <strong>Features:</strong>
+        </p>
+        <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+          <li><span class="text-primary">Side-by-side comparison:</span> View both texts simultaneously with clear visual separation</li>
+          <li><span class="text-primary">Inline diff highlighting:</span> Insertions, deletions, and modifications are clearly marked with color coding</li>
+          <li><span class="text-primary">Advanced Monaco editor:</span> Syntax highlighting, error indicators, and professional text editing features</li>
+          <li><span class="text-primary">Copy and paste integration:</span> Easy text manipulation with clipboard support for seamless workflow</li>
+          <li><span class="text-primary">Sample data loading:</span> Load example texts to test the comparison functionality instantly</li>
+          <li><span class="text-primary">Fullscreen editing mode:</span> Focus on individual editors in fullscreen for detailed text work</li>
+          <li><span class="text-primary">Privacy focused:</span> All processing happens locally in your browser - no server upload required</li>
+        </ul>
+        <p class="mb-2 text-sm">
+          <strong>Use cases:</strong> Code review processes, document version comparison, configuration file analysis, version control diff visualization,
+          text editing verification, content change tracking, and development workflow optimization.
+        </p>
+        <p class="text-sm">
+          Learn more about diff algorithms at
+          <a href="https://en.wikipedia.org/wiki/Diff" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Diff</a>
+          and text comparison best practices at
+          <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">GitHub Diff Documentation</a>.
+        </p>
+        <p class="text-sm text-500">
+          <i class="pi pi-info-circle mr-1"></i> All text comparison processing happens in your browser - your data is never sent to any server.
+        </p>
+      </div>
+
+      <!-- Development and Text Processing Applications -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+        <h4 class="text-xl font-semibold mb-3">Development & Text Processing Applications</h4>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Code Review & Version Control</h5>
+            <p class="mb-2 text-sm">
+              Essential for developers, code reviewers, and DevOps engineers working with
+              version control systems, pull requests, and code comparison workflows.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">Development Tasks:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Git diff visualization and comparison</li>
+              <li>Pull request review and analysis</li>
+              <li>Code refactoring verification</li>
+              <li>Configuration file change tracking</li>
+            </ul>
+          </div>
+
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Documentation & Content Management</h5>
+            <p class="mb-2 text-sm">
+              Critical for technical writers, content managers, and documentation specialists
+              working with text documents, markdown files, and content versioning.
+            </p>
+
+            <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Document version comparison</li>
+              <li>Markdown file diff analysis</li>
+              <li>Content editing verification</li>
+              <li>Translation and localization review</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h5 class="text-lg font-medium text-700 mb-2">Configuration Management & DevOps</h5>
+          <p class="text-sm mb-2">
+            This <strong>Text Diff Checker</strong> is valuable for system administrators, DevOps engineers,
+            and configuration managers working with application settings, infrastructure as code, and deployment configurations.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+            <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Docker configurations</span>
+            <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Kubernetes manifests</span>
+            <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">CI/CD pipeline configs</span>
+            <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Application settings</span>
+            <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Environment variables</span>
+            <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Infrastructure as Code</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Comparison Results Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
-    <div class="flex align-items-center gap-2 mb-3">
-      <h4 class="text-lg font-semibold m-0">Comparison Results</h4>
-      <p-badge *ngIf="comparisonResult.hasChanges" [value]="comparisonResult.totalChanges.toString()" 
-        severity="warn" class="ml-2"></p-badge>
-    </div>
+      <!-- Text Analysis and Quality Assurance -->
+      <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+        <h4 class="text-xl font-semibold mb-3">Text Analysis & Quality Assurance</h4>
 
-    <!-- No changes detected -->
-    <div *ngIf="!comparisonResult.hasChanges" class="status-success">
-      <i class="pi pi-check-circle text-xl"></i>
-      <div>
-        <p class="font-medium m-0">No differences detected</p>
-        <p class="text-sm m-0 text-500">Both texts are identical</p>
-      </div>
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Quality Assurance & Testing</h5>
+            <p class="mb-2 text-sm">
+              Essential for QA engineers, test automation specialists, and quality assurance teams
+              working with test scripts, expected outputs, and verification processes.
+            </p>
 
-    <!-- Changes detected -->
-    <div *ngIf="comparisonResult.hasChanges" class="status-warning">
-      <i class="pi pi-exclamation-triangle text-xl"></i>
-      <div>
-        <p class="font-medium m-0">{{comparisonResult.totalChanges}} difference(s) found</p>
-      </div>
-    </div>
-  </div>
+            <h6 class="text-base font-medium text-600 mb-1">QA Use Cases:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Test output verification and comparison</li>
+              <li>API response validation</li>
+              <li>Expected vs actual result analysis</li>
+              <li>Test script change tracking</li>
+            </ul>
+          </div>
 
-  <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About Text Diff Checker</h4>
-    <p class="mb-2 text-sm">
-      This <strong>Text Diff Checker</strong> and <strong>text compare</strong> tool helps you compare two text files side by side with highlighted differences.
-      Perfect for comparing code files, configuration files, or any text documents to identify changes and modifications.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>How it works:</strong>
-      The <strong>Text Diff Checker</strong> uses advanced diff algorithms to analyze both texts and highlight insertions, deletions, and modifications.
-      The side-by-side view makes it easy to understand what has changed between versions using sophisticated <strong>text compare</strong> algorithms.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Features:</strong>
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-      <li><span class="text-primary">Side-by-side comparison:</span> View both texts simultaneously with clear visual separation</li>
-      <li><span class="text-primary">Inline diff highlighting:</span> Insertions, deletions, and modifications are clearly marked with color coding</li>
-      <li><span class="text-primary">Advanced Monaco editor:</span> Syntax highlighting, error indicators, and professional text editing features</li>
-      <li><span class="text-primary">Copy and paste integration:</span> Easy text manipulation with clipboard support for seamless workflow</li>
-      <li><span class="text-primary">Sample data loading:</span> Load example texts to test the comparison functionality instantly</li>
-      <li><span class="text-primary">Fullscreen editing mode:</span> Focus on individual editors in fullscreen for detailed text work</li>
-      <li><span class="text-primary">Privacy focused:</span> All processing happens locally in your browser - no server upload required</li>
-    </ul>
-    <p class="mb-2 text-sm">
-      <strong>Use cases:</strong> Code review processes, document version comparison, configuration file analysis, version control diff visualization, 
-      text editing verification, content change tracking, and development workflow optimization.
-    </p>
-    <p class="text-sm">
-      Learn more about diff algorithms at 
-      <a href="https://en.wikipedia.org/wiki/Diff" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia Diff</a>
-      and text comparison best practices at 
-      <a href="https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-comparing-branches-in-pull-requests" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">GitHub Diff Documentation</a>.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All text comparison processing happens in your browser - your data is never sent to any server.
-    </p>
-  </div>
+          <div>
+            <h5 class="text-lg font-medium text-700 mb-2">Data Analysis & Migration</h5>
+            <p class="mb-2 text-sm">
+              Critical for data analysts, database administrators, and migration specialists
+              who work with data transformation, migration verification, and data integrity checking.
+            </p>
 
-  <!-- Development and Text Processing Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Development & Text Processing Applications</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Code Review & Version Control</h5>
-        <p class="mb-2 text-sm">
-          Essential for developers, code reviewers, and DevOps engineers working with 
-          version control systems, pull requests, and code comparison workflows.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Development Tasks:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Git diff visualization and comparison</li>
-          <li>Pull request review and analysis</li>
-          <li>Code refactoring verification</li>
-          <li>Configuration file change tracking</li>
-        </ul>
-      </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Documentation & Content Management</h5>
-        <p class="mb-2 text-sm">
-          Critical for technical writers, content managers, and documentation specialists 
-          working with text documents, markdown files, and content versioning.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Document version comparison</li>
-          <li>Markdown file diff analysis</li>
-          <li>Content editing verification</li>
-          <li>Translation and localization review</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Configuration Management & DevOps</h5>
-      <p class="text-sm mb-2">
-        This <strong>Text Diff Checker</strong> is valuable for system administrators, DevOps engineers, 
-        and configuration managers working with application settings, infrastructure as code, and deployment configurations.
-      </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">DevOps Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Docker configurations</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Kubernetes manifests</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">CI/CD pipeline configs</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Application settings</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Environment variables</span>
-        <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Infrastructure as Code</span>
-      </div>
-    </div>
-  </div>
+            <h6 class="text-base font-medium text-600 mb-1">Data Applications:</h6>
+            <ul class="list-disc pl-5 text-sm space-y-1">
+              <li>Data migration verification</li>
+              <li>Export file comparison</li>
+              <li>Database schema diff analysis</li>
+              <li>CSV and text data validation</li>
+            </ul>
+          </div>
+        </div>
 
-  <!-- Text Analysis and Quality Assurance -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Text Analysis & Quality Assurance</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Quality Assurance & Testing</h5>
-        <p class="mb-2 text-sm">
-          Essential for QA engineers, test automation specialists, and quality assurance teams 
-          working with test scripts, expected outputs, and verification processes.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">QA Use Cases:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Test output verification and comparison</li>
-          <li>API response validation</li>
-          <li>Expected vs actual result analysis</li>
-          <li>Test script change tracking</li>
-        </ul>
+        <div class="mt-4">
+          <h5 class="text-lg font-medium text-700 mb-2">Academic Research & Analysis</h5>
+          <p class="text-sm mb-2">
+            This tool supports researchers, students, and academics in text analysis,
+            document comparison, and research verification workflows.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">Academic Applications:</h6>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+            <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Research paper versions</span>
+            <span class="px-2 py-1 bg-violet-50 text-violet-700 rounded">Literature comparison</span>
+            <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded">Thesis revision tracking</span>
+            <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Citation verification</span>
+            <span class="px-2 py-1 bg-amber-50 text-amber-700 rounded">Plagiarism detection</span>
+            <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Text analysis studies</span>
+          </div>
+        </div>
       </div>
-      
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Data Analysis & Migration</h5>
-        <p class="mb-2 text-sm">
-          Critical for data analysts, database administrators, and migration specialists 
-          who work with data transformation, migration verification, and data integrity checking.
-        </p>
-        
-        <h6 class="text-base font-medium text-600 mb-1">Data Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Data migration verification</li>
-          <li>Export file comparison</li>
-          <li>Database schema diff analysis</li>
-          <li>CSV and text data validation</li>
-        </ul>
-      </div>
+      <!-- Toast component -->
+      <p-toast position="bottom-right"></p-toast>
     </div>
-    
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Academic Research & Analysis</h5>
-      <p class="text-sm mb-2">
-        This tool supports researchers, students, and academics in text analysis, 
-        document comparison, and research verification workflows.
-      </p>
-      
-      <h6 class="text-base font-medium text-600 mb-1">Academic Applications:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Research paper versions</span>
-        <span class="px-2 py-1 bg-violet-50 text-violet-700 rounded">Literature comparison</span>
-        <span class="px-2 py-1 bg-rose-50 text-rose-700 rounded">Thesis revision tracking</span>
-        <span class="px-2 py-1 bg-emerald-50 text-emerald-700 rounded">Citation verification</span>
-        <span class="px-2 py-1 bg-amber-50 text-amber-700 rounded">Plagiarism detection</span>
-        <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Text analysis studies</span>
-      </div>
-    </div>
-  </div>
-    <!-- Toast component -->
-    <p-toast position="bottom-right"></p-toast>
-</div> 

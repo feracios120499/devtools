@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
@@ -18,14 +18,13 @@ import { diff_match_patch, DIFF_EQUAL, DIFF_DELETE, DIFF_INSERT } from 'diff-mat
   selector: 'app-text-compare',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './text-compare.component.html',
   styleUrl: './text-compare.component.scss'
@@ -83,7 +82,7 @@ export class TextCompareComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isOriginalFullscreen || this.isModifiedFullscreen) {
       this.isOriginalFullscreen = false;
       this.isModifiedFullscreen = false;

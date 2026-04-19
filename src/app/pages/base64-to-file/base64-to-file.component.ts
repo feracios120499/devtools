@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2 } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
@@ -20,11 +20,10 @@ interface TypeOption extends FileTypeInfo {
   selector: 'app-base64-to-file',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     PageHeaderComponent
-  ],
+],
   providers: [MessageService],
   templateUrl: './base64-to-file.component.html',
   styleUrl: './base64-to-file.component.scss'

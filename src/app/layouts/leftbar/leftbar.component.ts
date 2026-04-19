@@ -4,7 +4,7 @@ import { MenuModule } from 'primeng/menu';
 import { BadgeModule } from 'primeng/badge';
 import { RippleModule } from 'primeng/ripple';
 import { AvatarModule } from 'primeng/avatar';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { RouterModule, Router, NavigationEnd } from '@angular/router';
 import { ToolsService, ToolCategory } from '../../services/tools.service';
 import { provideTablerIcons, TablerIconComponent } from 'angular-tabler-icons';
@@ -22,7 +22,7 @@ interface CollapsibleSection {
 @Component({
   selector: 'app-leftbar',
   standalone: true,
-  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, CommonModule, RouterModule, TablerIconComponent, IconsModule],
+  imports: [MenuModule, BadgeModule, AvatarModule, RippleModule, RouterModule, TablerIconComponent, IconsModule],
   templateUrl: './leftbar.component.html',
   styleUrls: ['./leftbar.component.scss'],
 })

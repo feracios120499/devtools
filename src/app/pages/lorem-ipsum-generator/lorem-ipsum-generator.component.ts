@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MessageService } from 'primeng/api';
@@ -19,14 +19,13 @@ type LoremType = 'paragraphs' | 'sentences' | 'words';
   selector: 'app-lorem-ipsum-generator',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './lorem-ipsum-generator.component.html',
   styleUrl: './lorem-ipsum-generator.component.scss'
@@ -287,7 +286,7 @@ export class LoremIpsumGeneratorComponent implements OnInit, AfterViewInit, OnDe
   }
 
   @HostListener('document:keydown.escape', ['$event'])
-  onEscapeKey(event: KeyboardEvent): void {
+  onEscapeKey(event: Event): void {
     if (this.isFullscreen) {
       this.toggleFullscreen();
       event.preventDefault();

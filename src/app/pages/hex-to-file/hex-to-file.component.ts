@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, Renderer2, HostBinding, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
@@ -21,11 +21,10 @@ interface TypeOption extends FileTypeInfo {
   selector: 'app-hex-to-file',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     PageHeaderComponent
-  ],
+],
   providers: [MessageService],
   templateUrl: './hex-to-file.component.html',
   styleUrl: './hex-to-file.component.scss'
@@ -415,7 +414,7 @@ export class HexToFileComponent implements OnInit, OnDestroy {
       const mimeType = this.mimeTypeService.getMimeTypeByExtension(fileExtension);
 
       // Создаем Blob для файла с правильным MIME-типом
-      const blob = new Blob([bytes], { type: mimeType });
+      const blob = new Blob([bytes as BlobPart], { type: mimeType });
 
       // Проверяем имя файла и добавляем расширение, если его нет
       let finalFileName = this.fileName;

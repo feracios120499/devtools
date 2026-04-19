@@ -2,12 +2,20 @@
   <h2 class="text-lg text-700 ">
     <ng-content></ng-content>
   </h2>
-  <button *ngIf="isFavorite" pButton type="button" [rounded]="true" [outlined]="false" (click)="toggleFavorite()"
-    class="favorite-button">
-    <i-tabler *ngIf="isFavorite" name="star-filled" class="icon-sm"></i-tabler>
-  </button>
-  <button *ngIf="!isFavorite" pButton type="button" [rounded]="true" [outlined]="true" (click)="toggleFavorite()"
-    class="favorite-button">
-    <i-tabler *ngIf="!isFavorite" name="star" class="icon-sm"></i-tabler>
-  </button>
+  @if (isFavorite) {
+    <button pButton type="button" [rounded]="true" [outlined]="false" (click)="toggleFavorite()"
+      class="favorite-button">
+      @if (isFavorite) {
+        <i-tabler name="star-filled" class="icon-sm"></i-tabler>
+      }
+    </button>
+  }
+  @if (!isFavorite) {
+    <button pButton type="button" [rounded]="true" [outlined]="true" (click)="toggleFavorite()"
+      class="favorite-button">
+      @if (!isFavorite) {
+        <i-tabler name="star" class="icon-sm"></i-tabler>
+      }
+    </button>
+  }
 </div>

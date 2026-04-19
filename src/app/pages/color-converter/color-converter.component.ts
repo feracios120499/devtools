@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, HostBinding, OnDestroy } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, HostBinding, OnDestroy, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
@@ -18,11 +18,10 @@ import { SeoService, MetaData } from '../../services/seo.service';
     selector: 'app-color-converter',
     standalone: true,
     imports: [
-        CommonModule,
-        FormsModule,
-        PrimeNgModule,
-        PageHeaderComponent
-    ],
+    FormsModule,
+    PrimeNgModule,
+    PageHeaderComponent
+],
     providers: [MessageService],
     templateUrl: './color-converter.component.html',
     styleUrl: './color-converter.component.scss'

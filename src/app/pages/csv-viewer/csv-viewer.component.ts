@@ -1,5 +1,5 @@
-import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild, ChangeDetectorRef, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID, Renderer2, OnDestroy, ViewChild, ChangeDetectorRef, HostBinding, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Meta, Title } from '@angular/platform-browser';
 import { MessageService } from 'primeng/api';
@@ -43,12 +43,11 @@ interface QuoteCharOption {
   selector: 'app-csv-viewer',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     TableModule,
     PageHeaderComponent
-  ],
+],
   providers: [MessageService],
   templateUrl: './csv-viewer.component.html',
   styleUrl: './csv-viewer.component.scss'

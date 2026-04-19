@@ -1,5 +1,5 @@
-import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding } from '@angular/core';
-import { CommonModule, isPlatformBrowser, isPlatformServer, DOCUMENT } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, Inject, NgZone, effect, ViewChild, AfterViewInit, OnDestroy, Renderer2, ElementRef, HostListener, HostBinding, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser, isPlatformServer } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { Meta, Title } from '@angular/platform-browser';
@@ -35,14 +35,13 @@ interface Base64FormatOption {
   selector: 'app-hex-to-base64',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
+    FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
     PageHeaderComponent,
     IconsModule,
     MonacoScrollFixDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './hex-to-base64.component.html',
   styleUrl: './hex-to-base64.component.scss'
@@ -462,7 +461,7 @@ export class HexToBase64Component implements OnInit, AfterViewInit, OnDestroy {
    * Обработчик нажатия клавиши ESC для выхода из полноэкранного режима
    */
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Выходим из полноэкранного режима
       this.isInputFullscreen = false;

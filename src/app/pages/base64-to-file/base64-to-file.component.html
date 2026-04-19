@@ -14,42 +14,46 @@
           <h3 class="text-xl font-medium text-800 m-0">Base64 Input</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
           </div>
         </div>
 
         <!-- Base64 input -->
         <div class="p-fluid w-full mt-3 flex-1">
-          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="displayBase64" 
-            (ngModelChange)="onInputChange($event)" 
-            placeholder="Paste your Base64 encoded data here"></textarea>
+          <textarea class="w-full h-full" rows="10" pTextarea [(ngModel)]="displayBase64"
+            (ngModelChange)="onInputChange($event)"
+          placeholder="Paste your Base64 encoded data here"></textarea>
         </div>
 
         <!-- Warning about hidden content -->
-        <div *ngIf="hiddenSymbolsCount > 0" class="bg-yellow-50 rounded-md p-2 mt-2 mb-3 border-1 border-yellow-300">
-          <div class="flex items-center">
-            <i class="pi pi-info-circle text-yellow-600 mr-2"></i>
-            <span class="text-yellow-800">
-              <strong>Content truncated for display only:</strong> {{hiddenSymbolsCount}} of {{originalBase64.length}} characters are hidden. 
-              The complete data will be used when processing.
-            </span>
+        @if (hiddenSymbolsCount > 0) {
+          <div class="bg-yellow-50 rounded-md p-2 mt-2 mb-3 border-yellow-300">
+            <div class="flex items-center">
+              <i class="pi pi-info-circle text-yellow-600 mr-2"></i>
+              <span class="text-yellow-800">
+                <strong>Content truncated for display only:</strong> {{hiddenSymbolsCount}} of {{originalBase64.length}} characters are hidden.
+                The complete data will be used when processing.
+              </span>
+            </div>
           </div>
-        </div>
+        }
 
         <!-- Error for invalid base64 -->
-        <div *ngIf="invalidBase64" class="bg-red-50 rounded-md p-2 mt-2 mb-3 border-1 border-red-300">
-          <div class="flex items-center">
-            <i class="pi pi-exclamation-triangle text-red-600 mr-2"></i>
-            <span class="text-red-800">
-              <strong>Invalid Base64 format:</strong> The input does not appear to be a valid Base64 string. 
-              Please check your data and ensure it's correctly encoded.
-            </span>
+        @if (invalidBase64) {
+          <div class="bg-red-50 rounded-md p-2 mt-2 mb-3 border-red-300">
+            <div class="flex items-center">
+              <i class="pi pi-exclamation-triangle text-red-600 mr-2"></i>
+              <span class="text-red-800">
+                <strong>Invalid Base64 format:</strong> The input does not appear to be a valid Base64 string.
+                Please check your data and ensure it's correctly encoded.
+              </span>
+            </div>
           </div>
-        </div>
+        }
 
         <!-- File Name Input -->
         <div class="mt-4">
@@ -59,59 +63,68 @@
                 autocomplete="off" class="h-full" />
               <label for="file_name">File name</label>
             </p-floatlabel>
-            
+
             <!-- File Type Selector -->
             <div class="mt-3">
-              <div *ngIf="typeOptions.length > 0">
-                <label class="block text-500 mb-1">File type:</label>
-                <p-select [options]="typeOptions" [(ngModel)]="selectedTypeOption" 
-                  optionLabel="description" [style]="{'width': '100%'}" appendTo="body"
-                  (onChange)="onFileTypeChange()">
-                  <ng-template pTemplate="selectedItem">
-                    <div class="flex align-items-center" *ngIf="selectedTypeOption">
-                      <span>{{selectedTypeOption.description}} (.{{selectedTypeOption.extension}})</span>
+              @if (typeOptions.length > 0) {
+                <div>
+                  <label class="block text-500 mb-1">File type:</label>
+                  <p-select [options]="typeOptions" [(ngModel)]="selectedTypeOption"
+                    optionLabel="description" [style]="{'width': '100%'}" appendTo="body"
+                    (onChange)="onFileTypeChange()">
+                    <ng-template pTemplate="selectedItem">
+                      @if (selectedTypeOption) {
+                        <div class="flex align-items-center">
+                          <span>{{selectedTypeOption.description}} (.{{selectedTypeOption.extension}})</span>
+                        </div>
+                      }
+                    </ng-template>
+                    <ng-template let-option pTemplate="item">
+                      <div class="flex align-items-center">
+                        <span>{{option.description}} (.{{option.extension}})</span>
+                      </div>
+                    </ng-template>
+                  </p-select>
+                  <!-- MIME Type Information -->
+                  @if (mimeTypeInfo.length > 0) {
+                    <div class="mt-2">
+                      <div class="flex align-items-center text-sm text-500">
+                        <strong>MIME Type:</strong>
+                        <span class="ml-1">{{mimeTypeService.getMimeTypeByExtension(selectedTypeOption?.extension)}}</span>
+                      </div>
+                      @if (mimeTypeInfo.length > 1) {
+                        <div class="mt-1 text-xs text-400">
+                          <div>Alternative MIME types:</div>
+                          <ul class="pl-3 m-0 mt-1">
+                            @for (mime of mimeTypeInfo.slice(1); track mime) {
+                              <li>
+                                {{mime.mimeType}} - {{mime.description}}
+                              </li>
+                            }
+                          </ul>
+                        </div>
+                      }
                     </div>
-                  </ng-template>
-                  <ng-template let-option pTemplate="item">
-                    <div class="flex align-items-center">
-                      <span>{{option.description}} (.{{option.extension}})</span>
-                    </div>
-                  </ng-template>
-                </p-select>
-                
-                <!-- MIME Type Information -->
-                <div *ngIf="mimeTypeInfo.length > 0" class="mt-2">
-                  <div class="flex align-items-center text-sm text-500">
-                    <strong>MIME Type:</strong> 
-                    <span class="ml-1">{{mimeTypeService.getMimeTypeByExtension(selectedTypeOption?.extension)}}</span>
-                  </div>
-                  <div *ngIf="mimeTypeInfo.length > 1" class="mt-1 text-xs text-400">
-                    <div>Alternative MIME types:</div>
-                    <ul class="pl-3 m-0 mt-1">
-                      <li *ngFor="let mime of mimeTypeInfo.slice(1)">
-                        {{mime.mimeType}} - {{mime.description}}
-                      </li>
-                    </ul>
-                  </div>
+                  }
                 </div>
-              </div>
+              }
             </div>
           </div>
         </div>
 
         <!-- Convert & Download Button -->
         <div class="mt-4">
-          <button pButton type="button" label="Convert & Download" icon="pi pi-download" 
-            (click)="convertAndDownload()" 
-            [disabled]="!inputBase64 || !fileName" 
-            class="w-full"></button>
+          <button pButton type="button" label="Convert & Download" icon="pi pi-download"
+            (click)="convertAndDownload()"
+            [disabled]="!inputBase64 || !fileName"
+          class="w-full"></button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
     <h4 class="text-xl font-semibold mb-2">About Base64 to File Converter</h4>
     <p class="mb-2 text-sm">
       This tool allows you to convert Base64 encoded data back into downloadable files. It automatically detects common file types from the Base64 signature and supports a wide range of formats including images, documents, archives, and multimedia files.
@@ -132,9 +145,9 @@
       <li><span class="text-primary">Fonts:</span> TTF, OTF, WOFF, WOFF2, EOT</li>
     </ul>
     <p class="text-sm">
-      Learn more about file signatures at 
+      Learn more about file signatures at
       <a href="https://en.wikipedia.org/wiki/List_of_file_signatures" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">Wikipedia File Signatures</a>
-      and Base64 encoding at 
+      and Base64 encoding at
       <a href="https://tools.ietf.org/html/rfc4648" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">RFC 4648</a>.
     </p>
     <p class="text-sm">
@@ -146,17 +159,17 @@
   </div>
 
   <!-- File Recovery and Data Extraction Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">File Recovery & Data Extraction Applications</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Web Development & Asset Recovery</h5>
         <p class="mb-2 text-sm">
-          Essential for web developers who need to extract embedded files from applications, 
+          Essential for web developers who need to extract embedded files from applications,
           recover assets from data URIs, or process Base64-encoded content from various sources.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Development Use Cases:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Extract images from data URIs in CSS/HTML</li>
@@ -165,14 +178,14 @@
           <li>Convert inline assets to external files</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Data Analysis & Forensics</h5>
         <p class="mb-2 text-sm">
-          Critical for data analysts, security professionals, and forensic investigators 
+          Critical for data analysts, security professionals, and forensic investigators
           who need to decode and analyze Base64-encoded files from logs, databases, or network traffic.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Analysis Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Decode files from security logs</li>
@@ -182,14 +195,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Email & Communication Systems</h5>
       <p class="text-sm mb-2">
-        This Base64 to file converter is valuable for email administrators, support technicians, 
+        This Base64 to file converter is valuable for email administrators, support technicians,
         and anyone working with MIME-encoded attachments or communication systems.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Communication Scenarios:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">MIME attachment recovery</span>
@@ -203,17 +216,17 @@
   </div>
 
   <!-- File Format Detection and Technical Details -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">File Format Detection & Technical Implementation</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Magic Number Detection</h5>
         <p class="mb-2 text-sm">
-          The converter uses magic number detection (file signatures) to automatically identify 
+          The converter uses magic number detection (file signatures) to automatically identify
           file types from the first few bytes of decoded Base64 data, ensuring accurate file extensions.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Detection Examples:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>JPEG files: FF D8 FF (start with these hex bytes)</li>
@@ -222,14 +235,14 @@
           <li>ZIP files: 50 4B 03 04 (PK signature)</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Browser File Handling</h5>
         <p class="mb-2 text-sm">
-          Modern browsers support direct file downloads through the File API and Blob objects, 
+          Modern browsers support direct file downloads through the File API and Blob objects,
           enabling seamless conversion without server-side processing.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Browser Technologies:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>File API - Client-side file creation</li>
@@ -239,14 +252,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Data Integrity & Validation</h5>
       <p class="text-sm mb-2">
-        The converter includes validation mechanisms to ensure Base64 data integrity 
+        The converter includes validation mechanisms to ensure Base64 data integrity
         and provides error handling for corrupted or invalid encoded data.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Validation Features:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Format validation</span>
@@ -256,21 +269,21 @@
         <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Corruption detection</span>
         <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Error reporting</span>
       </div>
-      
+
       <p class="text-sm mt-3 text-600">
-        <strong>Security Note:</strong> Always verify file integrity and scan downloaded files 
+        <strong>Security Note:</strong> Always verify file integrity and scan downloaded files
         with antivirus software when processing data from untrusted sources.
       </p>
     </div>
-    
+
     <p class="text-sm mt-3">
-      For file format specifications, visit 
+      For file format specifications, visit
       <a href="https://www.fileformat.info/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">FileFormat.Info</a>
-      and for MIME type references, see 
+      and for MIME type references, see
       <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">MDN MIME Types</a>.
     </p>
   </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-</div> 
+</div>

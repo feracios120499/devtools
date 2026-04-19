@@ -14,54 +14,54 @@
           <h3 class="text-xl font-medium text-800 m-0">Input URL</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Paste" icon="pi pi-clipboard" (click)="pasteFromClipboard()"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Sample" icon="pi pi-code" (click)="loadSample()"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
             <button pButton type="button" label="Clear" icon="pi pi-trash" (click)="clearInput()" severity="danger"
-              class="p-button-text p-button-sm"></button>
+            class="p-button-text p-button-sm"></button>
           </div>
         </div>
 
         <!-- URL input -->
         <div class="p-fluid w-full mt-3">
-          <textarea class="w-full" id="url_input" rows="3" cols="30" pTextarea [autoResize]="true" placeholder="Enter URL" 
-            [(ngModel)]="inputUrl" 
-            (ngModelChange)="generateQrCode()"></textarea>
+          <textarea class="w-full" id="url_input" rows="3" cols="30" pTextarea [autoResize]="true" placeholder="Enter URL"
+            [(ngModel)]="inputUrl"
+          (ngModelChange)="generateQrCode()"></textarea>
         </div>
 
         <!-- QR code options -->
         <div class="mt-4">
           <h5 class="text-lg font-medium text-800 mb-3">QR Code Options</h5>
-          
+
           <!-- Size -->
           <div class="field mb-3">
             <label for="qr_size" class="block text-sm font-medium mb-1">Size (px)</label>
             <p-slider [(ngModel)]="qrSize" [min]="100" [max]="500" [step]="25" class="w-full"
-              (onChange)="onQrSizeChange()"></p-slider>
+            (onChange)="onQrSizeChange()"></p-slider>
             <div class="text-xs text-right mt-1">{{qrSize}}px</div>
           </div>
-          
+
           <!-- Error correction level -->
           <div class="field mb-3">
             <label for="error_correction" class="block text-sm font-medium mb-1">Error Correction Level</label>
-            <p-dropdown [options]="correctionLevelOptions" [(ngModel)]="errorCorrectionLevel" 
-                        optionLabel="label" optionValue="value"
-                        styleClass="w-full"
-                        (onChange)="onErrorCorrectionLevelChange()"></p-dropdown>
+            <p-select [options]="correctionLevelOptions" [(ngModel)]="errorCorrectionLevel"
+              optionLabel="label" optionValue="value"
+              styleClass="w-full"
+            (onChange)="onErrorCorrectionLevelChange()"></p-select>
           </div>
-          
+
           <!-- Colors -->
           <div class="grid grid-cols-2 gap-3">
             <div class="field">
               <label for="dark_color" class="block text-sm font-medium mb-1">Foreground Color</label>
               <p-colorPicker [(ngModel)]="darkColor" [inline]="false" [appendTo]="'body'" format="hex"
-                (onChange)="onColorChange()"></p-colorPicker>
+              (onChange)="onColorChange()"></p-colorPicker>
             </div>
-            
+
             <div class="field">
               <label for="light_color" class="block text-sm font-medium mb-1">Background Color</label>
               <p-colorPicker [(ngModel)]="lightColor" [inline]="false" [appendTo]="'body'" format="hex"
-                (onChange)="onColorChange()"></p-colorPicker>
+              (onChange)="onColorChange()"></p-colorPicker>
             </div>
           </div>
         </div>
@@ -76,37 +76,41 @@
           <h3 class="text-xl font-medium text-800 m-0">QR Code Result</h3>
           <div class="flex gap-2">
             <button pButton type="button" label="Download" icon="pi pi-download" (click)="downloadQrCode()"
-              [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
+            [disabled]="!inputUrl" class="p-button-text p-button-sm"></button>
           </div>
         </div>
 
         <!-- QR code display area -->
         <div class="flex-1 flex flex-col items-center justify-center mt-4 qr-code-container">
-          <div *ngIf="inputUrl" class="qr-code-wrapper p-3 border-1 surface-border border-round-lg flex items-center justify-center">
-            <qrcode
-              [qrdata]="inputUrl"
-              [width]="qrSize"
-              [errorCorrectionLevel]="errorCorrectionLevel"
-              [colorDark]="darkColor"
-              [colorLight]="lightColor"
-              [margin]="2"
-              [cssClass]="'qr-code-image'"
-              [elementType]="'canvas'"
-              (qrCodeURL)="onChangeQRCodeURL($event)"
-              [title]="'QR Code for ' + inputUrl"
+          @if (inputUrl) {
+            <div class="qr-code-wrapper p-3 surface-border border-round-lg flex items-center justify-center">
+              <qrcode
+                [qrdata]="inputUrl"
+                [width]="qrSize"
+                [errorCorrectionLevel]="errorCorrectionLevel"
+                [colorDark]="darkColor"
+                [colorLight]="lightColor"
+                [margin]="2"
+                [cssClass]="'qr-code-image'"
+                [elementType]="'canvas'"
+                (qrCodeURL)="onChangeQRCodeURL($event)"
+                [title]="'QR Code for ' + inputUrl"
               id="qrCodeCanvas"></qrcode>
-          </div>
-          <div *ngIf="!inputUrl" class="text-center text-500 p-5">
-            <i class="pi pi-qrcode text-4xl mb-3 block"></i>
-            <p>Enter a URL and generate a QR code</p>
-          </div>
+            </div>
+          }
+          @if (!inputUrl) {
+            <div class="text-center text-500 p-5">
+              <i class="pi pi-qrcode text-4xl mb-3 block"></i>
+              <p>Enter a URL and generate a QR code</p>
+            </div>
+          }
         </div>
       </div>
     </div>
   </div>
 
   <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border">
     <h4 class="text-xl font-semibold mb-2">About QR Codes</h4>
     <p class="mb-2 text-sm">
       QR (Quick Response) codes are two-dimensional barcodes that can be scanned by smartphone cameras to quickly access URLs, contact information, or other data.
@@ -126,17 +130,17 @@
   </div>
 
   <!-- Marketing and Digital Campaign Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">Marketing & Digital Campaign Applications</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Digital Marketing & Advertising Campaigns</h5>
         <p class="mb-2 text-sm">
-          Essential for digital marketers, campaign managers, and advertising specialists 
+          Essential for digital marketers, campaign managers, and advertising specialists
           creating omnichannel experiences that bridge physical and digital touchpoints.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Campaign Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Print-to-digital campaign integration</li>
@@ -145,14 +149,14 @@
           <li>Interactive outdoor advertising campaigns</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Social Media & Content Marketing</h5>
         <p class="mb-2 text-sm">
-          Critical for social media managers, content creators, and influencer marketing specialists 
+          Critical for social media managers, content creators, and influencer marketing specialists
           maximizing engagement and seamless cross-platform user experiences.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Social Media Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Instagram Story and post engagement</li>
@@ -162,14 +166,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">E-commerce & Retail Integration</h5>
       <p class="text-sm mb-2">
-        This QR generator facilitates e-commerce managers, retail marketing teams, 
+        This QR generator facilitates e-commerce managers, retail marketing teams,
         and customer experience specialists creating seamless shopping journeys.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Retail Applications:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Product information</span>
@@ -183,17 +187,17 @@
   </div>
 
   <!-- Business and Contact Management Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">Business & Contact Management Applications</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Professional Networking & Business Cards</h5>
         <p class="mb-2 text-sm">
-          Essential for business professionals, sales teams, and networking specialists 
+          Essential for business professionals, sales teams, and networking specialists
           modernizing contact sharing and professional relationship building.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Networking Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Digital business card sharing</li>
@@ -202,14 +206,14 @@
           <li>Portfolio and resume distribution</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Event Management & Hospitality</h5>
         <p class="mb-2 text-sm">
-          Critical for event planners, venue managers, and hospitality professionals 
+          Critical for event planners, venue managers, and hospitality professionals
           streamlining guest experiences and operational efficiency.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Event Applications:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>Event check-in and registration</li>
@@ -219,14 +223,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Educational & Training Applications</h5>
       <p class="text-sm mb-2">
-        This generator supports educators, training coordinators, 
+        This generator supports educators, training coordinators,
         and instructional designers creating interactive learning experiences.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Educational Applications:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Course materials</span>
@@ -240,17 +244,17 @@
   </div>
 
   <!-- Technical Standards and QR Code Implementation -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
+  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
     <h4 class="text-xl font-semibold mb-3">Technical Standards & QR Code Implementation</h4>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">ISO/IEC Standards & QR Code Specifications</h5>
         <p class="mb-2 text-sm">
-          Following international standards ensures QR code compatibility, 
+          Following international standards ensures QR code compatibility,
           reliability, and optimal scanning performance across different devices and applications.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Technical Standards:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>ISO/IEC 18004:2015 QR Code specification</li>
@@ -259,14 +263,14 @@
           <li>Finder pattern and timing pattern compliance</li>
         </ul>
       </div>
-      
+
       <div>
         <h5 class="text-lg font-medium text-700 mb-2">Mobile Device & Scanner Compatibility</h5>
         <p class="mb-2 text-sm">
-          Understanding device capabilities, scanning app variations, 
+          Understanding device capabilities, scanning app variations,
           and cross-platform compatibility ensures optimal user experience across all mobile platforms.
         </p>
-        
+
         <h6 class="text-base font-medium text-600 mb-1">Compatibility Considerations:</h6>
         <ul class="list-disc pl-5 text-sm space-y-1">
           <li>iOS Camera app native QR scanning</li>
@@ -276,14 +280,14 @@
         </ul>
       </div>
     </div>
-    
+
     <div class="mt-4">
       <h5 class="text-lg font-medium text-700 mb-2">Print Quality & Display Optimization</h5>
       <p class="text-sm mb-2">
-        Optimal QR code implementation requires understanding of print specifications, 
+        Optimal QR code implementation requires understanding of print specifications,
         size constraints, and display medium considerations for reliable scanning performance.
       </p>
-      
+
       <h6 class="text-base font-medium text-600 mb-1">Implementation Guidelines:</h6>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-sm">
         <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Print resolution (300+ DPI)</span>
@@ -293,21 +297,21 @@
         <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Vector vs raster formats</span>
         <span class="px-2 py-1 bg-cyan-50 text-cyan-700 rounded">Display scaling</span>
       </div>
-      
+
       <p class="text-sm mt-3 text-600">
-        <strong>Best Practice:</strong> Always test QR codes at their intended final size 
+        <strong>Best Practice:</strong> Always test QR codes at their intended final size
         and display medium before mass production to ensure reliable scanning performance.
       </p>
     </div>
-    
+
     <p class="text-sm mt-3">
-      For QR code technical specifications, visit 
+      For QR code technical specifications, visit
       <a href="https://www.iso.org/standard/62021.html" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">ISO/IEC 18004:2015 Standard</a>
-      and for implementation guidelines, see 
+      and for implementation guidelines, see
       <a href="https://www.qr-code-generator.com/qr-code-marketing/qr-codes-basics/" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline hover:text-blue-800">QR Code Implementation Guide</a>.
     </p>
   </div>
 
   <!-- Toast component -->
   <p-toast position="bottom-right"></p-toast>
-</div> 
+</div>

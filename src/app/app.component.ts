@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { CommonModule } from '@angular/common';
+
 import { TopbarComponent } from './layouts/topbar/topbar.component';
 import { LeftbarComponent } from './layouts/leftbar/leftbar.component';
 
@@ -10,11 +10,10 @@ import { LeftbarComponent } from './layouts/leftbar/leftbar.component';
   styleUrl: './app.component.scss',
   standalone: true,
   imports: [
-    CommonModule,
     RouterOutlet,
     TopbarComponent,
     LeftbarComponent
-  ],
+],
 })
 export class AppComponent implements OnInit, AfterViewInit {
   title = 'devtools';

@@ -17,289 +17,307 @@
         <div class="mb-1"></div>
 
         <!-- Fallback textarea for server-side rendering -->
-        <textarea *ngIf="!isBrowser" [(ngModel)]="inputText" (ngModelChange)="onTextChange()"
-          class="w-full p-2 border-1 surface-100 font-mono flex-1">
-        </textarea>
+        @if (!isBrowser) {
+          <textarea [(ngModel)]="inputText" (ngModelChange)="onTextChange()"
+            class="w-full p-2 surface-100 font-mono flex-1">
+          </textarea>
+        }
 
         <!-- Monaco editor for browser environment -->
-        <div *ngIf="isBrowser"
-          class="w-full h-full border-1 surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
-          [class.fullscreen-editor]="isFullscreen">
-          <div class="dt-editors-editor-actions">
-            <div class="flex justify-between p-2">
-              <div class="flex gap-3 align-items-center">
-                <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleMarkdown()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="code" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Cheatsheet" (click)="scrollToCheatsheet()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="book-2" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
-                  (click)="pasteFromClipboard()" severity="contrast">
-                  <i-tabler name="clipboard" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
-                  class="p-button-sm" severity="contrast">
-                  <i-tabler name="copy" class="icon-sm"></i-tabler>
-                </button>
-                <button pButton type="button" [outlined]="true" label="Clear" (click)="clearText()" severity="danger"
-                  class="p-button-sm">
-                  <i-tabler name="trash" class="icon-sm"></i-tabler>
-                </button>
+        @if (isBrowser) {
+          <div
+            class="w-full h-full surface-border rounded-md flex-1 position-relative monaco-container dt-editors-editor"
+            [class.fullscreen-editor]="isFullscreen">
+            <div class="dt-editors-editor-actions">
+              <div class="flex justify-between p-2">
+                <div class="flex gap-3 align-items-center">
+                  <button pButton type="button" [outlined]="true" label="Sample" (click)="loadSampleMarkdown()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="code" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Cheatsheet" (click)="scrollToCheatsheet()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="book-2" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Paste" class="p-button-sm"
+                    (click)="pasteFromClipboard()" severity="contrast">
+                    <i-tabler name="clipboard" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Copy" (click)="copyToClipboard()"
+                    class="p-button-sm" severity="contrast">
+                    <i-tabler name="copy" class="icon-sm"></i-tabler>
+                  </button>
+                  <button pButton type="button" [outlined]="true" label="Clear" (click)="clearText()" severity="danger"
+                    class="p-button-sm">
+                    <i-tabler name="trash" class="icon-sm"></i-tabler>
+                  </button>
+                </div>
+                <div class="flex align-items-center">
+                  @if (!isFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen()"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                  @if (isFullscreen) {
+                    <button pButton type="button" (click)="toggleFullscreen()"
+                      severity="contrast" class="p-button-text p-button-sm">
+                      <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
+                    </button>
+                  }
+                </div>
               </div>
-              <div class="flex align-items-center">
-                <button *ngIf="!isFullscreen" pButton type="button" (click)="toggleFullscreen()"
-                    severity="contrast" class="p-button-text p-button-sm">
+              <hr>
+              </div>
+              <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
+                (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
+              </ngx-monaco-editor>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Right column - HTML Preview -->
+      <div class="col flex flex-col h-full">
+        <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col h-full">
+          <div class="flex justify-between items-center h-10">
+            <h3 class="text-xl font-medium text-800 m-0">HTML Preview</h3>
+            <div class="flex align-items-center">
+              @if (!isPreviewFullscreen && inputText) {
+                <button pButton type="button" (click)="togglePreviewFullscreen()"
+                  severity="contrast" class="p-button-text p-button-sm">
                   <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
                 </button>
-                <button *ngIf="isFullscreen" pButton type="button" (click)="toggleFullscreen()"
-                    severity="contrast" class="p-button-text p-button-sm">
+              }
+              @if (isPreviewFullscreen && inputText) {
+                <button pButton type="button" (click)="togglePreviewFullscreen()"
+                  severity="contrast" class="p-button-text p-button-sm">
                   <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
                 </button>
-              </div>
+              }
             </div>
-            <hr>
           </div>
-          <ngx-monaco-editor #monacoEditor [options]="editorOptions" [(ngModel)]="inputText"
-            (ngModelChange)="onTextChange()" class="w-full h-full" monacoScrollFix>
-          </ngx-monaco-editor>
-        </div>
-      </div>
-    </div>
+          <div class="mb-1"></div>
 
-    <!-- Right column - HTML Preview -->
-    <div class="col flex flex-col h-full">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col h-full">
-        <div class="flex justify-between items-center h-10">
-          <h3 class="text-xl font-medium text-800 m-0">HTML Preview</h3>
-          <div class="flex align-items-center">
-            <button *ngIf="!isPreviewFullscreen && inputText" pButton type="button" (click)="togglePreviewFullscreen()"
-                severity="contrast" class="p-button-text p-button-sm">
-              <i-tabler name="arrows-maximize" class="icon-md"></i-tabler>
-            </button>
-            <button *ngIf="isPreviewFullscreen && inputText" pButton type="button" (click)="togglePreviewFullscreen()"
-                severity="contrast" class="p-button-text p-button-sm">
-              <i-tabler name="arrows-minimize" class="icon-md"></i-tabler>
-            </button>
-          </div>
-        </div>
-        <div class="mb-1"></div>
+          <div class="dt-editors-editor" [class.fullscreen-editor]="isPreviewFullscreen">
+            @if (!inputText.trim()) {
+              <div class="text-center text-500 mt-4">
+                <i class="pi pi-file-edit text-2xl mb-2"></i>
+                <p>Start typing Markdown on the left to see the preview here</p>
+              </div>
+            }
 
-        <div class="dt-editors-editor" [class.fullscreen-editor]="isPreviewFullscreen">
-          <div *ngIf="!inputText.trim()" class="text-center text-500 mt-4">
-            <i class="pi pi-file-edit text-2xl mb-2"></i>
-            <p>Start typing Markdown on the left to see the preview here</p>
-          </div>
-
-          <div *ngIf="inputText.trim()" class="border-1 surface-border border-round h-full overflow-y-auto relative">
-            <!-- Sticky exit fullscreen button for preview -->
-            <i-tabler *ngIf="isPreviewFullscreen" (click)="togglePreviewFullscreen()"  name="arrows-minimize" class="icon-md preview-exit-fullscreen"></i-tabler>
-            <div [innerHTML]="renderedHtml" class="markdown-preview"></div>
+            @if (inputText.trim()) {
+              <div class="surface-border border-round h-full overflow-y-auto relative">
+                <!-- Sticky exit fullscreen button for preview -->
+                @if (isPreviewFullscreen) {
+                  <i-tabler (click)="togglePreviewFullscreen()"  name="arrows-minimize" class="icon-md preview-exit-fullscreen"></i-tabler>
+                }
+                <div [innerHTML]="renderedHtml" class="markdown-preview"></div>
+              </div>
+            }
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Markdown Cheatsheet -->
-  <div id="markdown-cheatsheet" class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section">
-    <h4 class="text-xl font-semibold mb-3">Markdown Cheatsheet</h4>
-    
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <!-- Headers -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Headers</h5>
-        <div class="text-sm font-mono">
-          <div># H1 Header</div>
-          <div>## H2 Header</div>
-          <div>### H3 Header</div>
-          <div>#### H4 Header</div>
+    <!-- Markdown Cheatsheet -->
+    <div id="markdown-cheatsheet" class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section">
+      <h4 class="text-xl font-semibold mb-3">Markdown Cheatsheet</h4>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <!-- Headers -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Headers</h5>
+          <div class="text-sm font-mono">
+            <div># H1 Header</div>
+            <div>## H2 Header</div>
+            <div>### H3 Header</div>
+            <div>#### H4 Header</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Text Formatting -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Text Formatting</h5>
-        <div class="text-sm font-mono">
-          <div>**Bold text**</div>
-          <div>*Italic text*</div>
-          <div>~~Strikethrough~~</div>
-          <div>`Inline code`</div>
+        <!-- Text Formatting -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Text Formatting</h5>
+          <div class="text-sm font-mono">
+            <div>**Bold text**</div>
+            <div>*Italic text*</div>
+            <div>~~Strikethrough~~</div>
+            <div>`Inline code`</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Lists -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Lists</h5>
-        <div class="text-sm font-mono">
-          <div>- Unordered list item</div>
-          <div>- Another item</div>
-          <div class="mt-2">1. Ordered list item</div>
-          <div>2. Another item</div>
+        <!-- Lists -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Lists</h5>
+          <div class="text-sm font-mono">
+            <div>- Unordered list item</div>
+            <div>- Another item</div>
+            <div class="mt-2">1. Ordered list item</div>
+            <div>2. Another item</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Links & Images -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Links & Images</h5>
-        <div class="text-sm font-mono">
-          <div>[Link text](https://example.com)</div>
-          <div>![Alt text](image.jpg)</div>
+        <!-- Links & Images -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Links & Images</h5>
+          <div class="text-sm font-mono">
+            <div>[Link text](https://example.com)</div>
+            <div>![Alt text](image.jpg)</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Code Blocks -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Code Blocks</h5>
-        <div class="text-sm font-mono">
-          <div>```javascript</div>
-          <div>function example() {{'{'}} </div>
-          <div>&nbsp;&nbsp;return 'Hello!';</div>
-          <div>{{'}'}}</div>
-          <div>```</div>
+        <!-- Code Blocks -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Code Blocks</h5>
+          <div class="text-sm font-mono">
+            <div>```javascript</div>
+            <div>function example() {{'{'}} </div>
+            <div>&nbsp;&nbsp;return 'Hello!';</div>
+            <div>{{'}'}}</div>
+            <div>```</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Tables -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Tables</h5>
-        <div class="text-sm font-mono">
-          <div>| Header 1 | Header 2 |</div>
-          <div>|----------|----------|</div>
-          <div>| Cell 1   | Cell 2   |</div>
-          <div>| Cell 3   | Cell 4   |</div>
+        <!-- Tables -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Tables</h5>
+          <div class="text-sm font-mono">
+            <div>| Header 1 | Header 2 |</div>
+            <div>|----------|----------|</div>
+            <div>| Cell 1   | Cell 2   |</div>
+            <div>| Cell 3   | Cell 4   |</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Blockquotes -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Blockquotes</h5>
-        <div class="text-sm font-mono">
-          <div>> This is a blockquote</div>
-          <div>> It can span multiple lines</div>
+        <!-- Blockquotes -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Blockquotes</h5>
+          <div class="text-sm font-mono">
+            <div>> This is a blockquote</div>
+            <div>> It can span multiple lines</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Horizontal Rule -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Horizontal Rule</h5>
-        <div class="text-sm font-mono">
-          <div>---</div>
-          <div class="mt-2">or</div>
-          <div>***</div>
+        <!-- Horizontal Rule -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Horizontal Rule</h5>
+          <div class="text-sm font-mono">
+            <div>---</div>
+            <div class="mt-2">or</div>
+            <div>***</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Task Lists -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Task Lists</h5>
-        <div class="text-sm font-mono">
-          <div>- [x] Completed task</div>
-          <div>- [ ] Incomplete task</div>
-          <div>- [ ] Another task</div>
+        <!-- Task Lists -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Task Lists</h5>
+          <div class="text-sm font-mono">
+            <div>- [x] Completed task</div>
+            <div>- [ ] Incomplete task</div>
+            <div>- [ ] Another task</div>
+          </div>
         </div>
-      </div>
 
-      <!-- Escaping -->
-      <div class="cheatsheet-section">
-        <h5 class="text-lg font-medium text-700 mb-2">Escaping Characters</h5>
-        <div class="text-sm font-mono">
-          <div>\*Escaped asterisk\*</div>
-          <div>\\Escaped backslash\\</div>
-          <div>\`Escaped backtick\`</div>
+        <!-- Escaping -->
+        <div class="cheatsheet-section">
+          <h5 class="text-lg font-medium text-700 mb-2">Escaping Characters</h5>
+          <div class="text-sm font-mono">
+            <div>\*Escaped asterisk\*</div>
+            <div>\\Escaped backslash\\</div>
+            <div>\`Escaped backtick\`</div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Information Section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About Markdown Preview</h4>
-    <p class="mb-2 text-sm">
-      This <strong>Markdown Preview</strong> tool provides real-time rendering of Markdown syntax into HTML. 
-      Write your Markdown content on the left side and instantly see the formatted output on the right.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Features:</strong>
-    </p>
-    <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
-      <li><span class="text-primary">Real-time preview:</span> See instant HTML rendering as you type Markdown</li>
-      <li><span class="text-primary">Full Markdown support:</span> Headers, lists, code blocks, tables, links, and more</li>
-      <li><span class="text-primary">GitHub Flavored Markdown:</span> Support for GFM extensions and features</li>
-      <li><span class="text-primary">Monaco editor:</span> Professional code editor with syntax highlighting</li>
-      <li><span class="text-primary">Copy and paste support:</span> Easy content manipulation with clipboard integration</li>
-      <li><span class="text-primary">Sample content:</span> Load example Markdown to explore features</li>
-      <li><span class="text-primary">Fullscreen mode:</span> Focus on writing with fullscreen editor support</li>
-      <li><span class="text-primary">Privacy focused:</span> All rendering happens locally - no server upload</li>
-    </ul>
-    <p class="mb-2 text-sm">
-      <strong>Use cases:</strong> Documentation writing, README files, blog posts, technical writing, 
-      content creation, and previewing Markdown files before publishing.
-    </p>
-    <p class="text-sm text-500">
-      <i class="pi pi-info-circle mr-1"></i> All Markdown rendering happens in your browser - your content is never sent to any server.
-    </p>
-  </div>
-
-  <!-- Documentation and Writing Applications -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border dt-about">
-    <h4 class="text-xl font-semibold mb-3">Documentation & Writing Applications</h4>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Technical Documentation</h5>
-        <p class="mb-2 text-sm">
-          Essential for developers, technical writers, and documentation teams who need to create 
-          and preview professional documentation in Markdown format.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Documentation Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>README files for GitHub repositories</li>
-          <li>API documentation and guides</li>
-          <li>Software project documentation</li>
-          <li>Technical specifications and manuals</li>
-        </ul>
-      </div>
-
-      <div>
-        <h5 class="text-lg font-medium text-700 mb-2">Content Creation & Blogging</h5>
-        <p class="mb-2 text-sm">
-          Perfect for content creators, bloggers, and writers who use Markdown for 
-          content management systems and static site generators.
-        </p>
-
-        <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
-        <ul class="list-disc pl-5 text-sm space-y-1">
-          <li>Blog posts and articles</li>
-          <li>Static site content (Jekyll, Hugo, Gatsby)</li>
-          <li>Educational materials and tutorials</li>
-          <li>Notes and knowledge management</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="mt-4">
-      <h5 class="text-lg font-medium text-700 mb-2">Markdown Syntax Support</h5>
-      <p class="text-sm mb-2">
-        This <strong>Markdown Preview</strong> supports all standard Markdown syntax plus 
-        GitHub Flavored Markdown extensions for enhanced formatting options.
+    <!-- Information Section -->
+    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
+      <h4 class="text-xl font-semibold mb-2">About Markdown Preview</h4>
+      <p class="mb-2 text-sm">
+        This <strong>Markdown Preview</strong> tool provides real-time rendering of Markdown syntax into HTML.
+        Write your Markdown content on the left side and instantly see the formatted output on the right.
       </p>
+      <p class="mb-2 text-sm">
+        <strong>Features:</strong>
+      </p>
+      <ul class="list-disc pl-5 mb-2 text-sm space-y-2">
+        <li><span class="text-primary">Real-time preview:</span> See instant HTML rendering as you type Markdown</li>
+        <li><span class="text-primary">Full Markdown support:</span> Headers, lists, code blocks, tables, links, and more</li>
+        <li><span class="text-primary">GitHub Flavored Markdown:</span> Support for GFM extensions and features</li>
+        <li><span class="text-primary">Monaco editor:</span> Professional code editor with syntax highlighting</li>
+        <li><span class="text-primary">Copy and paste support:</span> Easy content manipulation with clipboard integration</li>
+        <li><span class="text-primary">Sample content:</span> Load example Markdown to explore features</li>
+        <li><span class="text-primary">Fullscreen mode:</span> Focus on writing with fullscreen editor support</li>
+        <li><span class="text-primary">Privacy focused:</span> All rendering happens locally - no server upload</li>
+      </ul>
+      <p class="mb-2 text-sm">
+        <strong>Use cases:</strong> Documentation writing, README files, blog posts, technical writing,
+        content creation, and previewing Markdown files before publishing.
+      </p>
+      <p class="text-sm text-500">
+        <i class="pi pi-info-circle mr-1"></i> All Markdown rendering happens in your browser - your content is never sent to any server.
+      </p>
+    </div>
 
-      <h6 class="text-base font-medium text-600 mb-1">Supported Features:</h6>
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
-        <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Headers (H1-H6)</span>
-        <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Lists & Tables</span>
-        <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Code blocks</span>
-        <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Links & Images</span>
-        <span class="px-2 py-1 bg-red-50 text-red-700 rounded">Bold & Italic</span>
-        <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Blockquotes</span>
-        <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Strikethrough</span>
-        <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Task lists</span>
-        <span class="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">Line breaks</span>
+    <!-- Documentation and Writing Applications -->
+    <div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border dt-about">
+      <h4 class="text-xl font-semibold mb-3">Documentation & Writing Applications</h4>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <h5 class="text-lg font-medium text-700 mb-2">Technical Documentation</h5>
+          <p class="mb-2 text-sm">
+            Essential for developers, technical writers, and documentation teams who need to create
+            and preview professional documentation in Markdown format.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">Documentation Applications:</h6>
+          <ul class="list-disc pl-5 text-sm space-y-1">
+            <li>README files for GitHub repositories</li>
+            <li>API documentation and guides</li>
+            <li>Software project documentation</li>
+            <li>Technical specifications and manuals</li>
+          </ul>
+        </div>
+
+        <div>
+          <h5 class="text-lg font-medium text-700 mb-2">Content Creation & Blogging</h5>
+          <p class="mb-2 text-sm">
+            Perfect for content creators, bloggers, and writers who use Markdown for
+            content management systems and static site generators.
+          </p>
+
+          <h6 class="text-base font-medium text-600 mb-1">Content Applications:</h6>
+          <ul class="list-disc pl-5 text-sm space-y-1">
+            <li>Blog posts and articles</li>
+            <li>Static site content (Jekyll, Hugo, Gatsby)</li>
+            <li>Educational materials and tutorials</li>
+            <li>Notes and knowledge management</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        <h5 class="text-lg font-medium text-700 mb-2">Markdown Syntax Support</h5>
+        <p class="text-sm mb-2">
+          This <strong>Markdown Preview</strong> supports all standard Markdown syntax plus
+          GitHub Flavored Markdown extensions for enhanced formatting options.
+        </p>
+
+        <h6 class="text-base font-medium text-600 mb-1">Supported Features:</h6>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
+          <span class="px-2 py-1 bg-blue-50 text-blue-700 rounded">Headers (H1-H6)</span>
+          <span class="px-2 py-1 bg-green-50 text-green-700 rounded">Lists & Tables</span>
+          <span class="px-2 py-1 bg-purple-50 text-purple-700 rounded">Code blocks</span>
+          <span class="px-2 py-1 bg-orange-50 text-orange-700 rounded">Links & Images</span>
+          <span class="px-2 py-1 bg-red-50 text-red-700 rounded">Bold & Italic</span>
+          <span class="px-2 py-1 bg-teal-50 text-teal-700 rounded">Blockquotes</span>
+          <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded">Strikethrough</span>
+          <span class="px-2 py-1 bg-pink-50 text-pink-700 rounded">Task lists</span>
+          <span class="px-2 py-1 bg-yellow-50 text-yellow-700 rounded">Line breaks</span>
+        </div>
       </div>
     </div>
   </div>
-</div> 

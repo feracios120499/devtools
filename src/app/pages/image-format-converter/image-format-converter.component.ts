@@ -1,5 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, HostBinding, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone } from '@angular/core';
-import { CommonModule, isPlatformBrowser, DOCUMENT } from '@angular/common';
+import { Component, OnInit, OnDestroy, AfterViewInit, ElementRef, ViewChild, HostBinding, Inject, PLATFORM_ID, ChangeDetectorRef, NgZone, DOCUMENT } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { Router } from '@angular/router';
@@ -21,12 +21,11 @@ interface ConversionSettings {
   selector: 'app-image-format-converter',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     PrimeNgModule,
     PageHeaderComponent,
-    IconsModule 
-  ],
+    IconsModule
+],
   providers: [MessageService],
   templateUrl: './image-format-converter.component.html',
   styleUrl: './image-format-converter.component.scss'

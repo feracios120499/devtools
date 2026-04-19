@@ -1,5 +1,5 @@
 import { Component, OnInit, PLATFORM_ID, Inject, effect, ViewChild, AfterViewInit, OnDestroy, HostBinding, ElementRef, HostListener } from '@angular/core';
-import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MonacoEditorModule } from 'ngx-monaco-editor-v2';
 import { MenuItem, MessageService } from 'primeng/api';
@@ -32,7 +32,6 @@ interface TagCaseOption {
   selector: 'app-xml-formatter',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MonacoEditorModule,
     PrimeNgModule,
@@ -40,7 +39,7 @@ interface TagCaseOption {
     IconsModule,
     MonacoScrollFixDirective,
     AnchorHeadingDirective
-  ],
+],
   providers: [MessageService],
   templateUrl: './xml-formatter.component.html',
   styleUrl: './xml-formatter.component.scss'
@@ -126,7 +125,7 @@ export class XmlFormatterComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Handle ESC key to exit fullscreen mode
   @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
+  handleEscapeKey(event: Event) {
     if (this.isInputFullscreen || this.isOutputFullscreen) {
       // Exit fullscreen mode
       this.isInputFullscreen = false;

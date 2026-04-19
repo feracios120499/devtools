@@ -5,18 +5,18 @@
   <app-page-header>Resize images with custom dimensions and maintain aspect ratio</app-page-header>
   <div class="p-3">
     <p>This <strong>image resize tool</strong> allows you to resize any image with custom width and height dimensions.
-    </p>
-    <p>Simply <strong>drag and drop an image</strong> or click to upload, adjust the dimensions in the settings panel,
-      and get your resized image.
-      <strong>Lock aspect ratio</strong> to maintain image proportions.
-    </p>
-  </div>
+  </p>
+  <p>Simply <strong>drag and drop an image</strong> or click to upload, adjust the dimensions in the settings panel,
+  and get your resized image.
+  <strong>Lock aspect ratio</strong> to maintain image proportions.
+</p>
+</div>
 
 
-  <!-- Resize Settings -->
-  <div *ngIf="isImageLoaded" class="p-2 ">
+<!-- Resize Settings -->
+@if (isImageLoaded) {
+  <div class="p-2 ">
     <h4 class="text-lg font-medium text-700 mb-3">Resize Settings</h4>
-
     <div class="dt-border p-4">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <!-- Width -->
@@ -26,7 +26,6 @@
             [step]="1" suffix="px" (onInput)="onWidthChange()" class="w-full">
           </p-inputNumber>
         </div>
-
         <!-- Height -->
         <div class="flex flex-col p-3">
           <label for="height" class="text-sm font-medium text-700 mb-2">Height (px)</label>
@@ -35,7 +34,6 @@
           </p-inputNumber>
         </div>
       </div>
-
       <!-- Lock aspect ratio -->
       <div class="mt-2 p-3">
         <p-checkbox inputId="lockAspectRatio" [(ngModel)]="resizeSettings.lockAspectRatio" [binary]="true"
@@ -47,23 +45,27 @@
       </div>
     </div>
   </div>
+}
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-    <!-- Left column - Image upload and original canvas -->
-    <div class="col flex flex-col">
-      <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+  <!-- Left column - Image upload and original canvas -->
+  <div class="col flex flex-col">
+    <div class="card p-3 surface-card shadow-sm flex-1 flex flex-col">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xl font-medium text-800 mb-3">Upload Image</h3>
 
-          <div class="flex text-sm gap-2" *ngIf="isImageLoaded && isBrowser">
+        @if (isImageLoaded && isBrowser) {
+          <div class="flex text-sm gap-2">
             <button pButton pRipple type="button" label="Upload Another Image" icon="pi pi-upload" severity="contrast"
               class="p-button-outlined" (click)="openFileDialog()">
             </button>
           </div>
-        </div>
+        }
+      </div>
 
-        <!-- File upload area -->
-        <div *ngIf="!isImageLoaded && isBrowser"
+      <!-- File upload area -->
+      @if (!isImageLoaded && isBrowser) {
+        <div
           class="upload-area border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors"
           [class.border-primary]="isDragOver" [class.border-300]="!isDragOver" [class.bg-primary-50]="isDragOver"
           (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)" (drop)="onDrop($event)"
@@ -73,15 +75,19 @@
           <p class="text-sm text-600 mb-3">or click to select from your device</p>
           <p class="text-xs text-500">Supports: PNG, JPG, JPEG, GIF, WebP</p>
         </div>
+      }
 
-        <!-- Loading message for SSR -->
-        <div *ngIf="!isBrowser" class="loading-placeholder text-center p-6 surface-ground border-round">
+      <!-- Loading message for SSR -->
+      @if (!isBrowser) {
+        <div class="loading-placeholder text-center p-6 surface-ground border-round">
           <i class="pi pi-spin pi-spinner text-2xl text-600 mb-2 block"></i>
           <p class="text-sm text-600 m-0">Loading image resize tool...</p>
         </div>
+      }
 
-        <!-- Original Canvas area -->
-        <div *ngIf="isBrowser" class="canvas-container relative">
+      <!-- Original Canvas area -->
+      @if (isBrowser) {
+        <div class="canvas-container relative">
           <div class="canvas-wrapper dt-border p-3" [style.display]="isImageLoaded ? 'block' : 'none'">
             <h4 class="text-lg font-medium text-700 mb-2">Original Image</h4>
             <canvas #originalCanvas class="border rounded"></canvas>
@@ -90,20 +96,24 @@
             </div>
           </div>
         </div>
+      }
 
 
-        <!-- Hidden file input -->
-        <input *ngIf="isBrowser" #fileInput type="file" accept="image/*" class="hidden"
+      <!-- Hidden file input -->
+      @if (isBrowser) {
+        <input #fileInput type="file" accept="image/*" class="hidden"
           (change)="onFileSelected($event)">
-      </div>
+      }
     </div>
+  </div>
 
-    <!-- Right column - Resized image and controls -->
-    <div class="col flex flex-col">
-      <div class="card p-3 surface-card shadow-sm flex-1">
-        <div class="flex justify-between items-center mb-2">
-          <h3 class="text-xl font-medium text-800 mb-3">Resized Image</h3>
-          <div class="flex text-sm gap-2" *ngIf="isImageLoaded && isBrowser">
+  <!-- Right column - Resized image and controls -->
+  <div class="col flex flex-col">
+    <div class="card p-3 surface-card shadow-sm flex-1">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xl font-medium text-800 mb-3">Resized Image</h3>
+        @if (isImageLoaded && isBrowser) {
+          <div class="flex text-sm gap-2">
             <button pButton pRipple type="button" label="Rotate 90°" icon="pi pi-refresh" severity="contrast"
               class="p-button-outlined" (click)="rotateImage()">
             </button>
@@ -114,69 +124,76 @@
               class="p-button-outlined" (click)="copyImage()">
             </button>
           </div>
-        </div>
+        }
+      </div>
 
 
-        <!-- Resized Canvas -->
-        <div *ngIf="isImageLoaded && isBrowser" class="canvas-container mb-4">
+      <!-- Resized Canvas -->
+      @if (isImageLoaded && isBrowser) {
+        <div class="canvas-container mb-4">
           <div class="canvas-wrapper dt-border p-3">
             <h4 class="text-lg font-medium text-700 mb-2">Preview</h4>
             <canvas #resizedCanvas class="border rounded"></canvas>
             <div class="mt-2 text-sm text-600">
               New size: {{resizeSettings.width}} × {{resizeSettings.height}}px
-              <span *ngIf="rotationAngle > 0" class="ml-2">(rotated {{rotationAngle}}°)</span>
+              @if (rotationAngle > 0) {
+                <span class="ml-2">(rotated {{rotationAngle}}°)</span>
+              }
             </div>
           </div>
         </div>
+      }
 
-        <!-- Default instructions for SSR or when no image -->
-        <div *ngIf="!isBrowser || !isImageLoaded"
+      <!-- Default instructions for SSR or when no image -->
+      @if (!isBrowser || !isImageLoaded) {
+        <div
           class="text-center p-4 surface-ground dt-border resize-info-container-upload">
           <div>
             <i class="pi pi-image text-4xl text-600 mb-3 block"></i>
           </div>
           <p class="text-lg font-medium text-700 mb-2">Upload an image to start resizing</p>
           <p class="text-sm text-600">Adjust width and height, maintain aspect ratio, rotate and download your resized
-            image</p>
+          image</p>
         </div>
-      </div>
+      }
     </div>
   </div>
+</div>
 
-  <!-- Information section -->
-  <div class="mt-4 p-3 border-round-lg surface-card shadow-sm border-1 surface-border info-section dt-about">
-    <h4 class="text-xl font-semibold mb-2">About Image Resize</h4>
-    <p class="mb-2 text-sm">
-      Image Resize is a powerful tool that allows you to resize any image with custom width and height dimensions.
-      Simply upload an image and adjust the size settings to get your perfectly resized image with options to maintain
-      aspect ratio.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>How it works:</strong>
-      Upload an image via drag and drop or file selection. Set your desired width and height in the settings panel.
-      Use the "Lock aspect ratio" option to maintain image proportions. Preview your resized image in real-time and
-      download or copy when ready.
-    </p>
-    <p class="mb-2 text-sm">
-      <strong>Key features:</strong>
-    </p>
-    <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
-      <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
-      <li><span class="text-primary">Custom Dimensions:</span> Set exact width and height in pixels</li>
-      <li><span class="text-primary">Aspect Ratio Lock:</span> Maintain image proportions automatically</li>
-      <li><span class="text-primary">Image Rotation:</span> Rotate images in 90° increments</li>
-      <li><span class="text-primary">Real-time Preview:</span> See your resized image instantly</li>
-      <li><span class="text-primary">Download & Copy:</span> Download resized image or copy to clipboard</li>
-      <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
-      </li>
-    </ul>
-    <p class="text-sm">
-      Perfect for web developers, graphic designers, content creators, and anyone who needs to resize images for their
-      projects.
-      Learn more about image processing at
-      <a href="https://en.wikipedia.org/wiki/Image_scaling" target="_blank" rel="noopener noreferrer"
-        class="text-blue-600 underline hover:text-blue-800">Wikipedia Image Scaling</a>.
-    </p>
-  </div>
+<!-- Information section -->
+<div class="mt-4 p-3 border-round-lg surface-card shadow-sm surface-border info-section dt-about">
+  <h4 class="text-xl font-semibold mb-2">About Image Resize</h4>
+  <p class="mb-2 text-sm">
+    Image Resize is a powerful tool that allows you to resize any image with custom width and height dimensions.
+    Simply upload an image and adjust the size settings to get your perfectly resized image with options to maintain
+    aspect ratio.
+  </p>
+  <p class="mb-2 text-sm">
+    <strong>How it works:</strong>
+    Upload an image via drag and drop or file selection. Set your desired width and height in the settings panel.
+    Use the "Lock aspect ratio" option to maintain image proportions. Preview your resized image in real-time and
+    download or copy when ready.
+  </p>
+  <p class="mb-2 text-sm">
+    <strong>Key features:</strong>
+  </p>
+  <ul class="mb-2 text-sm ml-4 list-disc flex flex-col gap-2">
+    <li><span class="text-primary">Drag & Drop:</span> Easy image upload via drag and drop or file browser</li>
+    <li><span class="text-primary">Custom Dimensions:</span> Set exact width and height in pixels</li>
+    <li><span class="text-primary">Aspect Ratio Lock:</span> Maintain image proportions automatically</li>
+    <li><span class="text-primary">Image Rotation:</span> Rotate images in 90° increments</li>
+    <li><span class="text-primary">Real-time Preview:</span> See your resized image instantly</li>
+    <li><span class="text-primary">Download & Copy:</span> Download resized image or copy to clipboard</li>
+    <li><span class="text-primary">Responsive Design:</span> Works perfectly on desktop, tablet, and mobile devices
+  </li>
+</ul>
+<p class="text-sm">
+  Perfect for web developers, graphic designers, content creators, and anyone who needs to resize images for their
+  projects.
+  Learn more about image processing at
+  <a href="https://en.wikipedia.org/wiki/Image_scaling" target="_blank" rel="noopener noreferrer"
+  class="text-blue-600 underline hover:text-blue-800">Wikipedia Image Scaling</a>.
+</p>
+</div>
 
 </div>
