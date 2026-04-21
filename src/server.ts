@@ -428,11 +428,15 @@ app.get('/llms.txt', (req, res) => {
 });
 
 
-// Обработчик для Angular SSR
-app.use('/**', async (req, res, next) => {
+// Обработчик для Angular SSR.
+// ВАЖНО: здесь используется `app.use(handler)` БЕЗ path-паттерна. Если указать путь
+// (например `'/**'` или `'*'`), Express делает prefix-stripping — режет матч из `req.url`
+// перед вызовом handler, и `AngularNodeAppEngine` получает обрезанный URL (например, `/`
+// вместо `/json-formatter`), не находит пререндер и возвращает пустой CSR-шелл.
+app.use(async (req, res, next) => {
   // Статические ресурсы должны быть уже обработаны предыдущими маршрутами
-  console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.url}`);
-  console.log(`[${new Date().toISOString()}] req.url: ${req.url}`);
+  console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.originalUrl}`);
+  console.log(`[${new Date().toISOString()}] req.url: ${req.url}, req.originalUrl: ${req.originalUrl}`);
   
   // Список известных маршрутов приложения
   const knownRoutes = [
@@ -465,20 +469,23 @@ app.use('/**', async (req, res, next) => {
     '/404'
   ];
   
-  // Проверяем, является ли маршрут известным
-  const isKnownRoute = knownRoutes.includes(req.url);
-  const isNotFoundRoute = req.url === '/404';
+  // Проверяем, является ли маршрут известным.
+  // Используем originalUrl + отрезаем query string, чтобы логика не зависела от
+  // того, переписывал ли кто-то `req.url` выше по цепочке.
+  const pathOnly = (req.originalUrl || req.url).split('?')[0];
+  const isKnownRoute = knownRoutes.includes(pathOnly);
+  const isNotFoundRoute = pathOnly === '/404';
   
   // Если это неизвестный маршрут, то это должна быть 404 страница
   const shouldBe404 = !isKnownRoute || isNotFoundRoute;
   
-  console.log(`[${new Date().toISOString()}] Route analysis: isKnown=${isKnownRoute}, is404=${isNotFoundRoute}, shouldBe404=${shouldBe404}`);
+  console.log(`[${new Date().toISOString()}] Route analysis: path=${pathOnly}, isKnown=${isKnownRoute}, is404=${isNotFoundRoute}, shouldBe404=${shouldBe404}`);
   
   try {
     const response = await angularApp.handle(req);
     
     if (response) {
-      console.log(`[${new Date().toISOString()}] Rendering SSR response for ${req.url}`);
+      console.log(`[${new Date().toISOString()}] Rendering SSR response for ${pathOnly} — status=${response.status}, content-type=${response.headers.get('content-type')}`);
       
       // Проверяем содержимое ответа на наличие 404 признаков
       let responseBody = '';
@@ -522,12 +529,12 @@ app.use('/**', async (req, res, next) => {
       let finalStatus = response.status;
       if (isNotFoundPage) {
         finalStatus = 404;
-        console.log(`[${new Date().toISOString()}] Setting 404 status for route: ${req.url} (reason: ${!isKnownRoute ? 'unknown route' : 'not found content detected'})`);
+        console.log(`[${new Date().toISOString()}] Setting 404 status for route: ${pathOnly} (reason: ${!isKnownRoute ? 'unknown route' : 'not found content detected'})`);
       }
       
       // Проверяем, если статус 304 (Not Modified), возвращаем оригинальный ответ
       if (response.status === 304) {
-        console.log(`[${new Date().toISOString()}] Returning 304 Not Modified response as-is for ${req.url}`);
+        console.log(`[${new Date().toISOString()}] Returning 304 Not Modified response as-is for ${pathOnly}`);
         return writeResponseToNodeResponse(response, res);
       }
       
@@ -540,7 +547,7 @@ app.use('/**', async (req, res, next) => {
       
       return writeResponseToNodeResponse(newResponse, res);
     } else {
-      console.log(`[${new Date().toISOString()}] No SSR response for ${req.url}, falling back to index.html`);
+      console.log(`[${new Date().toISOString()}] No SSR response for ${pathOnly}, falling back to index.html`);
       
       // Если SSR не отработал, возвращаем 404
       if (!res.headersSent) {
