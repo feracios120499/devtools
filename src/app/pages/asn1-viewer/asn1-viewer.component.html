@@ -33,10 +33,13 @@
               (click)="pasteFromClipboard()" severity="contrast">
               <i class="pi pi-clipboard mr-1"></i>
             </button>
-            <p-fileUpload #fileInput mode="basic" chooseLabel="Upload file" [auto]="true"
+            <button pButton type="button" [outlined]="true" label="Upload file"
+              (click)="fileInput.click()" severity="contrast">
+              <i class="pi pi-upload mr-1"></i>
+            </button>
+            <input #fileInput type="file" class="hidden"
               accept=".pem,.crt,.cer,.der,.csr,.p7b,.p7c,.p8,.key,.txt,.asc"
-              (uploadHandler)="onFileUpload($event)" [customUpload]="true"
-              chooseIcon="pi pi-upload"></p-fileUpload>
+              (change)="onFileInputChange($event)" />
             <button pButton type="button" [outlined]="true" label="Clear" (click)="clearInput()"
               severity="danger" >
               <i class="pi pi-times mr-1"></i>

@@ -1,5 +1,6 @@
 import {
   Component,
+  ElementRef,
   HostBinding,
   Inject,
   OnDestroy,
@@ -18,7 +19,6 @@ import { TreeModule } from 'primeng/tree';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { FileUploadModule } from 'primeng/fileupload';
 import { TagModule } from 'primeng/tag';
 
 import { PageHeaderComponent } from '../../components/page-header/page-header.component';
@@ -180,7 +180,6 @@ oSScRdRsY0rM17ZsB17z
     TreeModule,
     InputTextModule,
     TextareaModule,
-    FileUploadModule,
     AutoCompleteModule,
     TagModule,
     PageHeaderComponent,
@@ -213,7 +212,7 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
   private asn1js: any = null;
   private pkijs: any = null;
 
-  @ViewChild('fileInput') fileInputRef: any;
+  @ViewChild('fileInput') fileInputRef?: ElementRef<HTMLInputElement>;
 
   constructor(
     @Inject(PLATFORM_ID) private platformId: Object,
@@ -283,7 +282,14 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
     }
   }
 
-  onFileUpload(event: any): void {
+  onFileInputChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file) return;
+    this.onFileUpload({ files: [file] });
+  }
+
+  onFileUpload(event: { files: File[] }): void {
     const file: File | undefined = event?.files?.[0];
     if (!file) return;
     this.lastFileName = file.name;
@@ -323,7 +329,8 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
 
   private clearFileInput(): void {
     try {
-      this.fileInputRef?.clear?.();
+      const el = this.fileInputRef?.nativeElement;
+      if (el) el.value = '';
     } catch {
       // ignore
     }
