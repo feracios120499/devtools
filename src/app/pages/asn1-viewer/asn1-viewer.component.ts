@@ -1,4 +1,5 @@
 import {
+  ChangeDetectorRef,
   Component,
   ElementRef,
   HostBinding,
@@ -219,6 +220,7 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
     private messageService: MessageService,
     private pageTitleService: PageTitleService,
     private seoService: SeoService,
+    private cdr: ChangeDetectorRef,
   ) {
     this.isBrowser = isPlatformBrowser(this.platformId);
   }
@@ -279,6 +281,9 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
         detail: 'Failed to read from clipboard',
         life: 3000,
       });
+    } finally {
+      // Zoneless app: explicit markForCheck after async work.
+      this.cdr.markForCheck();
     }
   }
 
@@ -308,6 +313,10 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
         this.parseBinaryBuffers([{ label: '', buffer: result }]);
       }
       this.clearFileInput();
+      // App runs in zoneless mode — FileReader callbacks are outside Angular's
+      // auto change detection, so the textarea ngModel won't refresh unless we
+      // explicitly mark the view.
+      this.cdr.markForCheck();
     };
     reader.onerror = () => {
       this.messageService.add({
@@ -317,6 +326,7 @@ export class Asn1ViewerComponent implements OnInit, OnDestroy {
         life: 3000,
       });
       this.clearFileInput();
+      this.cdr.markForCheck();
     };
 
     // Detect by extension: PEM-like are text, everything else treat as binary.
