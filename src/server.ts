@@ -105,6 +105,45 @@ function cleanupCache(): void {
 const app = express();
 const angularApp = new AngularNodeAppEngine();
 
+// Folders inside browser dist that are NOT application routes — they hold static
+// assets shipped alongside the prerendered HTML. Anything else that ships with
+// an `index.html` inside is treated as a known route.
+const PRERENDER_IGNORE_DIRS = new Set<string>([
+  'assets',
+  'media',
+  'icons',
+  'vs',
+  'monaco',
+  '.well-known',
+]);
+
+// Discover the list of known application routes by scanning the browser dist
+// folder for prerendered `index.html` files. This keeps the server in sync with
+// `ng build` output automatically — adding a new route no longer requires
+// touching `server.ts`.
+function discoverKnownRoutes(rootDir: string): Set<string> {
+  const routes = new Set<string>(['/', '/404']);
+  if (!fs.existsSync(rootDir)) {
+    return routes;
+  }
+
+  for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    if (entry.name.startsWith('.')) continue;
+    if (PRERENDER_IGNORE_DIRS.has(entry.name)) continue;
+    if (fs.existsSync(join(rootDir, entry.name, 'index.html'))) {
+      routes.add('/' + entry.name);
+    }
+  }
+  return routes;
+}
+
+const knownRoutes = discoverKnownRoutes(finalBrowserDistFolder);
+console.log(
+  `[${new Date().toISOString()}] Discovered ${knownRoutes.size} known routes:`,
+  [...knownRoutes].sort()
+);
+
 // Security headers middleware - должен быть первым
 app.use((req, res, next) => {
   // HTTP Strict Transport Security (HSTS)
@@ -438,42 +477,13 @@ app.use(async (req, res, next) => {
   console.log(`[${new Date().toISOString()}] SSR processing for route: ${req.originalUrl}`);
   console.log(`[${new Date().toISOString()}] req.url: ${req.url}, req.originalUrl: ${req.originalUrl}`);
   
-  // Список известных маршрутов приложения
-  const knownRoutes = [
-    '/',
-    '/json-formatter',
-    '/json-to-xml',
-    '/json-to-env',
-    '/json-query',
-    '/csv-viewer',
-    '/url-encoder',
-    '/url-to-qr',
-    '/base64',
-    '/base64-to-file',
-    '/base64-to-hex',
-    '/hex',
-    '/hex-to-file',
-    '/hex-to-base64',
-    '/color-converter',
-    '/image-color-picker',
-    '/image-resize',
-    '/image-compressor',
-    '/image-format-converter',
-    '/jwt-decode',
-    '/sql-formatter',
-    '/svg-to-react-component',
-    '/text-diff-checker',
-    '/word-counter',
-    '/lorem-ipsum-generator',
-    '/markdown-preview',
-    '/404'
-  ];
-  
-  // Проверяем, является ли маршрут известным.
+  // Проверяем, является ли маршрут известным. Список `knownRoutes` построен
+  // один раз при старте по содержимому `dist/.../browser` (см. выше), поэтому
+  // автоматически покрывает все пререндеренные страницы.
   // Используем originalUrl + отрезаем query string, чтобы логика не зависела от
   // того, переписывал ли кто-то `req.url` выше по цепочке.
   const pathOnly = (req.originalUrl || req.url).split('?')[0];
-  const isKnownRoute = knownRoutes.includes(pathOnly);
+  const isKnownRoute = knownRoutes.has(pathOnly);
   const isNotFoundRoute = pathOnly === '/404';
   
   // Если это неизвестный маршрут, то это должна быть 404 страница
